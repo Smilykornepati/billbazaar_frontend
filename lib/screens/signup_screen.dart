@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../constants/colors.dart';
+import '../config/api_config.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -46,30 +49,67 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
 
       try {
-         // Simulate sign up
-        await Future.delayed(const Duration(seconds: 1));
+        // API endpoint for signup
+        const String apiUrl = ApiConfig.signupEndpoint;
+        
+        // Prepare request body
+        final Map<String, dynamic> requestBody = {
+          'name': _nameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'password': _passwordController.text,
+        };
+
+        // Make API call
+        final response = await http.post(
+          Uri.parse(apiUrl),
+          headers: ApiConfig.headers,
+          body: json.encode(requestBody),
+        );
 
         if (mounted) {
           setState(() {
             _isLoading = false;
           });
 
-          // Navigate to OTP screen for verification
-          Navigator.pushNamed(
-            context,
-            '/otp',
-            arguments: {
-              'email': _emailController.text,
-              'name': _nameController.text,
-              'password': _passwordController.text,
-            },
-          );
+          if (response.statusCode == 200 || response.statusCode == 201) {
+            final responseData = json.decode(response.body);
+            
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Account created successfully! Please verify your email.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            // Navigate to OTP screen for verification
+            Navigator.pushNamed(
+              context,
+              '/otp',
+              arguments: {
+                'email': _emailController.text,
+                'name': _nameController.text,
+                'password': _passwordController.text,
+              },
+            );
+          } else {
+            // Handle error response
+            final errorData = json.decode(response.body);
+            final errorMessage = errorData['message'] ?? 'Signup failed. Please try again.';
+            
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error: ${e.toString()}'),
+              content: Text('Network error: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );

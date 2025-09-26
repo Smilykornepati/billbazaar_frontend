@@ -1,6 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../constants/colors.dart';
+import '../config/api_config.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -34,37 +37,64 @@ class _SignInScreenState extends State<SignInScreen> {
     });
 
     try {
-      // Simulate sign in
-      await Future.delayed(const Duration(seconds: 2));
-      final success = true;
+      // API endpoint for signin
+      const String apiUrl = ApiConfig.signinEndpoint;
+      
+      // Prepare request body
+      final Map<String, dynamic> requestBody = {
+        'email': _emailController.text.trim(),
+        'password': _passwordController.text,
+      };
 
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sign in successful!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pushReplacementNamed(context, '/home');
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid email or password'),
-            backgroundColor: Colors.red,
-          ),
-        );
+      // Make API call
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: ApiConfig.headers,
+        body: json.encode(requestBody),
+      );
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (response.statusCode == 200) {
+          final responseData = json.decode(response.body);
+          
+          // Store authentication token if provided
+          // final token = responseData['token'];
+          // await SharedPreferences.getInstance().then((prefs) {
+          //   prefs.setString('auth_token', token);
+          // });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sign in successful!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          // Handle error response
+          final errorData = json.decode(response.body);
+          final errorMessage = errorData['message'] ?? 'Invalid email or password';
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('Network error: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
-      }
-    } finally {
-      if (mounted) {
         setState(() {
           _isLoading = false;
         });
