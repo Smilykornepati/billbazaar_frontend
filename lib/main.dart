@@ -4,6 +4,8 @@ import 'screens/home_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/otp_screen.dart';
+import 'screens/forgot_password_screen.dart';
+import 'screens/reset_password_screen.dart';
 
 void main() {
   runApp(const BillBazarApp());
@@ -71,8 +73,7 @@ class BillBazarApp extends StatelessWidget {
         '/signin': (context) => const SignInScreen(),
         '/signup': (context) => const SignUpScreen(),
         '/home': (context) => const HomeScreen(),
-        // Add more routes as needed
-        // '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {
@@ -82,6 +83,14 @@ class BillBazarApp extends StatelessWidget {
               email: args['email']!,
               name: args['name']!,
               password: args['password']!,
+            ),
+          );
+        }
+        if (settings.name == '/reset-password') {
+          final args = settings.arguments as Map<String, String>;
+          return MaterialPageRoute(
+            builder: (context) => ResetPasswordScreen(
+              email: args['email']!,
             ),
           );
         }

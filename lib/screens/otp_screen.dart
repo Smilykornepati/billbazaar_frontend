@@ -166,32 +166,60 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
     });
 
     try {
-      // Simulate OTP resend
-      await Future.delayed(const Duration(seconds: 2));
+      // API endpoint for resend OTP
+      const String apiUrl = ApiConfig.resendOtpEndpoint;
       
+      // Prepare request body
+      final Map<String, dynamic> requestBody = {
+        'email': widget.email,
+      };
+
+      // Make API call
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: ApiConfig.headers,
+        body: json.encode(requestBody),
+      );
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Verification code sent successfully!'),
-            backgroundColor: Colors.green.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
+        setState(() {
+          _isResending = false;
+        });
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Verification code sent successfully!'),
+              backgroundColor: Colors.green.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+        } else {
+          // Handle error response
+          final errorData = json.decode(response.body);
+          final errorMessage = errorData['message'] ?? 'Failed to resend verification code';
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to resend code: ${e.toString()}'),
+            content: Text('Network error: ${e.toString()}'),
             backgroundColor: Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
-      }
-    } finally {
-      if (mounted) {
         setState(() {
           _isResending = false;
         });
