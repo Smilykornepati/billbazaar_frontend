@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'screens/signin_screen.dart';
-import 'screens/home_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/otp_screen.dart';
+import 'navigation/main_navigation.dart';
 
 void main() {
   runApp(const BillBazarApp());
@@ -35,21 +35,14 @@ class BillBazarApp extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: Color(0xFF1B365D),
           ),
-          bodyLarge: TextStyle(
-            color: Color(0xFF1B365D),
-          ),
+          bodyLarge: TextStyle(color: Color(0xFF1B365D)),
         ),
         // Input decoration theme
         inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(
-              color: Color(0xFF1B365D),
-              width: 2,
-            ),
+            borderSide: const BorderSide(color: Color(0xFF1B365D), width: 2),
           ),
         ),
         // Elevated button theme
@@ -70,7 +63,7 @@ class BillBazarApp extends StatelessWidget {
         '/splash': (context) => const SplashScreen(),
         '/signin': (context) => const SignInScreen(),
         '/signup': (context) => const SignUpScreen(),
-        '/home': (context) => const HomeScreen(),
+        '/main': (context) => const MainNavigationScreen(),
         // Add more routes as needed
         // '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
