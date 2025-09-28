@@ -16,8 +16,73 @@ class InventoryScreen extends StatefulWidget {
 }
 
 class _InventoryScreenState extends State<InventoryScreen> {
-  int _selectedTabIndex = 0;
-  final List<String> _tabs = ['Overview', 'Sales', 'Inventory', 'Customer'];
+  bool _isProductsSelected = true; // Toggle for Products/Categories
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedCategory = 'All Products';
+  String _selectedStatus = 'All Products';
+  String _selectedSort = 'All Products';
+
+  // Sample product data
+  final List<Map<String, dynamic>> _products = [
+    {
+      'name': 'Maggie Noodles',
+      'image': 'assets/images/maggie.png', // Placeholder for image
+      'price': '₹20',
+      'stock': '5/10',
+      'gst': '5%',
+      'value': '₹100',
+      'expiry': '31/12/2024',
+      'isExpired': true,
+      'category': 'Snacks',
+      'status': 'Low Stock',
+      'tags': ['Snacks', 'Low Stock', 'Expired'],
+    },
+    {
+      'name': 'Coca Cola 300ml',
+      'image': 'assets/images/coca_cola.png', // Placeholder for image
+      'price': '₹40',
+      'stock': '25/15',
+      'gst': '12%',
+      'value': '₹1000',
+      'expiry': '31/12/2024',
+      'isExpired': true,
+      'category': 'Beverages',
+      'status': 'In Stock',
+      'tags': ['Beverages', 'In Stock', 'Expired'],
+    },
+    {
+      'name': 'Parle-G Biscuits',
+      'image': 'assets/images/parle_g.png', // Placeholder for image
+      'price': '₹10',
+      'stock': '15/20',
+      'gst': '5%',
+      'value': '₹150',
+      'expiry': '15/01/2025',
+      'isExpired': false,
+      'category': 'Snacks',
+      'status': 'In Stock',
+      'tags': ['Snacks', 'In Stock', 'Fresh'],
+    },
+    {
+      'name': 'Lays Chips',
+      'image': 'assets/images/lays.png', // Placeholder for image
+      'price': '₹30',
+      'stock': '8/12',
+      'gst': '12%',
+      'value': '₹240',
+      'expiry': '20/01/2025',
+      'isExpired': false,
+      'category': 'Snacks',
+      'status': 'Low Stock',
+      'tags': ['Snacks', 'Low Stock', 'Fresh'],
+    },
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +91,16 @@ class _InventoryScreenState extends State<InventoryScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with back button, title, and export buttons
+            // Header with title and export buttons
             _buildHeader(),
-            // Date filter and tabs
-            _buildFilterAndTabs(),
-            // Main content area
-            Expanded(child: _buildMainContent()),
+            // Summary cards
+            _buildSummaryCards(),
+            // Toggle and search section
+            _buildToggleAndSearch(),
+            // Dropdowns and add button
+            _buildDropdownsAndAddButton(),
+            // Main content area - scrollable
+            Expanded(child: SingleChildScrollView(child: _buildProductList())),
           ],
         ),
       ),
@@ -42,7 +111,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Header with back button, title, and export buttons
+  // Header with title and export buttons - exact match to design
   Widget _buildHeader() {
     return Container(
       height: 60.0,
@@ -60,11 +129,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Row(
           children: [
-            // Removed back button for main navigation screens
             // Title
             const Expanded(
               child: Text(
-                'Reports',
+                'Inventory',
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -82,7 +150,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Export button widget
+  // Export button widget - exact match to design
   Widget _buildExportButton(String text, IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -111,127 +179,308 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Date filter and tabs section
-  Widget _buildFilterAndTabs() {
+  // Summary cards - exact match to design
+  Widget _buildSummaryCards() {
     return Container(
-      color: Colors.white,
+      padding: const EdgeInsets.all(20.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildSummaryCard(
+              icon: Icons.inventory_2_outlined,
+              iconColor: Colors.blue,
+              title: 'Total Products',
+              value: '6',
+            ),
+          ),
+          const SizedBox(width: 16.0),
+          Expanded(
+            child: _buildSummaryCard(
+              icon: Icons.category_outlined,
+              iconColor: Colors.green,
+              title: 'Total Categories',
+              value: '6',
+            ),
+          ),
+          const SizedBox(width: 16.0),
+          Expanded(
+            child: _buildSummaryCard(
+              icon: Icons.bar_chart,
+              iconColor: Colors.purple,
+              title: 'Total Value',
+              value: '₹2,285',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Individual summary card - exact match to design
+  Widget _buildSummaryCard({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10.0,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          // Date filter
-          Container(
-            margin: const EdgeInsets.all(20.0),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 12.0,
+          Icon(icon, color: iconColor, size: 24.0),
+          const SizedBox(height: 8.0),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 12.0, color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4.0),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF26344F),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Toggle and search section - exact match to design
+  Widget _buildToggleAndSearch() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        children: [
+          // Toggle switch
+          Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF7FAFC),
-              borderRadius: BorderRadius.circular(12.0),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(25.0),
+              border: Border.all(color: Colors.grey[300]!),
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.calendar_today,
-                  color: Color(0xFF26344F),
-                  size: 20.0,
-                ),
-                const SizedBox(width: 12.0),
-                const Expanded(
-                  child: Text(
-                    'Today',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF26344F),
-                    ),
-                  ),
-                ),
-                const Icon(
-                  Icons.keyboard_arrow_down,
-                  color: Color(0xFF26344F),
-                  size: 20.0,
-                ),
-              ],
-            ),
-          ),
-          // Tabs
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Row(
-              children: _tabs.asMap().entries.map((entry) {
-                int index = entry.key;
-                String tab = entry.value;
-                bool isSelected = _selectedTabIndex == index;
-
-                return Expanded(
+                Expanded(
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        _selectedTabIndex = index;
+                        _isProductsSelected = true;
                       });
                     },
                     child: Container(
-                      margin: const EdgeInsets.only(right: 8.0),
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
                       decoration: BoxDecoration(
-                        color: isSelected
+                        color: _isProductsSelected
                             ? const Color(0xFF26344F)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(20.0),
+                        borderRadius: BorderRadius.circular(25.0),
                       ),
                       child: Text(
-                        tab,
+                        'Products',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.w500,
-                          color: isSelected
+                          color: _isProductsSelected
                               ? Colors.white
                               : const Color(0xFF26344F),
                         ),
                       ),
                     ),
                   ),
-                );
-              }).toList(),
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isProductsSelected = false;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      decoration: BoxDecoration(
+                        color: !_isProductsSelected
+                            ? const Color(0xFF26344F)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(25.0),
+                      ),
+                      child: Text(
+                        'Categories',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w500,
+                          color: !_isProductsSelected
+                              ? Colors.white
+                              : const Color(0xFF26344F),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 20.0),
+          const SizedBox(height: 16.0),
+          // Search bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12.0),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                hintText: 'Search Products',
+                hintStyle: TextStyle(color: Colors.grey),
+                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                border: InputBorder.none,
+              ),
+              onChanged: (value) {
+                setState(() {}); // Trigger rebuild for search
+              },
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // Main content area
-  Widget _buildMainContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Today's Sales Card
-          _buildTodaysSalesCard(),
-          const SizedBox(height: 20.0),
-          // Metrics Cards
-          _buildMetricsCards(),
-          const SizedBox(height: 20.0),
-          // Top Selling Products
-          _buildTopSellingProducts(),
-          const SizedBox(height: 20.0),
-          // Low Stock Alert
-          _buildLowStockAlert(),
-        ],
-      ),
-    );
-  }
-
-  // Today's Sales Card
-  Widget _buildTodaysSalesCard() {
+  // Dropdowns and add button - exact match to design
+  Widget _buildDropdownsAndAddButton() {
     return Container(
       padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          // Dropdowns row
+          Row(
+            children: [
+              Expanded(
+                child: _buildDropdown('All Products', _selectedCategory, (
+                  value,
+                ) {
+                  setState(() {
+                    _selectedCategory = value!;
+                  });
+                }),
+              ),
+              const SizedBox(width: 12.0),
+              Expanded(
+                child: _buildDropdown('All Products', _selectedStatus, (value) {
+                  setState(() {
+                    _selectedStatus = value!;
+                  });
+                }),
+              ),
+              const SizedBox(width: 12.0),
+              Expanded(
+                child: _buildDropdown('All Products', _selectedSort, (value) {
+                  setState(() {
+                    _selectedSort = value!;
+                  });
+                }),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16.0),
+          // Add Product button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Implement add product functionality
+              },
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text(
+                'Add Product',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF6B35), // Orange color
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                elevation: 2,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Dropdown widget - exact match to design
+  Widget _buildDropdown(
+    String hint,
+    String value,
+    ValueChanged<String?> onChanged,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          style: const TextStyle(fontSize: 14.0, color: Color(0xFF26344F)),
+          items: ['All Products', 'Snacks', 'Beverages', 'Dairy', 'Frozen'].map(
+            (String value) {
+              return DropdownMenuItem<String>(value: value, child: Text(value));
+            },
+          ).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
+  // Product list - exact match to design
+  Widget _buildProductList() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        children: _products.map((product) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16.0),
+            child: _buildProductCard(product),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  // Product card - exact match to design
+  Widget _buildProductCard(Map<String, dynamic> product) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -243,313 +492,144 @@ class _InventoryScreenState extends State<InventoryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header with image, name, and action buttons
           Row(
             children: [
-              const Icon(Icons.currency_rupee, color: Colors.green, size: 24.0),
-              const SizedBox(width: 8.0),
-              const Text(
-                "Today's Sales",
-                style: TextStyle(fontSize: 16.0, color: Colors.grey),
+              // Product image placeholder
+              Container(
+                width: 60.0,
+                height: 60.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: const Icon(Icons.image, color: Colors.grey, size: 30.0),
               ),
-            ],
-          ),
-          const SizedBox(height: 12.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                '₹15,250',
-                style: TextStyle(
-                  fontSize: 32.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
+              const SizedBox(width: 12.0),
+              // Product name and tags
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product['name'],
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF26344F),
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    // Tags
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 4.0,
+                      children: product['tags'].map<Widget>((tag) {
+                        Color tagColor;
+                        if (tag == 'Snacks' || tag == 'Beverages') {
+                          tagColor = Colors.blue[100]!;
+                        } else if (tag == 'Low Stock') {
+                          tagColor = Colors.orange[100]!;
+                        } else if (tag == 'In Stock') {
+                          tagColor = Colors.green[100]!;
+                        } else if (tag == 'Expired') {
+                          tagColor = Colors.red[100]!;
+                        } else {
+                          tagColor = Colors.green[100]!;
+                        }
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: tagColor,
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: Text(
+                            tag,
+                            style: TextStyle(
+                              fontSize: 10.0,
+                              color: tag == 'Expired'
+                                  ? Colors.red
+                                  : Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ),
               ),
+              // Action buttons
               Row(
                 children: [
-                  const Icon(
-                    Icons.trending_up,
-                    color: Colors.green,
-                    size: 20.0,
+                  IconButton(
+                    onPressed: () {
+                      // TODO: Implement edit functionality
+                    },
+                    icon: const Icon(Icons.edit, color: Colors.grey),
                   ),
-                  const SizedBox(width: 4.0),
-                  const Text(
-                    '12.5%',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.green,
-                    ),
+                  IconButton(
+                    onPressed: () {
+                      // TODO: Implement delete functionality
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 8.0),
-          const Text(
-            'from your previous sale',
-            style: TextStyle(fontSize: 12.0, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Metrics Cards
-  Widget _buildMetricsCards() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildMetricCard(
-            icon: Icons.description,
-            iconColor: Colors.blue,
-            title: 'Total Orders',
-            value: '48',
-            trend: '-5.2%',
-            trendColor: Colors.red,
-            trendIcon: Icons.trending_down,
-          ),
-        ),
-        const SizedBox(width: 16.0),
-        Expanded(
-          child: _buildMetricCard(
-            icon: Icons.bar_chart,
-            iconColor: Colors.purple,
-            title: 'Avg Order Value',
-            value: '₹318',
-            trend: '+8.7%',
-            trendColor: Colors.green,
-            trendIcon: Icons.trending_up,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Individual metric card
-  Widget _buildMetricCard({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String value,
-    required String trend,
-    required Color trendColor,
-    required IconData trendIcon,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10.0,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: iconColor, size: 24.0),
-          const SizedBox(height: 12.0),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14.0, color: Colors.grey),
-          ),
-          const SizedBox(height: 8.0),
+          const SizedBox(height: 16.0),
+          // Product details grid
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: _buildDetailItem('Price', product['price'])),
+              Expanded(child: _buildDetailItem('Stock', product['stock'])),
+              Expanded(child: _buildDetailItem('GST', product['gst'])),
+              Expanded(child: _buildDetailItem('Value', product['value'])),
+            ],
+          ),
+          const SizedBox(height: 12.0),
+          // Expiry information
+          Row(
             children: [
               Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF26344F),
-                ),
+                'Expires: ${product['expiry']}',
+                style: const TextStyle(fontSize: 12.0, color: Colors.grey),
               ),
-              Row(
-                children: [
-                  Icon(trendIcon, color: trendColor, size: 16.0),
-                  const SizedBox(width: 4.0),
-                  Text(
-                    trend,
-                    style: TextStyle(
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w600,
-                      color: trendColor,
-                    ),
+              if (product['isExpired'])
+                const Text(
+                  ' (Expired)',
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: Colors.red,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Top Selling Products
-  Widget _buildTopSellingProducts() {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10.0,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.inventory_2_outlined,
-                color: Colors.grey,
-                size: 20.0,
-              ),
-              const SizedBox(width: 8.0),
-              const Text(
-                'Top Selling Products',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF26344F),
                 ),
-              ),
             ],
           ),
-          const SizedBox(height: 20.0),
-          _buildProductItem(
-            '1. Maggie Noodles',
-            '45 items sold',
-            '₹900 revenue',
-          ),
-          const SizedBox(height: 12.0),
-          _buildProductItem('2. Coca Cola', '32 items sold', '₹1280 revenue'),
-          const SizedBox(height: 12.0),
-          _buildProductItem('3. Parle-G', '28 items sold', '₹280 revenue'),
         ],
       ),
     );
   }
 
-  // Product item widget
-  Widget _buildProductItem(String title, String items, String revenue) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  // Detail item widget
+  Widget _buildDetailItem(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF26344F),
-            ),
+        Text(label, style: const TextStyle(fontSize: 10.0, color: Colors.grey)),
+        const SizedBox(height: 2.0),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 12.0,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF26344F),
           ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              items,
-              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
-            ),
-            Text(
-              revenue,
-              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // Low Stock Alert
-  Widget _buildLowStockAlert() {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10.0,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.warning_amber_rounded,
-                color: Colors.red,
-                size: 20.0,
-              ),
-              const SizedBox(width: 8.0),
-              const Text(
-                'Low Stock Alert',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20.0),
-          _buildStockItem('1. Maggie Noodles', '45 items sold', '5 units Left'),
-          const SizedBox(height: 12.0),
-          _buildStockItem('2. Coca Cola', '32 items sold', '2 units Left'),
-        ],
-      ),
-    );
-  }
-
-  // Stock item widget
-  Widget _buildStockItem(String title, String items, String stock) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF26344F),
-            ),
-          ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              items,
-              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
-            ),
-            Text(
-              stock,
-              style: const TextStyle(
-                fontSize: 12.0,
-                color: Colors.red,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
         ),
       ],
     );

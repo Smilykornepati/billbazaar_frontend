@@ -38,8 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Header with gradient background
             _buildHeader(),
-            // Main content area
-            Expanded(child: _buildMainContent()),
+            // Main content area - scrollable
+            Expanded(child: SingleChildScrollView(child: _buildMainContent())),
           ],
         ),
       ),
@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Main content area
+  // Main content area - scrollable
   Widget _buildMainContent() {
     return Container(
       margin: const EdgeInsets.all(20.0),
@@ -142,23 +142,21 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Today's Sales section
-              _buildTodaysSales(),
-              const SizedBox(height: 24.0),
-              // Summary cards
-              _buildSummaryCards(),
-              const SizedBox(height: 24.0),
-              // Alerts section
-              _buildAlertsSection(),
-              const SizedBox(height: 24.0),
-              // Notifications section
-              _buildNotificationsSection(),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Today's Sales section
+            _buildTodaysSales(),
+            const SizedBox(height: 24.0),
+            // Summary cards
+            _buildSummaryCards(),
+            const SizedBox(height: 24.0),
+            // Alerts section
+            _buildAlertsSection(),
+            const SizedBox(height: 24.0),
+            // Notifications section
+            _buildNotificationsSection(),
+          ],
         ),
       ),
     );
@@ -359,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.person_add,
           iconColor: AppColors.primaryOrange,
           title: 'New customer Raj Kumar added',
-          time: '8 hours ago',
+          time: '6 hours ago',
           tag: 'New',
           tagColor: Colors.green,
         ),
