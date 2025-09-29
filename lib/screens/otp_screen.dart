@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../constants/colors.dart';
-import '../config/api_config.dart';
+// TODO: Uncomment these when implementing backend functionality  
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
+// import '../config/api_config.dart';
 
 class OTPScreen extends StatefulWidget {
   final String email;
@@ -79,6 +80,32 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
       _isLoading = true;
     });
 
+    // Simulate loading for better UX
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Account verified successfully!'),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+
+      // Navigate to home screen (using main route for testing)
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/main',
+        (route) => false,
+      );
+    }
+
+    /* COMMENTED OUT - BACKEND FUNCTIONALITY (FOR FUTURE USE)
     try {
       // API endpoint for OTP verification
       const String apiUrl = ApiConfig.verifyOtpEndpoint;
@@ -104,8 +131,6 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
         });
 
         if (response.statusCode == 200) {
-          final responseData = json.decode(response.body);
-          
           // Store authentication token if provided
           // final token = responseData['token'];
           // await SharedPreferences.getInstance().then((prefs) {
@@ -158,6 +183,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
         });
       }
     }
+    */
   }
 
   Future<void> _resendOtp() async {
@@ -165,6 +191,28 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
       _isResending = true;
     });
 
+    // Simulate resending for better UX
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (mounted) {
+      setState(() {
+        _isResending = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Verification code sent successfully!'),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+
+      // Clear OTP fields for new code
+      _clearOtp();
+    }
+
+    /* COMMENTED OUT - BACKEND FUNCTIONALITY (FOR FUTURE USE)
     try {
       // API endpoint for resend OTP
       const String apiUrl = ApiConfig.resendOtpEndpoint;
@@ -225,6 +273,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
         });
       }
     }
+    */
   }
 
   @override
