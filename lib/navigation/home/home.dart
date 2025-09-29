@@ -18,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // API Data Models
   Map<String, dynamic> dashboardData = {};
   List<Map<String, dynamic>> notifications = [];
   bool isLoading = true;
@@ -30,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadDashboardData();
   }
 
-  // Dynamic greeting based on time - exactly as requested
   String get _greeting {
     final hour = DateTime.now().hour;
     if (hour < 12) {
@@ -42,10 +40,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // API Endpoints for real data fetching
   Future<void> _loadDashboardData() async {
     try {
-      // Replace with your actual API endpoints
       await Future.wait([
         _fetchDashboardSummary(),
         _fetchNotifications(),
@@ -53,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ]);
     } catch (e) {
       print('Error loading dashboard data: $e');
-      // Load mock data as fallback
       _loadMockData();
     } finally {
       setState(() {
@@ -63,9 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchDashboardSummary() async {
-    // API endpoint for dashboard summary
     const String apiUrl = 'https://your-api-domain.com/api/dashboard/summary';
-
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -74,7 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
           'Authorization': 'Bearer YOUR_TOKEN_HERE',
         },
       );
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -90,9 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchNotifications() async {
-    // API endpoint for notifications
     const String apiUrl = 'https://your-api-domain.com/api/notifications';
-
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -101,7 +91,6 @@ class _HomeScreenState extends State<HomeScreen> {
           'Authorization': 'Bearer YOUR_TOKEN_HERE',
         },
       );
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -119,9 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchStoreInfo() async {
-    // API endpoint for store information
     const String apiUrl = 'https://your-api-domain.com/api/store/info';
-
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -130,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
           'Authorization': 'Bearer YOUR_TOKEN_HERE',
         },
       );
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -139,11 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       print('Store info API Error: $e');
-      // Keep default store name
     }
   }
 
-  // Mock data for development/fallback
   void _loadMockData() {
     dashboardData = {
       'todaysSales': '2,XXXX',
@@ -194,12 +178,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header with exact gradient and styling
-            _buildHeader(),
-            // Main content area - overlapping the header
-            Expanded(child: SingleChildScrollView(child: _buildMainContent())),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: _buildHeader(),
+            ),
+            SliverToBoxAdapter(
+              child: Transform.translate(
+                offset: const Offset(0, -50),
+                child: _buildMainContent(),
+              ),
+            ),
           ],
         ),
       ),
@@ -210,32 +199,28 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Header - exact pixel match to design
   Widget _buildHeader() {
     return Container(
-      height: 240.0, // Restoring proper header height
+      height: 260,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF4A6FA5), // Top blue color
-            Color(0xFF2D4A73), // Bottom blue color
+            Color(0xFF5B7DAD),
+            Color(0xFF3E5A7E),
           ],
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20.0), // Status bar spacing
-            // Top row with greeting and icons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Greeting and store name
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,32 +228,32 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         _greeting,
                         style: const TextStyle(
-                          fontSize: 28.0,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 34,
+                          fontWeight: FontWeight.w700,
                           color: Colors.white,
-                          letterSpacing: 0.5,
+                          height: 1.15,
                         ),
                       ),
-                      const SizedBox(height: 8.0),
+                      const SizedBox(height: 6),
                       Text(
                         storeName,
-                        style: const TextStyle(
-                          fontSize: 16.0,
+                        style: TextStyle(
+                          fontSize: 17,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xFFE8E8E8),
+                          color: Colors.white.withOpacity(0.9),
+                          height: 1.3,
                         ),
                       ),
                     ],
                   ),
                 ),
-                // Header icons - exact positioning
                 Row(
                   children: [
-                    _buildHeaderIcon(Icons.language, () {}),
-                    const SizedBox(width: 16.0),
-                    _buildHeaderIcon(Icons.notifications_outlined, () {}),
-                    const SizedBox(width: 16.0),
-                    _buildHeaderIcon(Icons.account_circle, () {}),
+                    _buildHeaderIcon(Icons.language),
+                    const SizedBox(width: 10),
+                    _buildHeaderIcon(Icons.notifications),
+                    const SizedBox(width: 10),
+                    _buildHeaderIcon(Icons.account_circle),
                   ],
                 ),
               ],
@@ -279,65 +264,55 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Header icon - exact styling
-  Widget _buildHeaderIcon(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40.0,
-        height: 40.0,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Icon(icon, color: Colors.white, size: 22.0),
+  Widget _buildHeaderIcon(IconData icon) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.3),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        icon,
+        color: Colors.white,
+        size: 22,
       ),
     );
   }
 
-  // Main content - exact pixel match with proper overlap
   Widget _buildMainContent() {
-    return Transform.translate(
-      offset: const Offset(0, -40.0), // Negative translate for overlap effect
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 24.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10.0,
-              spreadRadius: 0.0,
-              offset: const Offset(0, 4),
-            ),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTodaysSales(),
+            const SizedBox(height: 32),
+            _buildSummaryCards(),
+            const SizedBox(height: 28),
+            _buildAlertCards(),
+            const SizedBox(height: 28),
+            _buildNotificationsSection(),
+            const SizedBox(height: 12),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Today's Sales section - exact match
-              _buildTodaysSales(),
-              const SizedBox(height: 32.0),
-              // Summary cards row - exact positioning
-              _buildSummaryCards(),
-              const SizedBox(height: 32.0),
-              // Alert cards - exact styling
-              _buildAlertCards(),
-              const SizedBox(height: 32.0),
-              // Notifications section - exact match
-              _buildNotificationsSection(),
-              const SizedBox(height: 24.0), // Bottom padding
-            ],
-          ),
-        ),
       ),
     );
   }
 
-  // Today's Sales - exact pixel match
   Widget _buildTodaysSales() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,54 +323,56 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               children: [
                 Container(
-                  width: 24.0,
-                  height: 24.0,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(4.0),
+                    color: const Color(0xFF10B981),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.trending_up,
                     color: Colors.white,
-                    size: 16.0,
+                    size: 20,
                   ),
                 ),
-                const SizedBox(width: 12.0),
+                const SizedBox(width: 12),
                 const Text(
                   "Today's Sales",
                   style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2D3748),
+                    color: Color(0xFF111827),
+                    height: 1.2,
                   ),
                 ),
               ],
             ),
             Container(
-              width: 40.0,
-              height: 40.0,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: const Color(0xFFFF6B35), // Orange color from image
-                borderRadius: BorderRadius.circular(8.0),
+                color: const Color(0xFFFF6B35),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: const Icon(
                 Icons.arrow_forward,
                 color: Colors.white,
-                size: 20.0,
+                size: 26,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20.0),
-        // Sales amount - exact styling
+        const SizedBox(height: 20),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               '₹ ',
               style: TextStyle(
-                fontSize: 32.0,
+                fontSize: 40,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF2D3748),
+                color: Color(0xFF111827),
+                height: 1.1,
               ),
             ),
             Text(
@@ -403,9 +380,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ? 'Loading...'
                   : (dashboardData['todaysSales']?.toString() ?? '2,XXXX'),
               style: const TextStyle(
-                fontSize: 32.0,
+                fontSize: 40,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF2D3748),
+                color: Color(0xFF111827),
+                height: 1.1,
               ),
             ),
           ],
@@ -414,38 +392,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Summary cards - exact pixel match
   Widget _buildSummaryCards() {
     return Row(
       children: [
         Expanded(
           child: _buildSummaryCard(
             icon: Icons.currency_rupee,
-            iconColor: const Color(0xFFE91E63), // Pink color from image
+            iconColor: const Color(0xFFE91E63),
             title: 'Pending Payments',
             value: isLoading
-                ? 'Loading...'
+                ? '...'
                 : '₹ ${dashboardData['pendingPayments']?.toString() ?? '924'}',
             valueColor: const Color(0xFFE91E63),
           ),
         ),
-        const SizedBox(width: 20.0), // Exact spacing
+        const SizedBox(width: 20),
         Expanded(
           child: _buildSummaryCard(
-            icon: Icons.inventory_2_outlined,
-            iconColor: const Color(0xFF2D4A73), // Dark blue from header
+            icon: Icons.inventory_2,
+            iconColor: const Color(0xFF3E5A7E),
             title: 'Low Stock items',
             value: isLoading
-                ? 'Loading...'
+                ? '...'
                 : (dashboardData['lowStockItems']?.toString() ?? '6'),
-            valueColor: const Color(0xFF2D4A73),
+            valueColor: const Color(0xFF3E5A7E),
           ),
         ),
       ],
     );
   }
 
-  // Individual summary card - exact styling
   Widget _buildSummaryCard({
     required IconData icon,
     required Color iconColor,
@@ -454,40 +430,41 @@ class _HomeScreenState extends State<HomeScreen> {
     required Color valueColor,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20.0), // Exact padding
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7FAFC), // Exact background color
-        borderRadius: BorderRadius.circular(12.0),
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         children: [
-          // Icon with circular background
           Container(
-            width: 48.0,
-            height: 48.0,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               color: iconColor,
-              borderRadius: BorderRadius.circular(24.0),
+              shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: Colors.white, size: 24.0),
+            child: Icon(icon, color: Colors.white, size: 30),
           ),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: 16),
           Text(
             title,
             style: const TextStyle(
-              fontSize: 14.0,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF718096),
+              color: Color(0xFF6B7280),
+              height: 1.3,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8.0),
+          const SizedBox(height: 8),
           Text(
             value,
             style: TextStyle(
-              fontSize: 18.0,
+              fontSize: 22,
               fontWeight: FontWeight.w700,
               color: valueColor,
+              height: 1.2,
             ),
             textAlign: TextAlign.center,
           ),
@@ -496,34 +473,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Alert cards - exact styling from image
   Widget _buildAlertCards() {
     return Column(
       children: [
         _buildAlertCard(
-          icon: Icons.warning,
-          iconColor: const Color(0xFFFF6B35), // Orange color
+          icon: Icons.warning_amber,
+          iconColor: const Color(0xFFFF6B35),
           title: 'Low Stock Alert',
           subtitle: isLoading
               ? 'Loading...'
               : (dashboardData['lowStockAlert']?['message'] ??
-                    '6 items are running low on stock'),
+                  '6 items are running low on stock'),
         ),
-        const SizedBox(height: 16.0),
+        const SizedBox(height: 16),
         _buildAlertCard(
-          icon: Icons.notifications_outlined,
-          iconColor: const Color(0xFFFF6B35), // Orange color
+          icon: Icons.notifications_active,
+          iconColor: const Color(0xFFFF6B35),
           title: 'Payments Reminders',
           subtitle: isLoading
               ? 'Loading...'
               : (dashboardData['paymentReminders']?['message'] ??
-                    '2 payments are pending'),
+                  '2 payments are pending'),
         ),
       ],
     );
   }
 
-  // Individual alert card - exact styling
   Widget _buildAlertCard({
     required IconData icon,
     required Color iconColor,
@@ -531,23 +506,23 @@ class _HomeScreenState extends State<HomeScreen> {
     required String subtitle,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7FAFC),
-        borderRadius: BorderRadius.circular(12.0),
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         children: [
           Container(
-            width: 48.0,
-            height: 48.0,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               color: iconColor,
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: Colors.white, size: 24.0),
+            child: Icon(icon, color: Colors.white, size: 30),
           ),
-          const SizedBox(width: 16.0),
+          const SizedBox(width: 18),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -555,18 +530,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 16.0,
+                    fontSize: 17,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2D3748),
+                    color: Color(0xFF111827),
+                    height: 1.3,
                   ),
                 ),
-                const SizedBox(height: 4.0),
+                const SizedBox(height: 4),
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontSize: 14.0,
+                    fontSize: 14,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF718096),
+                    color: Color(0xFF6B7280),
+                    height: 1.4,
                   ),
                 ),
               ],
@@ -577,47 +554,45 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Notifications section - exact pixel match
   Widget _buildNotificationsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header
         Row(
           children: [
             Container(
-              width: 32.0,
-              height: 32.0,
-              decoration: BoxDecoration(
-                color: const Color(0xFF2D4A73),
-                borderRadius: BorderRadius.circular(16.0),
+              width: 44,
+              height: 44,
+              decoration: const BoxDecoration(
+                color: Color(0xFF3E5A7E),
+                shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.notifications,
                 color: Colors.white,
-                size: 18.0,
+                size: 24,
               ),
             ),
-            const SizedBox(width: 12.0),
+            const SizedBox(width: 14),
             const Text(
               'Notifications',
               style: TextStyle(
-                fontSize: 18.0,
+                fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF2D3748),
+                color: Color(0xFF111827),
+                height: 1.2,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20.0),
-        // Notification items
+        const SizedBox(height: 20),
         if (isLoading)
           const Center(child: CircularProgressIndicator())
         else
           ...notifications
               .map(
                 (notification) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
+                  padding: const EdgeInsets.only(bottom: 14),
                   child: _buildNotificationCard(notification),
                 ),
               )
@@ -626,30 +601,29 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Individual notification card - exact styling
   Widget _buildNotificationCard(Map<String, dynamic> notification) {
     return Container(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7FAFC),
-        borderRadius: BorderRadius.circular(12.0),
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         children: [
           Container(
-            width: 48.0,
-            height: 48.0,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               color: _getNotificationIconColor(notification['type']),
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               _getNotificationIcon(notification['icon']),
               color: Colors.white,
-              size: 24.0,
+              size: 30,
             ),
           ),
-          const SizedBox(width: 16.0),
+          const SizedBox(width: 18),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -657,37 +631,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   notification['title'] ?? '',
                   style: const TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF2D3748),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF111827),
+                    height: 1.3,
                   ),
                 ),
-                const SizedBox(height: 4.0),
+                const SizedBox(height: 4),
                 Text(
                   notification['time'] ?? '',
                   style: const TextStyle(
-                    fontSize: 12.0,
+                    fontSize: 14,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF718096),
+                    color: Color(0xFF6B7280),
+                    height: 1.3,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12.0),
+          const SizedBox(width: 12),
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 6.0,
+              horizontal: 16,
+              vertical: 8,
             ),
             decoration: BoxDecoration(
               color: _getTagColor(notification['tagColor']),
-              borderRadius: BorderRadius.circular(16.0),
+              borderRadius: BorderRadius.circular(24),
             ),
             child: Text(
               notification['tag'] ?? '',
               style: const TextStyle(
-                fontSize: 11.0,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
@@ -698,13 +674,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Helper methods for notification styling
   IconData _getNotificationIcon(String? iconType) {
     switch (iconType) {
       case 'person_add':
-        return Icons.person_add;
+        return Icons.person_add_alt_1;
       case 'warning':
-        return Icons.warning;
+        return Icons.warning_amber;
       default:
         return Icons.notifications;
     }
@@ -717,18 +692,18 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'stock_alert':
         return const Color(0xFFFF6B35);
       default:
-        return const Color(0xFF2D4A73);
+        return const Color(0xFF3E5A7E);
     }
   }
 
   Color _getTagColor(String? color) {
     switch (color) {
       case 'green':
-        return const Color(0xFF38A169);
+        return const Color(0xFF10B981);
       case 'orange':
         return const Color(0xFFFF6B35);
       default:
-        return const Color(0xFF2D4A73);
+        return const Color(0xFF3E5A7E);
     }
   }
 }

@@ -5,7 +5,6 @@ import 'screens/signin_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/otp_screen.dart';
-import 'screens/home_screen.dart' as core_screens;
 
 // Navigation screens
 import 'navigation/main_navigation.dart';
@@ -71,7 +70,6 @@ class BillBazarApp extends StatelessWidget {
         '/signup': (context) => const SignUpScreen(),
         '/main': (context) => const MainNavigationScreen(),
         '/quick-bill': (context) => const QuickBillScreen(),
-        '/home-screen': (context) => const core_screens.HomeScreen(),
         // Add more routes as needed
         // '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
