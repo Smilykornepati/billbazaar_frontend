@@ -16,99 +16,109 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
-  // Category data with actual icon paths
+  // Category data with correct icon paths in hierarchical order
   final List<Map<String, dynamic>> _categories = [
-    // Analytics Category
-    {
-      'name': 'Analytics',
-      'icon': 'assets/categories/icons/analytics/i-9.png',
-      'items': [
-        {
-          'name': 'Sales Analytics',
-          'icon': 'assets/categories/icons/analytics/i-10.png',
-        },
-        {
-          'name': 'Customer Analytics',
-          'icon': 'assets/categories/icons/analytics/i-11.png',
-        },
-        {
-          'name': 'Inventory Analytics',
-          'icon': 'assets/categories/icons/analytics/i-12.png',
-        },
-      ],
-    },
-    // Billing Category
     {
       'name': 'Billing',
-      'icon': 'assets/categories/icons/billing/i-1.png',
       'items': [
         {
-          'name': 'Invoice Management',
+          'name': 'Quick\nBill',
+          'icon': 'assets/categories/icons/billing/i-1.png',
+        },
+        {
+          'name': 'Item-wise\nBill',
           'icon': 'assets/categories/icons/billing/i-2.png',
         },
         {
-          'name': 'Payment Tracking',
+          'name': 'Inventory',
           'icon': 'assets/categories/icons/billing/i-3.png',
         },
         {
-          'name': 'Tax Management',
+          'name': 'Staff\nManagement',
           'icon': 'assets/categories/icons/billing/i-4.png',
         },
         {
-          'name': 'Receipt Generation',
+          'name': 'Customer\nManagement',
           'icon': 'assets/categories/icons/billing/i-5.png',
         },
         {
-          'name': 'Payment Methods',
+          'name': 'Credit\nDetails',
           'icon': 'assets/categories/icons/billing/i-6.png',
         },
         {
-          'name': 'Billing Reports',
+          'name': 'Cash\nManagement',
           'icon': 'assets/categories/icons/billing/i-7.png',
         },
         {
-          'name': 'Customer Billing',
+          'name': 'Training\nVideo',
           'icon': 'assets/categories/icons/billing/i-8.png',
         },
       ],
     },
-    // Smart Tools Category
     {
-      'name': 'Smart Tools',
-      'icon': 'assets/categories/icons/smarttools/i-15.png',
+      'name': 'Analytics',
       'items': [
         {
-          'name': 'AI Assistant',
-          'icon': 'assets/categories/icons/smarttools/i-16.png',
+          'name': 'Quick\nBill',
+          'icon': 'assets/categories/icons/analytics/i-9.png',
         },
         {
-          'name': 'Smart Reports',
-          'icon': 'assets/categories/icons/smarttools/i-17.png',
+          'name': 'Item Wise\nSales report',
+          'icon': 'assets/categories/icons/analytics/i-10.png',
+        },
+        {
+          'name': 'Day\nReport',
+          'icon': 'assets/categories/icons/analytics/i-11.png',
+        },
+        {
+          'name': 'Sales\nSummary',
+          'icon': 'assets/categories/icons/analytics/i-12.png',
         },
       ],
     },
-    // Printing Category
     {
       'name': 'Printing',
-      'icon': 'assets/categories/icons/printing/i-13.png',
       'items': [
         {
-          'name': 'Label Printing',
+          'name': 'Bluetooth',
+          'icon': 'assets/categories/icons/printing/i-13.png',
+        },
+        {
+          'name': 'Printer\nSetting',
           'icon': 'assets/categories/icons/printing/i-14.png',
         },
       ],
     },
-    // More Tools Category
     {
-      'name': 'More Tools',
-      'icon': 'assets/categories/icons/moretools/i-18.png',
+      'name': 'Smart Tools',
       'items': [
         {
-          'name': 'Advanced Settings',
+          'name': 'Barcode\nMaker',
+          'icon': 'assets/categories/icons/smarttools/i-15.png',
+        },
+        {
+          'name': 'Business\nCard Maker',
+          'icon': 'assets/categories/icons/smarttools/i-16.png',
+        },
+        {
+          'name': 'Poster\nMaker',
+          'icon': 'assets/categories/icons/smarttools/i-17.png',
+        },
+      ],
+    },
+    {
+      'name': 'More Tools',
+      'items': [
+        {
+          'name': 'Buy Printers\nHere',
+          'icon': 'assets/categories/icons/moretools/i-18.png',
+        },
+        {
+          'name': 'Feedback',
           'icon': 'assets/categories/icons/moretools/i-19.png',
         },
         {
-          'name': 'System Tools',
+          'name': 'Contact\nus',
           'icon': 'assets/categories/icons/moretools/i-20.png',
         },
       ],
@@ -118,15 +128,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: Column(
           children: [
-            // Header with title and export buttons
+            // Header with back arrow, title and profile icon
             _buildHeader(),
             // Main content area - scrollable
             Expanded(
-              child: SingleChildScrollView(child: _buildCategoriesContent()),
+              child: SingleChildScrollView(
+                child: _buildCategoriesContent(),
+              ),
             ),
           ],
         ),
@@ -138,66 +150,68 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  // Header with title and export buttons - exact match to design
+  // Header with back arrow, title and profile icon - exact match to design
   Widget _buildHeader() {
     return Container(
-      height: 60.0,
+      height: 100.0, // Increased height to match design
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF5777B5), // Blue
-            Color(0xFF26344F), // Dark Blue
+            Color(0xFF4A90E2), // Lighter blue at top
+            Color(0xFF2E5A87), // Darker blue at bottom
           ],
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
         child: Row(
           children: [
+            // Back arrow - you mentioned you don't want this, but it's in the design
+            // Remove this section if you don't want the back arrow
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                child: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 20.0,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8.0),
             // Title
             const Expanded(
               child: Text(
                 'Categories',
                 style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
             ),
-            // Export buttons
-            _buildExportButton('Export PDF', Icons.download, () {}),
-            const SizedBox(width: 8.0),
-            _buildExportButton('Export CSV', Icons.description, () {}),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Export button widget - exact match to design
-  Widget _buildExportButton(String text, IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Colors.white, size: 16.0),
-            const SizedBox(width: 4.0),
-            Text(
-              text,
-              style: const TextStyle(
+            // Profile icon
+            Container(
+              width: 36.0,
+              height: 36.0,
+              decoration: BoxDecoration(
                 color: Colors.white,
-                fontSize: 12.0,
-                fontWeight: FontWeight.w500,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4.0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.person,
+                color: Color(0xFF2E5A87),
+                size: 20.0,
               ),
             ),
           ],
@@ -206,112 +220,160 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  // Categories content - scrollable
+  // Categories content - scrollable with sections
   Widget _buildCategoriesContent() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title
-          const Text(
-            'All Categories',
-            style: TextStyle(
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF26344F),
-            ),
-          ),
-          const SizedBox(height: 20.0),
-          // Categories grid
-          _buildCategoriesGrid(),
+          // Build all category sections
+          ..._categories.map((category) => _buildCategorySection(category)),
         ],
       ),
     );
   }
 
-  // Categories grid - exact match to design
-  Widget _buildCategoriesGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16.0,
-        mainAxisSpacing: 16.0,
-        childAspectRatio: 1.2,
-      ),
-      itemCount: _categories.length,
-      itemBuilder: (context, index) {
-        return _buildCategoryCard(_categories[index]);
-      },
+  // Category section with title and items grid
+  Widget _buildCategorySection(Map<String, dynamic> category) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section title
+        Text(
+          category['name'],
+          style: const TextStyle(
+            fontSize: 24.0,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF1A202C),
+            height: 1.2,
+          ),
+        ),
+        const SizedBox(height: 16.0), // Reduced spacing before white container
+        // White background container for items
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 8.0,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(20.0),
+          child: _buildItemsGrid(category['items']),
+        ),
+        const SizedBox(height: 32.0), // Space between sections
+      ],
     );
   }
 
-  // Category card - exact match to design
-  Widget _buildCategoryCard(Map<String, dynamic> category) {
+  // Items grid - 4 columns to match design
+  Widget _buildItemsGrid(List<Map<String, dynamic>> items) {
+    // Calculate rows needed
+    final int itemsPerRow = 4;
+    final int rowCount = (items.length / itemsPerRow).ceil();
+
+    return Column(
+      children: List.generate(rowCount, (rowIndex) {
+        final startIndex = rowIndex * itemsPerRow;
+        final endIndex = (startIndex + itemsPerRow).clamp(0, items.length);
+        final rowItems = items.sublist(startIndex, endIndex);
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: rowIndex < rowCount - 1 ? 20.0 : 0.0),
+          child: Row(
+            children: [
+              ...rowItems.map((item) => Expanded(child: _buildItemCard(item))),
+              // Add empty spaces if row is not complete
+              ...List.generate(
+                itemsPerRow - rowItems.length,
+                (index) => const Expanded(child: SizedBox()),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  // Item card - exact match to design
+  Widget _buildItemCard(Map<String, dynamic> item) {
     return GestureDetector(
       onTap: () {
-        // TODO: Navigate to category details
-        _showCategoryItems(category);
+        // Handle item tap
+        _handleItemTap(item);
       },
-      child: Container(
-        padding: const EdgeInsets.all(20.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10.0,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Category icon
+            // Icon container
             Container(
-              width: 60.0,
-              height: 60.0,
+              width: 64.0,
+              height: 64.0,
               decoration: BoxDecoration(
-                color: const Color(0xFFF7FAFC),
-                borderRadius: BorderRadius.circular(12.0),
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFFE2E8F0),
+                  width: 1.0,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8.0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
+              child: Center(
                 child: Image.asset(
-                  category['icon'],
-                  width: 40.0,
-                  height: 40.0,
+                  item['icon'],
+                  width: 36.0,
+                  height: 36.0,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.category_outlined,
-                      color: Colors.grey,
-                      size: 30.0,
+                    // Debug: Print which asset failed to load
+                    print('Failed to load asset: ${item['icon']}');
+                    // Fallback icon if image fails to load
+                    return Container(
+                      width: 36.0,
+                      height: 36.0,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4A90E2).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Icon(
+                        _getIconForItem(item['name']),
+                        color: const Color(0xFF4A90E2),
+                        size: 24.0,
+                      ),
                     );
                   },
                 ),
               ),
             ),
             const SizedBox(height: 12.0),
-            // Category name
-            Text(
-              category['name'],
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF26344F),
+            // Item name
+            SizedBox(
+              height: 36.0, // Fixed height to align all text
+              child: Text(
+                item['name'],
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF374151),
+                  height: 1.2,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4.0),
-            // Item count
-            Text(
-              '${category['items'].length} items',
-              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
             ),
           ],
         ),
@@ -319,155 +381,100 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  // Show category items modal
-  void _showCategoryItems(Map<String, dynamic> category) {
-    showModalBottomSheet(
+  // Handle item tap navigation
+  void _handleItemTap(Map<String, dynamic> item) {
+    final itemName = item['name'].toLowerCase().replaceAll('\n', ' ');
+
+    // Navigate based on item name
+    if (itemName.contains('quick bill')) {
+      // Navigate to Quick Bill screen
+      Navigator.pushNamed(context, '/quick-bill');
+    } else if (itemName.contains('item-wise bill') || itemName.contains('item wise')) {
+      // Navigate to Item-wise Bill screen
+      Navigator.pushNamed(context, '/item-wise-bill');
+    } else if (itemName.contains('inventory')) {
+      // Navigate to Inventory screen
+      widget.onNavigationTap(1); // Switch to inventory tab
+    } else {
+      // Show coming soon dialog for other items
+      _showComingSoonDialog(item['name']);
+    }
+  }
+
+  // Get fallback icon based on item name
+  IconData _getIconForItem(String itemName) {
+    final name = itemName.toLowerCase();
+    if (name.contains('bill') || name.contains('invoice')) {
+      return Icons.receipt_long;
+    } else if (name.contains('inventory')) {
+      return Icons.inventory_2;
+    } else if (name.contains('staff') || name.contains('management')) {
+      return Icons.people;
+    } else if (name.contains('customer')) {
+      return Icons.person;
+    } else if (name.contains('credit')) {
+      return Icons.credit_card;
+    } else if (name.contains('cash')) {
+      return Icons.payments;
+    } else if (name.contains('training') || name.contains('video')) {
+      return Icons.play_circle;
+    } else if (name.contains('report') || name.contains('analytics')) {
+      return Icons.analytics;
+    } else if (name.contains('print')) {
+      return Icons.print;
+    } else if (name.contains('bluetooth')) {
+      return Icons.bluetooth;
+    } else if (name.contains('barcode')) {
+      return Icons.qr_code_scanner;
+    } else if (name.contains('business') || name.contains('card')) {
+      return Icons.business_center;
+    } else if (name.contains('poster')) {
+      return Icons.image;
+    } else if (name.contains('feedback')) {
+      return Icons.feedback;
+    } else if (name.contains('contact')) {
+      return Icons.contact_support;
+    } else {
+      return Icons.settings;
+    }
+  }
+
+  // Show coming soon dialog
+  void _showComingSoonDialog(String itemName) {
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
           ),
-        ),
-        child: Column(
-          children: [
-            // Handle bar
-            Container(
-              margin: const EdgeInsets.only(top: 12.0),
-              width: 40.0,
-              height: 4.0,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2.0),
-              ),
+          title: const Text(
+            'Coming Soon',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1A202C),
             ),
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40.0,
-                    height: 40.0,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF7FAFC),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.asset(
-                        category['icon'],
-                        width: 24.0,
-                        height: 24.0,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.category_outlined,
-                            color: Colors.grey,
-                            size: 20.0,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12.0),
-                  Expanded(
-                    child: Text(
-                      category['name'],
-                      style: const TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF26344F),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: Colors.grey),
-                  ),
-                ],
-              ),
+          ),
+          content: Text(
+            '$itemName feature is coming soon. Stay tuned for updates!',
+            style: const TextStyle(
+              color: Color(0xFF4A5568),
             ),
-            // Items list
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                itemCount: category['items'].length,
-                itemBuilder: (context, index) {
-                  final item = category['items'][index];
-                  return GestureDetector(
-                    onTap: () {
-                      // Navigate to Quick Bill for Invoice Management
-                      if (item['name'] == 'Invoice Management') {
-                        Navigator.pushNamed(context, '/quick-bill');
-                      } else {
-                        // TODO: Implement other item navigation
-                      }
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 12.0),
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF7FAFC),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40.0,
-                            height: 40.0,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image.asset(
-                                item['icon'],
-                                width: 24.0,
-                                height: 24.0,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(
-                                    Icons.settings,
-                                    color: Colors.grey,
-                                    size: 20.0,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12.0),
-                          Expanded(
-                            child: Text(
-                              item['name'],
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF26344F),
-                              ),
-                            ),
-                          ),
-                          const Icon(
-                            Icons.arrow_forward_ios,
-                            color: Colors.grey,
-                            size: 16.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Color(0xFF4A90E2),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }

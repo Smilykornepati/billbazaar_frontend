@@ -299,7 +299,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         ),
         const SizedBox(height: 12.0),
         // Items list
-        ..._items.map((item) => _buildItemCard(item)).toList(),
+        ..._items.map((item) => _buildItemCard(item)),
         const SizedBox(height: 12.0),
         // Add item button
         ElevatedButton.icon(
@@ -723,7 +723,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         child: Column(
           children: [
             // Use actual billing icon image
-            Container(
+            SizedBox(
               width: 24.0,
               height: 24.0,
               child: Image.asset(
