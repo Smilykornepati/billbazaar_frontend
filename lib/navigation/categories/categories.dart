@@ -416,6 +416,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     } else if (itemName.contains('inventory')) {
       // Navigate to Inventory screen
       widget.onNavigationTap(1); // Switch to inventory tab
+    } else if (itemName.contains('staff management')) {
+      // Navigate to Staff Management screen
+      Navigator.pushNamed(context, '/staff-management');
+    } else if (itemName.contains('customer management')) {
+      // Navigate to Customer Management screen
+      Navigator.pushNamed(context, '/customer-management');
     } else if (itemName.contains('subscription')) {
       // Navigate to Subscription screen
       Navigator.pushNamed(context, '/subscription');

@@ -21,6 +21,12 @@ import 'navigation/categories/account/logout_screen.dart';
 // Other screens
 import 'navigation/categories/other/contact_us_screen.dart';
 
+// Management screens
+import 'navigation/categories/customermanagement/customermanagement.dart';
+import 'navigation/categories/customermanagement/addcustomer/addcustomer.dart';
+import 'navigation/categories/staffmanagement/staffmanagement.dart';
+import 'navigation/categories/staffmanagement/addstaff/addstaff.dart';
+
 void main() {
   runApp(const BillBazarApp());
 }
@@ -87,6 +93,10 @@ class BillBazarApp extends StatelessWidget {
         '/delete-account': (context) => const DeleteAccountScreen(),
         '/logout': (context) => const LogoutScreen(),
         '/contact-us': (context) => const ContactUsScreen(),
+        '/customer-management': (context) => const CustomerListScreen(),
+        '/add-customer': (context) => const AddCustomerScreen(),
+        '/staff-management': (context) => const StaffManagementScreen(),
+        '/add-staff': (context) => const AddStaffScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {
