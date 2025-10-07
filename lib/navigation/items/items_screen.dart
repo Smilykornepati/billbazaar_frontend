@@ -135,26 +135,30 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildSearchBar(),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Left sidebar with categories
-                  _buildCategorySidebar(),
-                  // Right side with products
-                  Expanded(
-                    child: _buildProductsSection(),
-                  ),
-                ],
-              ),
+      body: Column(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(),
+                _buildSearchBar(),
+              ],
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left sidebar with categories
+                _buildCategorySidebar(),
+                // Right side with products
+                Expanded(
+                  child: _buildProductsSection(),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: widget.currentIndex,
@@ -183,18 +187,6 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
             onPressed: () => Navigator.pop(context),
           ),
           const Spacer(),
-          TextButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.file_download, color: Colors.white, size: 16),
-            label: const Text('Export PDF', style: TextStyle(color: Colors.white, fontSize: 12)),
-          ),
-          const SizedBox(width: 8),
-          TextButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.table_chart, color: Colors.white, size: 16),
-            label: const Text('Export CSV', style: TextStyle(color: Colors.white, fontSize: 12)),
-          ),
-          const SizedBox(width: 8),
         ],
       ),
     );
@@ -212,16 +204,16 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
           ],
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       child: Container(
-        height: 44,
+        height: 40,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
+              blurRadius: 6,
               offset: const Offset(0, 2),
             ),
           ],
@@ -233,18 +225,18 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
             hintText: 'Search Products',
             hintStyle: TextStyle(
               color: Colors.grey[400],
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Icon(
               Icons.search,
               color: Colors.grey[400],
-              size: 20,
+              size: 18,
             ),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 10,
+              vertical: 8,
             ),
           ),
         ),
@@ -254,15 +246,15 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
 
   Widget _buildCategorySidebar() {
     return Container(
-      width: 90,
+      width: 80,
       color: const Color(0xFFF5F5F5),
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(6),
       child: SingleChildScrollView(
         child: Column(
           children: _categories.skip(1).map((category) {
             final isSelected = _selectedCategory == category;
             return Container(
-              margin: const EdgeInsets.only(bottom: 6),
+              margin: const EdgeInsets.only(bottom: 5),
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -273,12 +265,12 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 8,
+                    horizontal: 4,
+                    vertical: 6,
                   ),
                   decoration: BoxDecoration(
                     color: isSelected ? const Color(0xFF5777B5) : Colors.white,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: isSelected ? const Color(0xFF5777B5) : Colors.grey[200]!,
                       width: 1,
@@ -287,7 +279,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                   child: Text(
                     category,
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 9,
                       fontWeight: FontWeight.w500,
                       color: isSelected 
                           ? Colors.white
@@ -312,7 +304,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
         children: [
           // "All" button and Add Product button
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             child: Row(
               children: [
                 GestureDetector(
@@ -324,14 +316,14 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                      horizontal: 14,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
                       color: _selectedCategory == 'All' 
                           ? const Color(0xFF5777B5)
                           : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: _selectedCategory == 'All'
                             ? const Color(0xFF5777B5)
@@ -342,7 +334,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                     child: Text(
                       'All',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
                         color: _selectedCategory == 'All'
                             ? Colors.white
@@ -353,16 +345,16 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                 ),
                 const Spacer(),
                 Container(
-                  height: 32,
+                  height: 30,
                   child: ElevatedButton.icon(
                     onPressed: () {},
-                    icon: const Icon(Icons.add, size: 16, color: Colors.white),
-                    label: const Text('Add Product', style: TextStyle(fontSize: 12, color: Colors.white)),
+                    icon: const Icon(Icons.add, size: 14, color: Colors.white),
+                    label: const Text('Add Product', style: TextStyle(fontSize: 11, color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF805D),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                   ),
@@ -374,13 +366,13 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
           // Products grid
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.85,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.9,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 10,
                 ),
                 itemCount: _filteredProducts.length,
                 itemBuilder: (context, index) {
@@ -399,11 +391,11 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -416,13 +408,13 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
             flex: 3,
             child: Container(
               width: double.infinity,
-              margin: const EdgeInsets.all(8),
+              margin: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
                 child: Image.asset(
                   product['image'],
                   fit: BoxFit.cover,
@@ -441,7 +433,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                       child: Center(
                         child: Icon(
                           _getProductIcon(product['image']),
-                          size: 24,
+                          size: 20,
                           color: Colors.black54,
                         ),
                       ),
@@ -456,7 +448,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
           Expanded(
             flex: 2,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              padding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -464,19 +456,19 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                   Text(
                     '₹${product['price']}',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF111827),
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   
                   // Product Name
                   Expanded(
                     child: Text(
                       product['name'],
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF374151),
                       ),
@@ -492,17 +484,17 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                       Text(
                         product['weight'],
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.w400,
                           color: Colors.grey[500],
                         ),
                       ),
                       Container(
-                        width: 28,
-                        height: 28,
+                        width: 24,
+                        height: 24,
                         decoration: BoxDecoration(
                           color: const Color(0xFF5777B5),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         child: IconButton(
                           onPressed: () {
@@ -512,7 +504,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                           icon: const Icon(
                             Icons.add,
                             color: Colors.white,
-                            size: 16,
+                            size: 14,
                           ),
                         ),
                       ),

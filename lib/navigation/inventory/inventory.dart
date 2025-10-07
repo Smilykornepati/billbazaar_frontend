@@ -77,25 +77,25 @@ class _InventoryScreenState extends State<InventoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildSummaryCards(),
-                    _buildToggleAndSearch(),
-                    _buildDropdownsAndAddButton(),
-                    _buildProductList(),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+      body: Column(
+        children: [
+          SafeArea(
+            child: _buildHeader(),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildSummaryCards(),
+                  _buildToggleAndSearch(),
+                  _buildDropdownsAndAddButton(),
+                  _buildProductList(),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: widget.currentIndex,
@@ -169,32 +169,32 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   Widget _buildSummaryCards() {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(12.0),
       child: Row(
         children: [
           Expanded(
             child: _buildSummaryCard(
               icon: Icons.inventory_2_outlined,
               iconColor: const Color(0xFF23408F),
-              title: 'Total Products',
+              title: 'Products',
               value: '6',
             ),
           ),
-          const SizedBox(width: 12.0),
+          const SizedBox(width: 10.0),
           Expanded(
             child: _buildSummaryCard(
               icon: Icons.grid_view_rounded,
               iconColor: const Color(0xFF10B981),
-              title: 'Total Categories',
+              title: 'Categories',
               value: '6',
             ),
           ),
-          const SizedBox(width: 12.0),
+          const SizedBox(width: 10.0),
           Expanded(
             child: _buildSummaryCard(
               icon: Icons.bar_chart_rounded,
               iconColor: const Color(0xFFAA60E0),
-              title: 'Total Value',
+              title: 'Value',
               value: '₹2,285',
             ),
           ),
@@ -210,29 +210,40 @@ class _InventoryScreenState extends State<InventoryScreen> {
     required String value,
   }) {
     return Container(
-      height: 80,
-      padding: const EdgeInsets.all(12),
+      height: 70,
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.grey[300]!),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: iconColor, size: 24),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF26344F)),
+          Icon(icon, color: iconColor, size: 20),
+          const SizedBox(height: 3),
+          Flexible(
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 9, color: Color(0xFF26344F)),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF26344F),
+          Flexible(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF26344F),
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -242,13 +253,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   Widget _buildToggleAndSearch() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: Column(
         children: [
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(18),
               border: Border.all(color: Colors.grey[300]!),
             ),
             child: Row(
@@ -262,20 +273,22 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0),
+            height: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
             decoration: BoxDecoration(
               color: const Color(0xFFE6EEFA),
-              borderRadius: BorderRadius.circular(12.0),
+              borderRadius: BorderRadius.circular(10.0),
             ),
             child: TextField(
               controller: _searchController,
               decoration: const InputDecoration(
                 hintText: 'Search Products',
-                hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+                hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
                 border: InputBorder.none,
-                icon: Icon(Icons.search, color: Colors.grey, size: 20),
+                icon: Icon(Icons.search, color: Colors.grey, size: 18),
+                contentPadding: EdgeInsets.symmetric(vertical: 8),
               ),
             ),
           ),
@@ -289,16 +302,16 @@ class _InventoryScreenState extends State<InventoryScreen> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: selected ? const Color(0xFF5777B5) : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
           ),
           child: Text(
             text,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
               color: selected ? Colors.white : const Color(0xFF26344F),
             ),
@@ -310,7 +323,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   Widget _buildDropdownsAndAddButton() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(12.0),
       child: Column(
         children: [
           Row(
@@ -320,13 +333,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   setState(() => dropValue1 = val!);
                 }),
               ),
-              const SizedBox(width: 8.0),
+              const SizedBox(width: 6.0),
               Expanded(
                 child: _customDropdown(dropValue2, (val) {
                   setState(() => dropValue2 = val!);
                 }),
               ),
-              const SizedBox(width: 8.0),
+              const SizedBox(width: 6.0),
               Expanded(
                 child: _customDropdown(dropValue3, (val) {
                   setState(() => dropValue3 = val!);
@@ -334,26 +347,26 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12.0),
+          const SizedBox(height: 10.0),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {},
-              icon: const Icon(Icons.add, color: Colors.white, size: 20),
+              icon: const Icon(Icons.add, color: Colors.white, size: 18),
               label: const Text(
                 'Add Product',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 15.5,
+                  fontSize: 14.5,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.2,
                 ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFF805D),
-                padding: const EdgeInsets.symmetric(vertical: 13.0),
+                padding: const EdgeInsets.symmetric(vertical: 11.0),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 elevation: 1,
               ),
@@ -369,10 +382,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
       'All Products', 'Snacks', 'Beverages', 'Dairy', 'Frozen'
     ];
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11.0, vertical: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.grey[300]!),
       ),
       child: DropdownButtonHideUnderline(
@@ -380,9 +393,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
           value: current,
           isExpanded: true,
           items: items.map((e) =>
-            DropdownMenuItem(child: Text(e), value: e)).toList(),
-          style: const TextStyle(fontSize: 13.0, color: Color(0xFF26344F)),
+            DropdownMenuItem(child: Text(e, style: const TextStyle(fontSize: 11)), value: e)).toList(),
+          style: const TextStyle(fontSize: 11.0, color: Color(0xFF26344F)),
           onChanged: onChanged,
+          isDense: true,
         ),
       ),
     );
