@@ -123,6 +123,27 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         },
       ],
     },
+    {
+      'name': 'Account',
+      'items': [
+        {
+          'name': 'Subscription',
+          'icon': 'assets/categories/icons/account/i-21.png',
+        },
+        {
+          'name': 'Reset\nAccount',
+          'icon': 'assets/categories/icons/account/i-22.png',
+        },
+        {
+          'name': 'Delete\nAccount',
+          'icon': 'assets/categories/icons/account/i-23.png',
+        },
+        {
+          'name': 'Logout',
+          'icon': 'assets/categories/icons/account/i-24.png',
+        },
+      ],
+    },
   ];
 
   @override
@@ -395,6 +416,21 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     } else if (itemName.contains('inventory')) {
       // Navigate to Inventory screen
       widget.onNavigationTap(1); // Switch to inventory tab
+    } else if (itemName.contains('subscription')) {
+      // Navigate to Subscription screen
+      Navigator.pushNamed(context, '/subscription');
+    } else if (itemName.contains('reset account')) {
+      // Navigate to Reset Account screen
+      Navigator.pushNamed(context, '/reset-account');
+    } else if (itemName.contains('delete account')) {
+      // Navigate to Delete Account screen
+      Navigator.pushNamed(context, '/delete-account');
+    } else if (itemName.contains('logout')) {
+      // Navigate to Logout screen
+      Navigator.pushNamed(context, '/logout');
+    } else if (itemName.contains('contact us')) {
+      // Navigate to Contact Us screen
+      Navigator.pushNamed(context, '/contact-us');
     } else {
       // Show coming soon dialog for other items
       _showComingSoonDialog(item['name']);
@@ -434,6 +470,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       return Icons.feedback;
     } else if (name.contains('contact')) {
       return Icons.contact_support;
+    } else if (name.contains('subscription')) {
+      return Icons.star;
+    } else if (name.contains('reset account')) {
+      return Icons.refresh;
+    } else if (name.contains('delete account')) {
+      return Icons.delete_forever;
+    } else if (name.contains('logout')) {
+      return Icons.logout;
     } else {
       return Icons.settings;
     }

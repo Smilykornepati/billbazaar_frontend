@@ -12,6 +12,15 @@ import 'screens/reset_password_screen.dart';
 import 'navigation/main_navigation.dart';
 import 'navigation/categories/billing/quick_bill_screen.dart';
 
+// Account screens
+import 'navigation/categories/account/subscription_screen.dart';
+import 'navigation/categories/account/reset_account_screen.dart';
+import 'navigation/categories/account/delete_account_screen.dart';
+import 'navigation/categories/account/logout_screen.dart';
+
+// Other screens
+import 'navigation/categories/other/contact_us_screen.dart';
+
 void main() {
   runApp(const BillBazarApp());
 }
@@ -73,6 +82,11 @@ class BillBazarApp extends StatelessWidget {
         '/main': (context) => const MainNavigationScreen(),
         '/quick-bill': (context) => const QuickBillScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/subscription': (context) => const SubscriptionScreen(),
+        '/reset-account': (context) => const ResetAccountScreen(),
+        '/delete-account': (context) => const DeleteAccountScreen(),
+        '/logout': (context) => const LogoutScreen(),
+        '/contact-us': (context) => const ContactUsScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {

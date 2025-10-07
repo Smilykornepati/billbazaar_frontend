@@ -60,7 +60,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: const Color(0xFFF7FAFC),
       body: SafeArea(
         child: Column(
           children: [
@@ -90,44 +90,63 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.menu,
-                color: Colors.white,
-                size: 24,
+      height: 100.0,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF5777B5),
+            Color(0xFF26344F),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
+        child: Row(
+          children: [
+            // Back arrow
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                child: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 20.0,
+                ),
               ),
-              const SizedBox(width: 12),
-              const Text(
+            ),
+            const SizedBox(width: 8.0),
+            // Title
+            const Expanded(
+              child: Text(
                 'Subscription',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 22.0,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.primaryOrange,
-              borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
-              'Payment Report',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            // Payment Report button
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primaryOrange,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Payment Report',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -140,7 +159,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: Color(0xFF1A202C),
             letterSpacing: 1.5,
           ),
         ),
@@ -175,12 +194,19 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected ? AppColors.primaryOrange : Colors.transparent,
+                  color: isSelected ? AppColors.primaryOrange : const Color(0xFFE2E8F0),
                   width: 2,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8.0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
@@ -217,7 +243,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: Color(0xFF1A202C),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -225,10 +251,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           children: [
                             Text(
                               '₹${plan['originalPrice']}/-',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey[400],
+                                color: Color(0xFF9CA3AF),
                                 decoration: TextDecoration.lineThrough,
                               ),
                             ),
@@ -256,7 +282,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           color: AppColors.primaryOrange,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.star,
                           color: Colors.white,
                           size: 16,
@@ -265,10 +291,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       const SizedBox(height: 8),
                       Text(
                         plan['duration'],
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[300],
+                          color: Color(0xFF6B7280),
                         ),
                       ),
                     ],
@@ -291,7 +317,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: Color(0xFF1A202C),
           ),
         ),
         const SizedBox(height: 20),
@@ -299,8 +325,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF2A2A2A),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 8.0,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -324,7 +357,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: Color(0xFF1A202C),
                   ),
                 ),
               ),
@@ -372,21 +405,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF2A2A2A),
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           title: const Text(
             'Confirm Payment',
             style: TextStyle(
-              color: Colors.white,
+              color: Color(0xFF1A202C),
               fontWeight: FontWeight.w600,
             ),
           ),
           content: Text(
             'You are about to purchase ${selectedPlan['title']} for ₹${selectedPlan['discountedPrice']}/-',
-            style: TextStyle(
-              color: Colors.grey[300],
+            style: const TextStyle(
+              color: Color(0xFF6B7280),
             ),
           ),
           actions: [
@@ -394,10 +427,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Colors.grey[400],
+                  color: Color(0xFF9CA3AF),
                 ),
               ),
             ),

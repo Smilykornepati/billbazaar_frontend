@@ -22,6 +22,53 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   final TextEditingController _deleteController = TextEditingController();
   bool get isDeleteTyped => _deleteController.text.trim().toUpperCase() == 'DELETE';
 
+  Widget _buildHeader() {
+    return Container(
+      height: 100.0,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF5777B5),
+            Color(0xFF26344F),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
+        child: Row(
+          children: [
+            // Back arrow
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                child: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 20.0,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8.0),
+            // Title
+            const Expanded(
+              child: Text(
+                'Delete Account',
+                style: TextStyle(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _deleteController.dispose();
@@ -31,143 +78,129 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkGrey,
-      appBar: AppBar(
-        backgroundColor: AppColors.darkGrey,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: AppColors.white,
-            size: 24,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          'Delete Account',
-          style: TextStyle(
-            color: AppColors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: false,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
+      backgroundColor: const Color(0xFFF7FAFC),
+      body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 40),
-            
-            // Warning message
-            Center(
-              child: Text(
-                'Permanently Delete Your Account',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
+            _buildHeader(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 40),
+                    
+                    // Warning message
+                    Center(
+                      child: Text(
+                        'Permanently Delete Your Account',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFF1A202C),
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // Instruction text
+                    Center(
+                      child: Text(
+                        'Type "DELETE" to confirm this action',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFF6B7280),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+                    
+                    // Delete input field
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColors.primaryOrange,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextField(
+                        controller: _deleteController,
+                        onChanged: (value) {
+                          setState(() {});
+                        },
+                        style: TextStyle(
+                          color: Color(0xFF1A202C),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'DELETE',
+                          hintStyle: TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.person_outline,
+                            color: Color(0xFF6B7280),
+                            size: 24,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    const Spacer(),
+                    
+                    // Submit button
+                    Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: isDeleteTyped
+                            ? LinearGradient(
+                                colors: [AppColors.primaryOrange, AppColors.primaryOrange.withOpacity(0.8)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        color: isDeleteTyped ? null : Color(0xFF9CA3AF),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: isDeleteTyped ? _handleDeleteAccount : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'SUBMIT',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            
-            // Instruction text
-            Center(
-              child: Text(
-                'Type "DELETE" to confirm this action',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.white.withOpacity(0.6),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            const SizedBox(height: 48),
-            
-            // Delete input field
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.primaryOrange,
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: _deleteController,
-                onChanged: (value) {
-                  setState(() {});
-                },
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'DELETE',
-                  hintStyle: TextStyle(
-                    color: AppColors.white.withOpacity(0.4),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.person_outline,
-                    color: AppColors.white.withOpacity(0.6),
-                    size: 24,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 18,
-                  ),
-                ),
-              ),
-            ),
-            
-            const Spacer(),
-            
-            // Submit button
-            Container(
-              width: double.infinity,
-              height: 56,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                gradient: isDeleteTyped
-                    ? LinearGradient(
-                        colors: [AppColors.primaryOrange, AppColors.primaryOrange.withOpacity(0.8)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
-                color: isDeleteTyped ? null : AppColors.lightGrey,
-              ),
-              child: ElevatedButton(
-                onPressed: isDeleteTyped ? _handleDeleteAccount : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'SUBMIT',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -180,7 +213,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: AppColors.darkGrey,
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -195,7 +228,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               Text(
                 'Final Warning',
                 style: TextStyle(
-                  color: AppColors.white,
+                  color: Color(0xFF1A202C),
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),
@@ -209,7 +242,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               Text(
                 'This action cannot be undone. Your account and all associated data will be permanently deleted.',
                 style: TextStyle(
-                  color: AppColors.white.withOpacity(0.8),
+                  color: Color(0xFF6B7280),
                   fontSize: 14,
                   height: 1.4,
                 ),
@@ -256,7 +289,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: AppColors.white.withOpacity(0.7),
+                  color: Color(0xFF9CA3AF),
                   fontSize: 14,
                 ),
               ),
@@ -274,7 +307,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 child: Text(
                   'Delete Forever',
                   style: TextStyle(
-                    color: AppColors.white,
+                    color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -294,7 +327,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: AppColors.darkGrey,
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -310,7 +343,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 Text(
                   'Deleting Account...',
                   style: TextStyle(
-                    color: AppColors.white,
+                    color: Color(0xFF1A202C),
                     fontSize: 16,
                   ),
                 ),
@@ -318,7 +351,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 Text(
                   'This may take a few moments',
                   style: TextStyle(
-                    color: AppColors.white.withOpacity(0.6),
+                    color: Color(0xFF6B7280),
                     fontSize: 12,
                   ),
                 ),
@@ -339,7 +372,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor: AppColors.darkGrey,
+            backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -354,7 +387,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 Text(
                   'Account Deleted',
                   style: TextStyle(
-                    color: AppColors.white,
+                    color: Color(0xFF1A202C),
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
@@ -364,7 +397,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             content: Text(
               'Your account has been permanently deleted. You will now be redirected to the login screen.',
               style: TextStyle(
-                color: AppColors.white.withOpacity(0.8),
+                color: Color(0xFF6B7280),
                 fontSize: 14,
                 height: 1.4,
               ),
@@ -388,7 +421,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   child: Text(
                     'Continue',
                     style: TextStyle(
-                      color: AppColors.white,
+                      color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),

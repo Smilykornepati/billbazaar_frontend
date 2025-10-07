@@ -29,101 +29,134 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
 
   bool get hasSelectedItems => resetOptions.values.any((selected) => selected);
 
+  Widget _buildHeader() {
+    return Container(
+      height: 100.0,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF5777B5),
+            Color(0xFF26344F),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
+        child: Row(
+          children: [
+            // Back arrow
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                child: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 20.0,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8.0),
+            // Title
+            const Expanded(
+              child: Text(
+                'Reset Account',
+                style: TextStyle(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkGrey,
-      appBar: AppBar(
-        backgroundColor: AppColors.darkGrey,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: AppColors.white,
-            size: 24,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          'Reset Account',
-          style: TextStyle(
-            color: AppColors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: false,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
+      backgroundColor: const Color(0xFFF7FAFC),
+      body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Warning message
-            Center(
-              child: Text(
-                'Selected Settings Data Will Be\nDeleted Permanently.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.primaryOrange,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  height: 1.3,
-                ),
-              ),
-            ),
-            const SizedBox(height: 40),
-            
-            // Reset options list
+            _buildHeader(),
             Expanded(
-              child: ListView(
-                children: resetOptions.keys.map((option) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: _buildResetOption(option, resetOptions[option]!),
-                  );
-                }).toList(),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Warning message
+                    Center(
+                      child: Text(
+                        'Selected Settings Data Will Be\nDeleted Permanently.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.primaryOrange,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    
+                    // Reset options list
+                    Expanded(
+                      child: ListView(
+                        children: resetOptions.keys.map((option) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            child: _buildResetOption(option, resetOptions[option]!),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    
+                    // Reset button
+                    Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: hasSelectedItems
+                            ? LinearGradient(
+                                colors: [AppColors.primaryOrange, AppColors.primaryOrange.withOpacity(0.8)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        color: hasSelectedItems ? null : const Color(0xFF9CA3AF),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: hasSelectedItems ? _handleReset : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'RESET',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
-            
-            // Reset button
-            Container(
-              width: double.infinity,
-              height: 56,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                gradient: hasSelectedItems
-                    ? LinearGradient(
-                        colors: [AppColors.primaryOrange, AppColors.primaryOrange.withOpacity(0.8)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
-                color: hasSelectedItems ? null : AppColors.lightGrey,
-              ),
-              child: ElevatedButton(
-                onPressed: hasSelectedItems ? _handleReset : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'RESET',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -134,20 +167,27 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       decoration: BoxDecoration(
-        color: AppColors.lightGrey,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.transparent,
+          color: const Color(0xFFE2E8F0),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8.0,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             title,
-            style: TextStyle(
-              color: AppColors.white,
+            style: const TextStyle(
+              color: Color(0xFF1A202C),
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -164,15 +204,15 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primaryOrange : Colors.transparent,
                 border: Border.all(
-                  color: isSelected ? AppColors.primaryOrange : AppColors.greenAccent,
+                  color: isSelected ? AppColors.primaryOrange : const Color(0xFF10B981),
                   width: 2,
                 ),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: isSelected
-                  ? Icon(
+                  ? const Icon(
                       Icons.check,
-                      color: AppColors.white,
+                      color: Colors.white,
                       size: 16,
                     )
                   : null,
@@ -197,14 +237,14 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: AppColors.darkGrey,
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: Text(
+          title: const Text(
             'Confirm Reset',
             style: TextStyle(
-              color: AppColors.white,
+              color: Color(0xFF1A202C),
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
@@ -213,10 +253,10 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Are you sure you want to permanently delete the following data?',
                 style: TextStyle(
-                  color: AppColors.white.withOpacity(0.8),
+                  color: Color(0xFF6B7280),
                   fontSize: 14,
                 ),
               ),
@@ -225,11 +265,11 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Row(
                   children: [
-                    Icon(Icons.circle, color: AppColors.primaryOrange, size: 8),
+                    const Icon(Icons.circle, color: AppColors.primaryOrange, size: 8),
                     const SizedBox(width: 8),
                     Text(
                       item,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.primaryOrange,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -245,10 +285,10 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
-                  color: AppColors.white.withOpacity(0.7),
+                  color: Color(0xFF9CA3AF),
                   fontSize: 14,
                 ),
               ),
@@ -270,7 +310,7 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
                 child: Text(
                   'Reset',
                   style: TextStyle(
-                    color: AppColors.white,
+                    color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -290,7 +330,7 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: AppColors.darkGrey,
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -299,14 +339,14 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(
+                const CircularProgressIndicator(
                   color: AppColors.primaryOrange,
                 ),
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'Resetting Account Data...',
                   style: TextStyle(
-                    color: AppColors.white,
+                    color: Color(0xFF1A202C),
                     fontSize: 16,
                   ),
                 ),
@@ -331,11 +371,11 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
+          content: const Text(
             'Account data reset successfully',
-            style: TextStyle(color: AppColors.white),
+            style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: AppColors.greenAccent,
+          backgroundColor: const Color(0xFF10B981),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),

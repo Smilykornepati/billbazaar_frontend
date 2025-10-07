@@ -73,6 +73,7 @@ flutter:
     - assets/categories/icons/printing/
     - assets/categories/icons/smarttools/
     - assets/categories/icons/moretools/
+    - assets/categories/icons/account/
     - assets/billing/icons/
     - assets/products/
 

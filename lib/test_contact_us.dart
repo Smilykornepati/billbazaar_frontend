@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'other/contact_us_screen.dart';
+import 'navigation/categories/other/contact_us_screen.dart';
 
 void main() {
   runApp(MyApp());
