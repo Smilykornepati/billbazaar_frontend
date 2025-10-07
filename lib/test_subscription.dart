@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'account/subscription_screen.dart';
+import 'navigation/categories/account/subscription_screen.dart';
 
 void main() {
   runApp(const SubscriptionTestApp());

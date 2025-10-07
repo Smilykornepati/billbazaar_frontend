@@ -16,64 +16,53 @@ class InventoryScreen extends StatefulWidget {
 }
 
 class _InventoryScreenState extends State<InventoryScreen> {
-  bool _isProductsSelected = true; // Toggle for Products/Categories
+  bool _isProductsSelected = true;
   final TextEditingController _searchController = TextEditingController();
-  String _selectedCategory = 'All Products';
-  String _selectedStatus = 'All Products';
-  String _selectedSort = 'All Products';
+  String dropValue1 = 'All Products', dropValue2 = 'All Products', dropValue3 = 'All Products';
 
-  // Sample product data
   final List<Map<String, dynamic>> _products = [
     {
       'name': 'Maggie Noodles',
-      'image': 'assets/images/maggie.png', // Placeholder for image
+      'image': 'assets/products/maggi.png',
       'price': '₹20',
       'stock': '5/10',
       'gst': '5%',
       'value': '₹100',
       'expiry': '31/12/2024',
       'isExpired': true,
-      'category': 'Snacks',
-      'status': 'Low Stock',
       'tags': ['Snacks', 'Low Stock', 'Expired'],
     },
     {
       'name': 'Coca Cola 300ml',
-      'image': 'assets/images/coca_cola.png', // Placeholder for image
+      'image': 'assets/products/bread.png',
       'price': '₹40',
       'stock': '25/15',
       'gst': '12%',
       'value': '₹1000',
       'expiry': '31/12/2024',
       'isExpired': true,
-      'category': 'Beverages',
-      'status': 'In Stock',
       'tags': ['Beverages', 'In Stock', 'Expired'],
     },
     {
       'name': 'Parle-G Biscuits',
-      'image': 'assets/images/parle_g.png', // Placeholder for image
+      'image': 'assets/products/brinjal.png',
       'price': '₹10',
       'stock': '15/20',
       'gst': '5%',
       'value': '₹150',
       'expiry': '15/01/2025',
       'isExpired': false,
-      'category': 'Snacks',
-      'status': 'In Stock',
       'tags': ['Snacks', 'In Stock', 'Fresh'],
     },
     {
       'name': 'Lays Chips',
-      'image': 'assets/images/lays.png', // Placeholder for image
+      'image': 'assets/products/potato.png',
       'price': '₹30',
       'stock': '8/12',
       'gst': '12%',
       'value': '₹240',
       'expiry': '20/01/2025',
       'isExpired': false,
-      'category': 'Snacks',
-      'status': 'Low Stock',
       'tags': ['Snacks', 'Low Stock', 'Fresh'],
     },
   ];
@@ -89,19 +78,17 @@ class _InventoryScreenState extends State<InventoryScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header with title and export buttons
-            _buildHeader(),
-            // Summary cards
-            _buildSummaryCards(),
-            // Toggle and search section
-            _buildToggleAndSearch(),
-            // Dropdowns and add button
-            _buildDropdownsAndAddButton(),
-            // Main content area - scrollable
-            Expanded(child: SingleChildScrollView(child: _buildProductList())),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildHeader(),
+              _buildSummaryCards(),
+              _buildToggleAndSearch(),
+              _buildDropdownsAndAddButton(),
+              _buildProductList(),
+              const SizedBox(height: 80),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: CustomBottomNavigation(
@@ -111,25 +98,20 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Header with title and export buttons - exact match to design
   Widget _buildHeader() {
     return Container(
-      height: 60.0,
+      height: 64.0,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF5777B5), // Blue
-            Color(0xFF26344F), // Dark Blue
-          ],
+          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 22.0),
         child: Row(
           children: [
-            // Title
             const Expanded(
               child: Text(
                 'Inventory',
@@ -137,33 +119,32 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  letterSpacing: 0.2,
                 ),
               ),
             ),
-            // Export buttons
             _buildExportButton('Export PDF', Icons.download, () {}),
-            const SizedBox(width: 8.0),
-            _buildExportButton('Export CSV', Icons.description, () {}),
+            const SizedBox(width: 10),
+            _buildExportButton('Export CVC', Icons.description, () {}),
           ],
         ),
       ),
     );
   }
 
-  // Export button widget - exact match to design
   Widget _buildExportButton(String text, IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withOpacity(0.20),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: Colors.white, size: 16.0),
+            Icon(icon, color: Colors.white, size: 15.0),
             const SizedBox(width: 4.0),
             Text(
               text,
@@ -171,6 +152,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 color: Colors.white,
                 fontSize: 12.0,
                 fontWeight: FontWeight.w500,
+                letterSpacing: 0.1,
               ),
             ),
           ],
@@ -179,7 +161,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Summary cards - exact match to design
   Widget _buildSummaryCards() {
     return Container(
       padding: const EdgeInsets.all(20.0),
@@ -188,25 +169,25 @@ class _InventoryScreenState extends State<InventoryScreen> {
           Expanded(
             child: _buildSummaryCard(
               icon: Icons.inventory_2_outlined,
-              iconColor: Colors.blue,
+              iconColor: const Color(0xFF23408F),
               title: 'Total Products',
               value: '6',
             ),
           ),
-          const SizedBox(width: 16.0),
+          const SizedBox(width: 14.0),
           Expanded(
             child: _buildSummaryCard(
-              icon: Icons.category_outlined,
-              iconColor: Colors.green,
+              icon: Icons.grid_view_rounded,
+              iconColor: const Color(0xFF10B981),
               title: 'Total Categories',
               value: '6',
             ),
           ),
-          const SizedBox(width: 16.0),
+          const SizedBox(width: 14.0),
           Expanded(
             child: _buildSummaryCard(
-              icon: Icons.bar_chart,
-              iconColor: Colors.purple,
+              icon: Icons.bar_chart_rounded,
+              iconColor: const Color(0xFFAA60E0),
               title: 'Total Value',
               value: '₹2,285',
             ),
@@ -216,7 +197,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Individual summary card - exact match to design
   Widget _buildSummaryCard({
     required IconData icon,
     required Color iconColor,
@@ -224,33 +204,28 @@ class _InventoryScreenState extends State<InventoryScreen> {
     required String value,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      height: 90,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10.0,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.grey[300]!),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: iconColor, size: 24.0),
-          const SizedBox(height: 8.0),
+          Icon(icon, color: iconColor, size: 26),
+          const SizedBox(height: 7),
           Text(
             title,
-            style: const TextStyle(fontSize: 12.0, color: Colors.grey),
-            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12, color: Color(0xFF26344F)),
           ),
-          const SizedBox(height: 4.0),
+          const SizedBox(height: 2),
           Text(
             value,
             style: const TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
+              fontSize: 16.5,
+              fontWeight: FontWeight.w700,
               color: Color(0xFF26344F),
             ),
           ),
@@ -259,102 +234,43 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Toggle and search section - exact match to design
   Widget _buildToggleAndSearch() {
-    return Container(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         children: [
-          // Toggle switch
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(25.0),
+              borderRadius: BorderRadius.circular(22),
               border: Border.all(color: Colors.grey[300]!),
             ),
             child: Row(
               children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isProductsSelected = true;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      decoration: BoxDecoration(
-                        color: _isProductsSelected
-                            ? const Color(0xFF26344F)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(25.0),
-                      ),
-                      child: Text(
-                        'Products',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w500,
-                          color: _isProductsSelected
-                              ? Colors.white
-                              : const Color(0xFF26344F),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isProductsSelected = false;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      decoration: BoxDecoration(
-                        color: !_isProductsSelected
-                            ? const Color(0xFF26344F)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(25.0),
-                      ),
-                      child: Text(
-                        'Categories',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w500,
-                          color: !_isProductsSelected
-                              ? Colors.white
-                              : const Color(0xFF26344F),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                _toggleButton('Products', _isProductsSelected, () {
+                  setState(() => _isProductsSelected = true);
+                }),
+                _toggleButton('Categories', !_isProductsSelected, () {
+                  setState(() => _isProductsSelected = false);
+                }),
               ],
             ),
           ),
-          const SizedBox(height: 16.0),
-          // Search bar
+          const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.0),
-              border: Border.all(color: Colors.grey[300]!),
+              color: const Color(0xFFE6EEFA),
+              borderRadius: BorderRadius.circular(13.0),
             ),
             child: TextField(
               controller: _searchController,
               decoration: const InputDecoration(
                 hintText: 'Search Products',
-                hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                 border: InputBorder.none,
+                icon: Icon(Icons.search, color: Colors.grey),
               ),
-              onChanged: (value) {
-                setState(() {}); // Trigger rebuild for search
-              },
             ),
           ),
         ],
@@ -362,66 +278,78 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Dropdowns and add button - exact match to design
+  Widget _toggleButton(String text, bool selected, VoidCallback onTap) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xFF5777B5) : Colors.transparent,
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: selected ? Colors.white : const Color(0xFF26344F),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDropdownsAndAddButton() {
-    return Container(
+    return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         children: [
-          // Dropdowns row
           Row(
             children: [
               Expanded(
-                child: _buildDropdown('All Products', _selectedCategory, (
-                  value,
-                ) {
-                  setState(() {
-                    _selectedCategory = value!;
-                  });
+                child: _customDropdown(dropValue1, (val) {
+                  setState(() => dropValue1 = val!);
                 }),
               ),
-              const SizedBox(width: 12.0),
+              const SizedBox(width: 10.0),
               Expanded(
-                child: _buildDropdown('All Products', _selectedStatus, (value) {
-                  setState(() {
-                    _selectedStatus = value!;
-                  });
+                child: _customDropdown(dropValue2, (val) {
+                  setState(() => dropValue2 = val!);
                 }),
               ),
-              const SizedBox(width: 12.0),
+              const SizedBox(width: 10.0),
               Expanded(
-                child: _buildDropdown('All Products', _selectedSort, (value) {
-                  setState(() {
-                    _selectedSort = value!;
-                  });
+                child: _customDropdown(dropValue3, (val) {
+                  setState(() => dropValue3 = val!);
                 }),
               ),
             ],
           ),
-          const SizedBox(height: 16.0),
-          // Add Product button
+          const SizedBox(height: 14.0),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () {
-                // TODO: Implement add product functionality
-              },
-              icon: const Icon(Icons.add, color: Colors.white),
+              onPressed: () {},
+              icon: const Icon(Icons.add, color: Colors.white, size: 21),
               label: const Text(
                 'Add Product',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16.0,
+                  fontSize: 16.5,
                   fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF6B35), // Orange color
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                backgroundColor: const Color(0xFFFF805D),
+                padding: const EdgeInsets.symmetric(vertical: 15.0),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(13),
                 ),
-                elevation: 2,
+                elevation: 1,
               ),
             ),
           ),
@@ -430,43 +358,37 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Dropdown widget - exact match to design
-  Widget _buildDropdown(
-    String hint,
-    String value,
-    ValueChanged<String?> onChanged,
-  ) {
+  Widget _customDropdown(String current, ValueChanged<String?> onChanged) {
+    const items = [
+      'All Products', 'Snacks', 'Beverages', 'Dairy', 'Frozen'
+    ];
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 11.0, vertical: 10.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.grey[300]!),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: value,
+          value: current,
           isExpanded: true,
-          style: const TextStyle(fontSize: 14.0, color: Color(0xFF26344F)),
-          items: ['All Products', 'Snacks', 'Beverages', 'Dairy', 'Frozen'].map(
-            (String value) {
-              return DropdownMenuItem<String>(value: value, child: Text(value));
-            },
-          ).toList(),
+          items: items.map((e) =>
+            DropdownMenuItem(child: Text(e), value: e)).toList(),
+          style: const TextStyle(fontSize: 13.0, color: Color(0xFF26344F)),
           onChanged: onChanged,
         ),
       ),
     );
   }
 
-  // Product list - exact match to design
   Widget _buildProductList() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         children: _products.map((product) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16.0),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 14.0),
             child: _buildProductCard(product),
           );
         }).toList(),
@@ -474,39 +396,38 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Product card - exact match to design
   Widget _buildProductCard(Map<String, dynamic> product) {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(13),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10.0,
-            offset: const Offset(0, 5),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 7, offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with image, name, and action buttons
           Row(
             children: [
-              // Product image placeholder
+              // Product image
               Container(
-                width: 60.0,
-                height: 60.0,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(8),
+                  image: DecorationImage(
+                    image: AssetImage(product['image']),
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                child: const Icon(Icons.image, color: Colors.grey, size: 30.0),
               ),
-              const SizedBox(width: 12.0),
-              // Product name and tags
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -514,47 +435,50 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     Text(
                       product['name'],
                       style: const TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 16.2,
+                        fontWeight: FontWeight.w700,
                         color: Color(0xFF26344F),
+                        letterSpacing: 0.15,
                       ),
                     ),
-                    const SizedBox(height: 8.0),
-                    // Tags
+                    const SizedBox(height: 7),
                     Wrap(
-                      spacing: 8.0,
-                      runSpacing: 4.0,
+                      spacing: 7.0,
                       children: product['tags'].map<Widget>((tag) {
-                        Color tagColor;
-                        if (tag == 'Snacks' || tag == 'Beverages') {
-                          tagColor = Colors.blue[100]!;
+                        Color bgColor;
+                        Color textColor;
+                        if (tag == 'Snacks') {
+                          bgColor = const Color(0xFFE6EEFA);
+                          textColor = const Color(0xFF23408F);
+                        } else if (tag == 'Beverages') {
+                          bgColor = const Color(0xFFE6FAF1);
+                          textColor = const Color(0xFF10B981);
                         } else if (tag == 'Low Stock') {
-                          tagColor = Colors.orange[100]!;
+                          bgColor = const Color(0xFFFEE5BB);
+                          textColor = const Color(0xFFFF9500);
                         } else if (tag == 'In Stock') {
-                          tagColor = Colors.green[100]!;
+                          bgColor = const Color(0xFFD1F3E8);
+                          textColor = const Color(0xFF10B981);
                         } else if (tag == 'Expired') {
-                          tagColor = Colors.red[100]!;
+                          bgColor = const Color(0xFFFED1DC);
+                          textColor = const Color(0xFFE53935);
                         } else {
-                          tagColor = Colors.green[100]!;
+                          bgColor = const Color(0xFFD1F3E8);
+                          textColor = const Color(0xFF10B981);
                         }
-
                         return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0,
-                            vertical: 4.0,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          margin: const EdgeInsets.only(top: 4),
                           decoration: BoxDecoration(
-                            color: tagColor,
-                            borderRadius: BorderRadius.circular(12.0),
+                            color: bgColor,
+                            borderRadius: BorderRadius.circular(13),
                           ),
                           child: Text(
                             tag,
                             style: TextStyle(
-                              fontSize: 10.0,
-                              color: tag == 'Expired'
-                                  ? Colors.red
-                                  : Colors.black87,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
                             ),
                           ),
                         );
@@ -563,50 +487,50 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   ],
                 ),
               ),
-              // Action buttons
+              // Edit and Delete actions
               Row(
                 children: [
                   IconButton(
-                    onPressed: () {
-                      // TODO: Implement edit functionality
-                    },
-                    icon: const Icon(Icons.edit, color: Colors.grey),
+                    icon: const Icon(Icons.edit, color: Color(0xFF26344F), size: 21),
+                    onPressed: () {},
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                   IconButton(
-                    onPressed: () {
-                      // TODO: Implement delete functionality
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Colors.red, size: 21),
+                    onPressed: () {},
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 16.0),
-          // Product details grid
+          const SizedBox(height: 11),
           Row(
             children: [
-              Expanded(child: _buildDetailItem('Price', product['price'])),
-              Expanded(child: _buildDetailItem('Stock', product['stock'])),
-              Expanded(child: _buildDetailItem('GST', product['gst'])),
-              Expanded(child: _buildDetailItem('Value', product['value'])),
+              Expanded(child: _detailItem('Price', product['price'])),
+              Expanded(child: _detailItem('Stock', product['stock'])),
+              Expanded(child: _detailItem('GST', product['gst'])),
+              Expanded(child: _detailItem('Value', product['value'])),
             ],
           ),
-          const SizedBox(height: 12.0),
-          // Expiry information
+          const SizedBox(height: 11),
           Row(
             children: [
+              const Icon(Icons.calendar_today, color: Colors.grey, size: 13),
+              const SizedBox(width: 5),
               Text(
                 'Expires: ${product['expiry']}',
-                style: const TextStyle(fontSize: 12.0, color: Colors.grey),
+                style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
               ),
               if (product['isExpired'])
                 const Text(
                   ' (Expired)',
                   style: TextStyle(
-                    fontSize: 12.0,
-                    color: Colors.red,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    color: Color(0xFFE53935),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
             ],
@@ -616,20 +540,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // Detail item widget
-  Widget _buildDetailItem(String label, String value) {
+  Widget _detailItem(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 10.0, color: Colors.grey)),
-        const SizedBox(height: 2.0),
+        Text(label, style: const TextStyle(fontSize: 10.5, color: Color(0xFFADB5BC))),
+        const SizedBox(height: 2),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 12.0,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF26344F),
-          ),
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF26344F), letterSpacing: 0.1),
         ),
       ],
     );

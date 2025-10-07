@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'account/reset_account_screen.dart';
+import 'navigation/categories/account/reset_account_screen.dart';
 
 void main() {
   runApp(MyApp());

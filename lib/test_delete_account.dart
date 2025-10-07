@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'account/delete_account_screen.dart';
+import 'navigation/categories/account/delete_account_screen.dart';
 
 void main() {
   runApp(MyApp());

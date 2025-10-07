@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+// If you have a custom navigation bar, import accordingly
 import '../navigation.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,16 +17,48 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Map<String, dynamic> dashboardData = {};
-  List<Map<String, dynamic>> notifications = [];
-  bool isLoading = true;
-  String storeName = 'A to Z Store';
+  Map<String, dynamic> dashboardData = {
+    'todaysSales': '2,XXXX',
+    'pendingPayments': 924,
+    'lowStockItems': 6,
+    'lowStockAlert': {
+      'count': 6,
+      'message': '6 items are running low on stock',
+    },
+    'paymentReminders': {'count': 2, 'message': '2 payments are pending'},
+  };
 
-  @override
-  void initState() {
-    super.initState();
-    _loadDashboardData();
-  }
+  List<Map<String, dynamic>> notifications = [
+    {
+      'id': 1,
+      'type': 'customer_added',
+      'title': 'New customer Raj Kumar added',
+      'time': '6 hours ago',
+      'tag': 'New',
+      'tagColor': 'green',
+      'icon': 'person_add',
+    },
+    {
+      'id': 2,
+      'type': 'stock_alert',
+      'title': 'Maggie Noddles stock is low (7 units left)',
+      'time': '2 payments are pending',
+      'tag': 'Alert',
+      'tagColor': 'orange',
+      'icon': 'warning',
+    },
+    {
+      'id': 3,
+      'type': 'customer_added',
+      'title': 'New customer Suraj Kumar added',
+      'time': '3 hours ago',
+      'tag': 'New',
+      'tagColor': 'green',
+      'icon': 'person_add',
+    },
+  ];
+
+  String storeName = 'A to Z Store';
 
   String get _greeting {
     final hour = DateTime.now().hour;
@@ -40,156 +71,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _loadDashboardData() async {
-    try {
-      await Future.wait([
-        _fetchDashboardSummary(),
-        _fetchNotifications(),
-        _fetchStoreInfo(),
-      ]);
-    } catch (e) {
-      print('Error loading dashboard data: $e');
-      _loadMockData();
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _fetchDashboardSummary() async {
-    const String apiUrl = 'https://your-api-domain.com/api/dashboard/summary';
-    try {
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN_HERE',
-        },
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          dashboardData = data;
-        });
-      } else {
-        throw Exception('Failed to load dashboard data');
-      }
-    } catch (e) {
-      print('Dashboard API Error: $e');
-      _loadMockData();
-    }
-  }
-
-  Future<void> _fetchNotifications() async {
-    const String apiUrl = 'https://your-api-domain.com/api/notifications';
-    try {
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN_HERE',
-        },
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          notifications = List<Map<String, dynamic>>.from(
-            data['notifications'] ?? [],
-          );
-        });
-      } else {
-        throw Exception('Failed to load notifications');
-      }
-    } catch (e) {
-      print('Notifications API Error: $e');
-      _loadMockNotifications();
-    }
-  }
-
-  Future<void> _fetchStoreInfo() async {
-    const String apiUrl = 'https://your-api-domain.com/api/store/info';
-    try {
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_TOKEN_HERE',
-        },
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          storeName = data['store_name'] ?? 'A to Z Store';
-        });
-      }
-    } catch (e) {
-      print('Store info API Error: $e');
-    }
-  }
-
-  void _loadMockData() {
-    dashboardData = {
-      'todaysSales': '2,XXXX',
-      'pendingPayments': 924,
-      'lowStockItems': 6,
-      'lowStockAlert': {
-        'count': 6,
-        'message': '6 items are running low on stock',
-      },
-      'paymentReminders': {'count': 2, 'message': '2 payments are pending'},
-    };
-  }
-
-  void _loadMockNotifications() {
-    notifications = [
-      {
-        'id': 1,
-        'type': 'customer_added',
-        'title': 'New customer Raj Kumar added',
-        'time': '6 hours ago',
-        'tag': 'New',
-        'tagColor': 'green',
-        'icon': 'person_add',
-      },
-      {
-        'id': 2,
-        'type': 'stock_alert',
-        'title': 'Maggie Noddles stock is low (7 units left)',
-        'time': '2 payments are pending',
-        'tag': 'Alert',
-        'tagColor': 'orange',
-        'icon': 'warning',
-      },
-      {
-        'id': 3,
-        'type': 'customer_added',
-        'title': 'New customer Suraj Kumar added',
-        'time': '3 hours ago',
-        'tag': 'New',
-        'tagColor': 'green',
-        'icon': 'person_add',
-      },
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: _buildHeader(),
-          ),
-          SliverToBoxAdapter(
-            child: Transform.translate(
-              offset: const Offset(0, -30),
+      body: Column(
+        children: [
+          _buildHeader(),
+          Expanded(
+            child: SingleChildScrollView(
               child: _buildMainContent(),
             ),
           ),
         ],
       ),
+      // No FloatingActionButton, matches the bottom nav in the image
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: widget.currentIndex,
         onTap: widget.onNavigationTap,
@@ -199,64 +95,62 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeader() {
     return Container(
-      height: 180,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF4A5C7A),
-            Color(0xFF3B4A63),
-          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 60, 20, 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _greeting,
+                          style: const TextStyle(
+                            fontSize: 28, // Image accurate, was 32
+                            fontWeight: FontWeight.w700, // heavier
+                            color: Colors.white,
+                            height: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          storeName,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.white70,
+                            height: 1.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
                     children: [
-                      Text(
-                        _greeting,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        storeName,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white.withOpacity(0.85),
-                          height: 1.3,
-                        ),
-                      ),
+                      _buildHeaderIcon(Icons.language),
+                      const SizedBox(width: 16),
+                      _buildHeaderIcon(Icons.notifications_outlined),
+                      const SizedBox(width: 16),
+                      _buildHeaderIcon(Icons.account_circle),
                     ],
                   ),
-                ),
-                Row(
-                  children: [
-                    _buildHeaderIcon(Icons.language_outlined),
-                    const SizedBox(width: 12),
-                    _buildHeaderIcon(Icons.notifications_outlined),
-                    const SizedBox(width: 12),
-                    _buildHeaderIcon(Icons.account_circle_outlined),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -264,47 +158,38 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeaderIcon(IconData icon) {
     return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+      width: 38, // adjusted for image
+      height: 38,
+      decoration: const BoxDecoration(
+        color: Colors.white,
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        icon,
-        color: Colors.white,
-        size: 20,
-      ),
+      child: Icon(icon, color: Color(0xFF26344F), size: 20),
     );
   }
 
   Widget _buildMainContent() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
+        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildTodaysSales(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
             _buildSummaryCards(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
             _buildAlertCards(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             _buildNotificationsSection(),
-            const SizedBox(height: 12),
+            const SizedBox(height: 70),
           ],
         ),
       ),
@@ -315,8 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,67 +211,57 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Row(
                 children: [
-                  const Text(
+                  Text(
                     "Today's Sales",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF374151),
-                      height: 1.2,
+                    style: const TextStyle(
+                      fontSize: 16, // image accurate
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1F1F1F),
+                      height: 1.1,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Icon(
-                      Icons.trending_up,
-                      color: Colors.white,
-                      size: 12,
-                    ),
+                  const Icon(
+                    Icons.trending_up,
+                    color: Color(0xFF10B981),
+                    size: 22,
                   ),
                 ],
               ),
               Container(
-                width: 28,
-                height: 28,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF6B35),
-                  borderRadius: BorderRadius.circular(8),
+                  color: const Color(0xFFFF805D),
+                  borderRadius: BorderRadius.circular(11),
                 ),
                 child: const Icon(
                   Icons.arrow_forward,
                   color: Colors.white,
-                  size: 16,
+                  size: 22,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 '₹ ',
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 34,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF111827),
+                  color: Color(0xFF10B981),
                   height: 1.1,
                 ),
               ),
               Text(
-                isLoading
-                    ? 'Loading...'
-                    : (dashboardData['todaysSales']?.toString() ?? '2, XXXX'),
+                dashboardData['todaysSales']?.toString() ?? '2, XXXX',
                 style: const TextStyle(
-                  fontSize: 32,
+                  fontSize: 34,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF111827),
+                  color: Color(0xFF1F1F1F),
                   height: 1.1,
                 ),
               ),
@@ -405,22 +280,18 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.currency_rupee,
             iconColor: const Color(0xFFE91E63),
             title: 'Pending Payments',
-            value: isLoading
-                ? '...'
-                : '₹ ${dashboardData['pendingPayments']?.toString() ?? '924'}',
+            value: '₹ ${dashboardData['pendingPayments']?.toString() ?? '924'}',
             valueColor: const Color(0xFFE91E63),
           ),
         ),
-        const SizedBox(width: 20),
+        const SizedBox(width: 12),
         Expanded(
           child: _buildSummaryCard(
-            icon: Icons.inventory_2,
-            iconColor: const Color(0xFF3E5A7E),
+            icon: Icons.inventory_2_outlined,
+            iconColor: const Color(0xFF26344F),
             title: 'Low Stock items',
-            value: isLoading
-                ? '...'
-                : (dashboardData['lowStockItems']?.toString() ?? '6'),
-            valueColor: const Color(0xFF3E5A7E),
+            value: dashboardData['lowStockItems']?.toString() ?? '6',
+            valueColor: const Color(0xFF26344F),
           ),
         ),
       ],
@@ -437,36 +308,36 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: iconColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: Colors.white, size: 20),
+            child: Icon(icon, color: Colors.white, size: 22),
           ),
           const SizedBox(height: 12),
           Text(
             title,
             style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
               color: Color(0xFF6B7280),
-              height: 1.3,
+              height: 1.2,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.w700,
               color: valueColor,
               height: 1.2,
@@ -482,22 +353,18 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         _buildAlertCard(
           icon: Icons.warning_amber,
-          iconColor: const Color(0xFFFF6B35),
+          iconColor: const Color(0xFFFF805D),
           title: 'Low Stock Alert',
-          subtitle: isLoading
-              ? 'Loading...'
-              : (dashboardData['lowStockAlert']?['message'] ??
-                  '6 items are running low on stock'),
+          subtitle: dashboardData['lowStockAlert']?['message'] ??
+              '6 items are running low on stock',
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         _buildAlertCard(
           icon: Icons.notifications_active,
-          iconColor: const Color(0xFFFF6B35),
+          iconColor: const Color(0xFFFF805D),
           title: 'Payments Reminders',
-          subtitle: isLoading
-              ? 'Loading...'
-              : (dashboardData['paymentReminders']?['message'] ??
-                  '2 payments are pending'),
+          subtitle:
+              dashboardData['paymentReminders']?['message'] ?? '2 payments are pending',
         ),
       ],
     );
@@ -510,23 +377,23 @@ class _HomeScreenState extends State<HomeScreen> {
     required String subtitle,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: iconColor,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: Colors.white, size: 20),
+            child: Icon(icon, color: Colors.white, size: 22),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -534,20 +401,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF111827),
-                    height: 1.3,
+                    color: Color(0xFF1F1F1F),
+                    height: 1.2,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w400,
                     color: Color(0xFF6B7280),
-                    height: 1.4,
+                    height: 1.25,
                   ),
                 ),
               ],
@@ -565,69 +432,66 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: 38,
+              height: 38,
               decoration: const BoxDecoration(
-                color: Color(0xFF4A5C7A),
+                color: Color(0xFF26344F),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.notifications,
                 color: Colors.white,
-                size: 16,
+                size: 20,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 11),
             const Text(
               'Notifications',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF111827),
-                height: 1.2,
+                color: Color(0xFF1F1F1F),
+                height: 1.1,
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        if (isLoading)
-          const Center(child: CircularProgressIndicator())
-        else
-          ...notifications
-              .map(
-                (notification) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildNotificationCard(notification),
-                ),
-              )
-              .toList(),
+        ...notifications
+            .map(
+              (notification) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildNotificationCard(notification),
+              ),
+            )
+            .toList(),
       ],
     );
   }
 
   Widget _buildNotificationCard(Map<String, dynamic> notification) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: _getNotificationIconColor(notification['type']),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               _getNotificationIcon(notification['icon']),
               color: Colors.white,
-              size: 20,
+              size: 22,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -635,38 +499,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   notification['title'] ?? '',
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF111827),
-                    height: 1.3,
+                    color: Color(0xFF1F1F1F),
+                    height: 1.2,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   notification['time'] ?? '',
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w400,
                     color: Color(0xFF6B7280),
-                    height: 1.3,
+                    height: 1.2,
                   ),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 6,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
               color: _getTagColor(notification['tagColor']),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(13),
             ),
             child: Text(
               notification['tag'] ?? '',
               style: const TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
@@ -691,11 +552,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Color _getNotificationIconColor(String? type) {
     switch (type) {
       case 'customer_added':
-        return const Color(0xFFFF6B35);
+        return const Color(0xFFFF805D);
       case 'stock_alert':
-        return const Color(0xFFFF6B35);
+        return const Color(0xFFFF805D);
       default:
-        return const Color(0xFF3E5A7E);
+        return const Color(0xFF26344F);
     }
   }
 
@@ -704,9 +565,9 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'green':
         return const Color(0xFF10B981);
       case 'orange':
-        return const Color(0xFFFF6B35);
+        return const Color(0xFFFF9500);
       default:
-        return const Color(0xFF3E5A7E);
+        return const Color(0xFF26344F);
     }
   }
 }

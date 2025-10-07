@@ -88,9 +88,7 @@ class BillBazarApp extends StatelessWidget {
         if (settings.name == '/reset-password') {
           final args = settings.arguments as Map<String, String>;
           return MaterialPageRoute(
-            builder: (context) => ResetPasswordScreen(
-              email: args['email']!,
-            ),
+            builder: (context) => ResetPasswordScreen(email: args['email']!),
           );
         }
         return null;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'account/logout_screen.dart';
+import 'navigation/categories/account/logout_screen.dart';
 
 void main() {
   runApp(MyApp());
