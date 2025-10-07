@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
+import 'additem/add_item_screen.dart';
+import 'addclient/add_client_screen.dart';
 
 class QuickBillScreen extends StatefulWidget {
   const QuickBillScreen({super.key});
@@ -29,6 +31,24 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
   void dispose() {
     _notesController.dispose();
     super.dispose();
+  }
+
+  void _showAddItemBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AddItemBottomSheet(),
+    );
+  }
+
+  void _showAddClientBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AddClientBottomSheet(),
+    );
   }
 
   @override
@@ -257,7 +277,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         const Spacer(),
         ElevatedButton.icon(
           onPressed: () {
-            // TODO: Implement add client functionality
+            _showAddClientBottomSheet();
           },
           icon: const Icon(Icons.add, color: Colors.white, size: 16.0),
           label: const Text(
@@ -304,7 +324,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         // Add item button
         ElevatedButton.icon(
           onPressed: () {
-            // TODO: Implement add item functionality
+            _showAddItemBottomSheet();
           },
           icon: const Icon(Icons.add, color: Colors.white, size: 16.0),
           label: const Text(

@@ -27,6 +27,10 @@ import 'navigation/categories/customermanagement/addcustomer/addcustomer.dart';
 import 'navigation/categories/staffmanagement/staffmanagement.dart';
 import 'navigation/categories/staffmanagement/addstaff/addstaff.dart';
 
+// Billing screens
+import 'navigation/categories/billing/additem/add_item_screen.dart';
+import 'navigation/categories/billing/addclient/add_client_screen.dart';
+
 void main() {
   runApp(const BillBazarApp());
 }
@@ -97,6 +101,8 @@ class BillBazarApp extends StatelessWidget {
         '/add-customer': (context) => const AddCustomerScreen(),
         '/staff-management': (context) => const StaffManagementScreen(),
         '/add-staff': (context) => const AddStaffScreen(),
+        '/add-item': (context) => const AddItemScreen(),
+        '/add-client': (context) => const AddClientScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {
