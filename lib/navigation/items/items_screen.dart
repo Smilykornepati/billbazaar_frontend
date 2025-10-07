@@ -35,7 +35,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
       'name': 'Amul Masti Curd',
       'weight': '(400gm)',
       'price': 150,
-      'image': 'amul_curd',
+      'image': 'assets/products/amul_curd.png',
       'category': 'Snacks',
     },
     {
@@ -43,7 +43,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
       'name': 'Maggi Noodles',
       'weight': '1 Pcs',
       'price': 15,
-      'image': 'maggi_noodles',
+      'image': 'assets/products/maggi.png',
       'category': 'Noodles',
     },
     {
@@ -51,7 +51,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
       'name': 'Potato',
       'weight': '1 Kg',
       'price': 30,
-      'image': 'potato',
+      'image': 'assets/products/potato.png',
       'category': 'Vegetables',
     },
     {
@@ -59,7 +59,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
       'name': 'Brown Bread',
       'weight': '1 Pcs',
       'price': 25,
-      'image': 'brown_bread',
+      'image': 'assets/products/bread.png',
       'category': 'Breads',
     },
     {
@@ -67,15 +67,15 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
       'name': 'Brinjal',
       'weight': '500gm',
       'price': 40,
-      'image': 'brinjal',
+      'image': 'assets/products/brinjal.png',
       'category': 'Vegetables',
     },
     {
       'id': 6,
       'name': 'Carrot',
-      'weight': '1kg/gm',
+      'weight': '1kg',
       'price': 50,
-      'image': 'carrot',
+      'image': 'assets/products/carrot.png',
       'category': 'Vegetables',
     },
   ];
@@ -135,24 +135,26 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: Column(
-        children: [
-          _buildHeader(),
-          _buildSearchBar(),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left sidebar with categories
-                _buildCategorySidebar(),
-                // Right side with products
-                Expanded(
-                  child: _buildProductsSection(),
-                ),
-              ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(),
+            _buildSearchBar(),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Left sidebar with categories
+                  _buildCategorySidebar(),
+                  // Right side with products
+                  Expanded(
+                    child: _buildProductsSection(),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: widget.currentIndex,
@@ -163,20 +165,37 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
 
   Widget _buildHeader() {
     return Container(
-      height: 60,
+      height: 50,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF4A5C7A),
-            Color(0xFF3B4A63),
+            Color(0xFF5777B5),
+            Color(0xFF26344F),
           ],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 40),
-        child: Container(),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+          const Spacer(),
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.file_download, color: Colors.white, size: 16),
+            label: const Text('Export PDF', style: TextStyle(color: Colors.white, fontSize: 12)),
+          ),
+          const SizedBox(width: 8),
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.table_chart, color: Colors.white, size: 16),
+            label: const Text('Export CSV', style: TextStyle(color: Colors.white, fontSize: 12)),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
     );
   }
@@ -188,17 +207,17 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF4A5C7A),
-            Color(0xFF3B4A63),
+            Color(0xFF5777B5),
+            Color(0xFF26344F),
           ],
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Container(
-        height: 48,
+        height: 44,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -214,7 +233,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
             hintText: 'Search Products',
             hintStyle: TextStyle(
               color: Colors.grey[400],
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
             prefixIcon: Icon(
@@ -224,8 +243,8 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
             ),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 12,
+              horizontal: 16,
+              vertical: 10,
             ),
           ),
         ),
@@ -235,15 +254,15 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
 
   Widget _buildCategorySidebar() {
     return Container(
-      width: 100,
+      width: 90,
       color: const Color(0xFFF5F5F5),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(8),
       child: SingleChildScrollView(
         child: Column(
           children: _categories.skip(1).map((category) {
             final isSelected = _selectedCategory == category;
             return Container(
-              margin: const EdgeInsets.only(bottom: 8),
+              margin: const EdgeInsets.only(bottom: 6),
               child: GestureDetector(
                 onTap: () {
                   setState(() {
@@ -254,24 +273,24 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 10,
+                    horizontal: 6,
+                    vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isSelected ? const Color(0xFF5777B5) : Colors.white,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Colors.grey[200]!,
+                      color: isSelected ? const Color(0xFF5777B5) : Colors.grey[200]!,
                       width: 1,
                     ),
                   ),
                   child: Text(
                     category,
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w500,
                       color: isSelected 
-                          ? const Color(0xFFFF6B35)
+                          ? Colors.white
                           : const Color(0xFF374151),
                     ),
                     textAlign: TextAlign.center,
@@ -291,57 +310,77 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // "All" button
+          // "All" button and Add Product button
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedCategory = 'All';
-                  _filterProducts();
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: _selectedCategory == 'All' 
-                      ? const Color(0xFFFF6B35)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: _selectedCategory == 'All'
-                        ? const Color(0xFFFF6B35)
-                        : Colors.grey[300]!,
-                    width: 1,
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedCategory = 'All';
+                      _filterProducts();
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _selectedCategory == 'All' 
+                          ? const Color(0xFF5777B5)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: _selectedCategory == 'All'
+                            ? const Color(0xFF5777B5)
+                            : Colors.grey[300]!,
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      'All',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: _selectedCategory == 'All'
+                            ? Colors.white
+                            : const Color(0xFF374151),
+                      ),
+                    ),
                   ),
                 ),
-                child: Text(
-                  'All',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: _selectedCategory == 'All'
-                        ? Colors.white
-                        : const Color(0xFF374151),
+                const Spacer(),
+                Container(
+                  height: 32,
+                  child: ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.add, size: 16, color: Colors.white),
+                    label: const Text('Add Product', style: TextStyle(fontSize: 12, color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF805D),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
           
           // Products grid
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.8,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.85,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 12,
                 ),
                 itemCount: _filteredProducts.length,
                 itemBuilder: (context, index) {
@@ -360,12 +399,12 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -374,26 +413,50 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
         children: [
           // Product Image
           Expanded(
-            flex: 4,
+            flex: 3,
             child: Container(
               width: double.infinity,
-              margin: const EdgeInsets.all(12),
+              margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: _buildProductImage(product['image']),
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  product['image'],
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            const Color(0xFFE8F5E8),
+                            const Color(0xFFB8E6B8),
+                          ],
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          _getProductIcon(product['image']),
+                          size: 24,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),
           
           // Product Details
           Expanded(
-            flex: 3,
+            flex: 2,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -401,100 +464,65 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                   Text(
                     '₹${product['price']}',
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF111827),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  
-                  // Product Name
-                  Text(
-                    product['name'],
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF374151),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
                   const SizedBox(height: 2),
                   
-                  // Weight
-                  Text(
-                    product['weight'],
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey[500],
+                  // Product Name
+                  Expanded(
+                    child: Text(
+                      product['name'],
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF374151),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   
-                  const Spacer(),
-                  
-                  // Add Button
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF6B35),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          _addToCart(product);
-                        },
-                        padding: EdgeInsets.zero,
-                        icon: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 18,
+                  // Weight and Add Button Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        product['weight'],
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.grey[500],
                         ),
                       ),
-                    ),
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF5777B5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            _addToCart(product);
+                          },
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildProductImage(String imagePath) {
-    // Create different colored containers for different products to simulate images
-    final colors = [
-      [const Color(0xFFE8F5E8), const Color(0xFFB8E6B8)], // Green for vegetables
-      [const Color(0xFFFFF3E0), const Color(0xFFFFCC80)], // Orange for snacks
-      [const Color(0xFFE3F2FD), const Color(0xFF90CAF9)], // Blue for others
-      [const Color(0xFFFCE4EC), const Color(0xFFF48FB1)], // Pink for fruits
-      [const Color(0xFFF3E5F5), const Color(0xFFCE93D8)], // Purple for breads
-    ];
-    
-    final colorIndex = imagePath.hashCode % colors.length;
-    final selectedColors = colors[colorIndex];
-    
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: selectedColors,
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          _getProductIcon(imagePath),
-          size: 32,
-          color: Colors.black54,
-        ),
       ),
     );
   }
@@ -518,7 +546,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${product['name']} added to cart!'),
-        backgroundColor: const Color(0xFF10B981),
+        backgroundColor: const Color(0xFF5777B5),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),

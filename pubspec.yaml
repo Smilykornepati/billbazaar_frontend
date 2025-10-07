@@ -74,6 +74,7 @@ flutter:
     - assets/categories/icons/smarttools/
     - assets/categories/icons/moretools/
     - assets/billing/icons/
+    - assets/products/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
