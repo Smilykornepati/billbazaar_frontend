@@ -23,47 +23,47 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   bool get isDeleteTyped => _deleteController.text.trim().toUpperCase() == 'DELETE';
 
   Widget _buildHeader() {
-    return Container(
-      height: 100.0,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF5777B5),
-            Color(0xFF26344F),
-          ],
+    return SafeArea(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF5777B5),
+              Color(0xFF26344F),
+            ],
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
-        child: Row(
-          children: [
-            // Back arrow
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                child: const Icon(
-                  Icons.arrow_back_ios,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          child: Row(
+            children: [
+              // Back arrow
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(
+                  Icons.arrow_back,
                   color: Colors.white,
-                  size: 20.0,
+                  size: 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 8.0),
+              // Title
+              const Expanded(
+                child: Text(
+                  'Delete Account',
+                  style: TextStyle(
+                    fontSize: 22.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8.0),
-            // Title
-            const Expanded(
-              child: Text(
-                'Delete Account',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -392,33 +392,35 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   Widget _buildHeader() {
     return Container(
-      height: 56.0,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [Color(0xFF5777B5), Color(0xFF26344F)],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Row(
-          children: [
-            const Expanded(
-              child: Text(
-                'Inventory',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 0.2,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          child: Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Inventory',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.2,
+                  ),
                 ),
               ),
-            ),
-            _buildExportButton('Export PDF', Icons.download, () => _exportData('PDF')),
-            const SizedBox(width: 8),
-            _buildExportButton('Export CSV', Icons.description, () => _exportData('CSV')),
-          ],
+              _buildExportButton('Export PDF', Icons.download, () => _exportData('PDF')),
+              const SizedBox(width: 8),
+              _buildExportButton('Export CSV', Icons.description, () => _exportData('CSV')),
+            ],
+          ),
         ),
       ),
     );

@@ -36,15 +36,15 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
                     Color(0xFF5777B5),
                     Color(0xFF26344F),
                   ],
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
               child: Row(
                 children: [
                   IconButton(
@@ -55,10 +55,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                       size: 24,
                     ),
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
-                    ),
+                    constraints: const BoxConstraints(),
                   ),
                   const SizedBox(width: 8),
                   Expanded(

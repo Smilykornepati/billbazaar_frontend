@@ -152,34 +152,36 @@ class _ReportsScreenState extends State<ReportsScreen> {
   // Header with title and export buttons
   Widget _buildHeader() {
     return Container(
-      height: 60.0,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [Color(0xFF5777B5), Color(0xFF26344F)],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Row(
-          children: [
-            const Expanded(
-              child: Text(
-                'Reports',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 0.2,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          child: Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Reports',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.2,
+                  ),
                 ),
               ),
-            ),
-            // Export buttons
-            _buildExportButton('Export PDF', Icons.download, () => _exportReport('PDF')),
-            const SizedBox(width: 8),
-            _buildExportButton('Export CSV', Icons.description, () => _exportReport('CSV')),
-          ],
+              // Export buttons
+              _buildExportButton('Export PDF', Icons.download, () => _exportReport('PDF')),
+              const SizedBox(width: 8),
+              _buildExportButton('Export CSV', Icons.description, () => _exportReport('CSV')),
+            ],
+          ),
         ),
       ),
     );

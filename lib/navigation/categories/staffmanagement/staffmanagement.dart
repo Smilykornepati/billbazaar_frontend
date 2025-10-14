@@ -59,15 +59,15 @@ class StaffManagementScreen extends StatelessWidget {
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
                     Color(0xFF5777B5),
                     Color(0xFF26344F),
                   ],
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
               child: Row(
                 children: [
                   IconButton(
@@ -77,6 +77,8 @@ class StaffManagementScreen extends StatelessWidget {
                       color: Colors.white,
                       size: 24,
                     ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                   const SizedBox(width: 8),
                   const Text(

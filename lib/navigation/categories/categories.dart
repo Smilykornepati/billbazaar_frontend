@@ -174,68 +174,67 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   // Header with back arrow, title and profile icon - exact match to design
   Widget _buildHeader() {
     return Container(
-      height: 100.0, // Increased height to match design
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF4A90E2), // Lighter blue at top
-            Color(0xFF2E5A87), // Darker blue at bottom
-          ],
+          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
-        child: Row(
-          children: [
-            // Back arrow - you mentioned you don't want this, but it's in the design
-            // Remove this section if you don't want the back arrow
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                child: const Icon(
-                  Icons.arrow_back_ios,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          child: Row(
+            children: [
+              // Back arrow - you mentioned you don't want this, but it's in the design
+              // Remove this section if you don't want the back arrow
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  child: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                    size: 20.0,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8.0),
+              // Title
+              const Expanded(
+                child: Text(
+                  'Categories',
+                  style: TextStyle(
+                  fontSize: 22.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              // Profile icon
+              Container(
+                width: 36.0,
+                height: 36.0,
+                decoration: BoxDecoration(
                   color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4.0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.person,
+                  color: Color(0xFF2E5A87),
                   size: 20.0,
                 ),
               ),
-            ),
-            const SizedBox(width: 8.0),
-            // Title
-            const Expanded(
-              child: Text(
-                'Categories',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            // Profile icon
-            Container(
-              width: 36.0,
-              height: 36.0,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4.0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.person,
-                color: Color(0xFF2E5A87),
-                size: 20.0,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
