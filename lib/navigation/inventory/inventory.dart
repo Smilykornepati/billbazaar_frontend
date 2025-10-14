@@ -429,7 +429,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     // Full text buttons for larger screens
                     _buildExportButton('Export PDF', Icons.download, () => _exportData('PDF')),
                     const SizedBox(width: 8),
-                    _buildExportButton('Export CSV', Icons.description, () => _exportData('CSV')),
+                    _buildExportButton('Export CSV', Icons.description, () {
+                      Navigator.pushNamed(context, '/csv-import-export');
+                    }),
                   ],
                 ],
               );

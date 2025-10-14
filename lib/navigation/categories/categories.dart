@@ -451,8 +451,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       // Navigate to Item-wise Bill screen
       Navigator.pushNamed(context, '/itemwise-bill');
     } else if (itemName.contains('credit details')) {
-      // Navigate to Credit Details screen
-      Navigator.pushNamed(context, '/credit-details');
+      // Navigate to Ledger screen (enhanced Credit Details)
+      Navigator.pushNamed(context, '/ledger');
     } else if (itemName.contains('training video')) {
       // Navigate to Training Videos screen
       Navigator.pushNamed(context, '/training-videos');

@@ -45,6 +45,12 @@ import 'navigation/categories/smarttools/barcode_maker_screen.dart';
 import 'navigation/categories/smarttools/business_card_maker_screen.dart';
 import 'navigation/categories/smarttools/poster_maker_screen.dart';
 
+// Ledger screens
+import 'navigation/categories/ledger/ledger_screen.dart';
+
+// CSV Import/Export screens
+import 'navigation/categories/csv/csv_import_export_screen.dart';
+
 void main() {
   runApp(const BillBazarApp());
 }
@@ -127,6 +133,8 @@ class BillBazarApp extends StatelessWidget {
         '/barcode-maker': (context) => const BarcodeMakerScreen(),
         '/business-card-maker': (context) => const BusinessCardMakerScreen(),
         '/poster-maker': (context) => const PosterMakerScreen(),
+        '/ledger': (context) => const LedgerScreen(),
+        '/csv-import-export': (context) => const CsvImportExportScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {

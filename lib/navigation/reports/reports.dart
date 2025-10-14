@@ -190,7 +190,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     // For larger screens, use full text buttons
                     _buildExportButton('Export PDF', Icons.download, () => _exportReport('PDF')),
                     const SizedBox(width: 8),
-                    _buildExportButton('Export CSV', Icons.description, () => _exportReport('CSV')),
+                    _buildExportButton('Export CSV', Icons.description, () {
+                      Navigator.pushNamed(context, '/csv-import-export');
+                    }),
                   ],
                 ],
               );

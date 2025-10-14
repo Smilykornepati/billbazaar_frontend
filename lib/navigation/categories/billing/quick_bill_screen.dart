@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
+import '../../../services/print_service.dart';
 import 'additem/add_item_screen.dart';
 import 'addclient/add_client_screen.dart';
 
@@ -220,7 +221,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  void _printBill() {
+  void _printBill() async {
     if (_items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -231,20 +232,84 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
       return;
     }
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Bill $_invoiceNumber printed successfully!'),
-        backgroundColor: Colors.green,
-        action: SnackBarAction(
-          label: 'New Bill',
-          textColor: Colors.white,
-          onPressed: () {
-            _resetBill();
-          },
+    // Show printing dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 16),
+            Text('Printing bill...'),
+          ],
         ),
       ),
     );
+
+    try {
+      // Prepare bill data
+      final items = _items.map((item) => {
+        'name': item['name'],
+        'quantity': item['quantity'],
+        'price': item['price'],
+      }).toList();
+
+      final subtotal = _subtotal;
+      final gstAmount = subtotal * 0.18; // 18% GST
+      final discount = _discount;
+      final total = _grandTotal + gstAmount;
+
+      // Print the bill
+      final printSuccess = await PrintService.instance.printBill(
+        customerName: _selectedClient ?? 'Walk-in Customer',
+        phoneNumber: '', // No phone field in this version
+        items: items,
+        subtotal: subtotal,
+        gstAmount: gstAmount,
+        discount: discount,
+        total: total,
+        paymentMethod: _selectedPaymentMethod,
+      );
+
+      // Close printing dialog
+      Navigator.pop(context);
+
+      if (printSuccess) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bill $_invoiceNumber printed successfully!'),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: 'New Bill',
+              textColor: Colors.white,
+              onPressed: () {
+                _resetBill();
+              },
+            ),
+          ),
+        );
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to print bill. Please check printer connection.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Close printing dialog if still open
+      Navigator.pop(context);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Print error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _resetBill() {
