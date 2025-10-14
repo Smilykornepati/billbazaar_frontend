@@ -345,34 +345,190 @@ class _PosterMakerScreenState extends State<PosterMakerScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Preview',
-            style: TextStyle(
-              fontSize: isSmallScreen ? 16 : 18,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF26344F),
-            ),
+          Row(
+            children: [
+              Text(
+                'Live Preview',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 16 : 18,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF26344F),
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSmallScreen ? 6 : 8,
+                  vertical: isSmallScreen ? 2 : 4,
+                ),
+                decoration: BoxDecoration(
+                  color: _primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _selectedTemplate,
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 9 : 10,
+                    fontWeight: FontWeight.w500,
+                    color: _primaryColor,
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(height: isSmallScreen ? 12 : 16),
           Container(
             width: double.infinity,
-            height: isSmallScreen ? 200 : 250,
+            height: isSmallScreen ? 220 : 280,
             decoration: BoxDecoration(
-              color: _backgroundColor,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: Center(
-              child: Text(
-                'Poster Preview\n${_titleController.text.isNotEmpty ? _titleController.text : 'Your Title Here'}',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 16 : 20,
-                  fontWeight: FontWeight.bold,
-                  color: _primaryColor,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  _backgroundColor,
+                  _backgroundColor.withOpacity(0.8),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
+              ],
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Title
+                  if (_titleController.text.isNotEmpty)
+                    Text(
+                      _titleController.text,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 18 : 24,
+                        fontWeight: FontWeight.bold,
+                        color: _primaryColor,
+                        letterSpacing: 1.2,
+                      ),
+                    )
+                  else
+                    Text(
+                      'YOUR TITLE HERE',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 18 : 24,
+                        fontWeight: FontWeight.bold,
+                        color: _primaryColor.withOpacity(0.6),
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  
+                  if (_subtitleController.text.isNotEmpty) ...[
+                    SizedBox(height: isSmallScreen ? 8 : 12),
+                    Text(
+                      _subtitleController.text,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 18,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF26344F),
+                      ),
+                    ),
+                  ],
+                  
+                  if (_descriptionController.text.isNotEmpty) ...[
+                    SizedBox(height: isSmallScreen ? 12 : 16),
+                    Text(
+                      _descriptionController.text,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 11 : 13,
+                        color: Colors.grey[700],
+                        height: 1.4,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  
+                  const Spacer(),
+                  
+                  // Decorative elements
+                  Container(
+                    width: isSmallScreen ? 60 : 80,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: _primaryColor,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
               ),
             ),
+          ),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          
+          // Color Picker
+          Row(
+            children: [
+              Text(
+                'Colors:',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 12 : 14,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF26344F),
+                ),
+              ),
+              SizedBox(width: isSmallScreen ? 8 : 12),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      const Color(0xFFFF805D),
+                      const Color(0xFF5777B5),
+                      const Color(0xFF10B981),
+                      const Color(0xFFE91E63),
+                      const Color(0xFF9C27B0),
+                      const Color(0xFF2196F3),
+                      const Color(0xFF4CAF50),
+                      const Color(0xFFFF9800),
+                    ].map((color) {
+                      final isSelected = _primaryColor == color;
+                      return GestureDetector(
+                        onTap: () => setState(() => _primaryColor = color),
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          width: isSmallScreen ? 24 : 28,
+                          height: isSmallScreen ? 24 : 28,
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                            border: isSelected 
+                                ? Border.all(color: Colors.grey[800]!, width: 2)
+                                : null,
+                            boxShadow: [
+                              BoxShadow(
+                                color: color.withOpacity(0.3),
+                                spreadRadius: isSelected ? 2 : 1,
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -384,55 +540,162 @@ class _PosterMakerScreenState extends State<PosterMakerScreen> {
       margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Column(
         children: [
-          SizedBox(
-            width: double.infinity,
-            height: isSmallScreen ? 48 : 56,
-            child: ElevatedButton(
-              onPressed: _savePoster,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5777B5),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          // Primary Action Buttons Row
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: isSmallScreen ? 48 : 56,
+                  child: ElevatedButton.icon(
+                    onPressed: _savePoster,
+                    icon: Icon(
+                      Icons.save,
+                      size: isSmallScreen ? 18 : 20,
+                    ),
+                    label: Text(
+                      'Save',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4CAF50),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                  ),
                 ),
               ),
-              child: Text(
-                'Save Poster',
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 14 : 16,
-                  fontWeight: FontWeight.w600,
+              SizedBox(width: isSmallScreen ? 8 : 12),
+              Expanded(
+                child: SizedBox(
+                  height: isSmallScreen ? 48 : 56,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Row(
+                            children: [
+                              Icon(Icons.download, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text('Downloading poster...'),
+                            ],
+                          ),
+                          backgroundColor: const Color(0xFF5777B5),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.download,
+                      size: isSmallScreen ? 18 : 20,
+                    ),
+                    label: Text(
+                      'Download',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5777B5),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
           SizedBox(height: isSmallScreen ? 8 : 12),
-          SizedBox(
-            width: double.infinity,
-            height: isSmallScreen ? 48 : 56,
-            child: OutlinedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Downloading poster...'),
-                    backgroundColor: Color(0xFF10B981),
+          
+          // Secondary Action Buttons Row
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: isSmallScreen ? 44 : 50,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Sharing poster...'),
+                          backgroundColor: Color(0xFFFF9800),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.share,
+                      size: isSmallScreen ? 16 : 18,
+                    ),
+                    label: Text(
+                      'Share',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFFFF9800),
+                      side: const BorderSide(color: Color(0xFFFF9800)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                   ),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF5777B5),
-                side: const BorderSide(color: Color(0xFF5777B5)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                'Download',
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 14 : 16,
-                  fontWeight: FontWeight.w600,
+              SizedBox(width: isSmallScreen ? 8 : 12),
+              Expanded(
+                child: SizedBox(
+                  height: isSmallScreen ? 44 : 50,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _titleController.clear();
+                        _subtitleController.clear();
+                        _descriptionController.clear();
+                        _selectedTemplate = 'Sale Poster';
+                        _selectedSize = 'A4 (210x297mm)';
+                        _primaryColor = const Color(0xFFFF805D);
+                        _backgroundColor = Colors.white;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Poster reset successfully'),
+                          backgroundColor: Color(0xFFE91E63),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.refresh,
+                      size: isSmallScreen ? 16 : 18,
+                    ),
+                    label: Text(
+                      'Reset',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFFE91E63),
+                      side: const BorderSide(color: Color(0xFFE91E63)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),

@@ -225,15 +225,21 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
         builder: (context, constraints) {
           final isSmallScreen = constraints.maxWidth < 400;
           
-          return SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(isSmallScreen),
-                _buildSummaryCards(isSmallScreen),
-                _buildSearchAndFilter(isSmallScreen),
-                Expanded(child: _buildCreditList(isSmallScreen)),
-              ],
-            ),
+          return Column(
+            children: [
+              _buildHeader(isSmallScreen),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildSummaryCards(isSmallScreen),
+                      _buildSearchAndFilter(isSmallScreen),
+                      _buildCreditList(isSmallScreen),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -258,10 +264,10 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
         bottom: false,
         child: Padding(
           padding: EdgeInsets.fromLTRB(
-            isSmallScreen ? 16 : 20,
-            isSmallScreen ? 12 : 18,
-            isSmallScreen ? 16 : 20,
-            isSmallScreen ? 16 : 24,
+            isSmallScreen ? 12 : 16,
+            isSmallScreen ? 8 : 12,
+            isSmallScreen ? 12 : 16,
+            isSmallScreen ? 12 : 16,
           ),
           child: Row(
             children: [
@@ -443,22 +449,24 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
 
   Widget _buildCreditList(bool isSmallScreen) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
       child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: _filteredRecords.length,
         itemBuilder: (context, index) {
           final record = _filteredRecords[index];
-          return _buildCreditCard(record);
+          return _buildCreditCard(record, isSmallScreen);
         },
       ),
     );
   }
 
-  Widget _buildCreditCard(Map<String, dynamic> record) {
+  Widget _buildCreditCard(Map<String, dynamic> record, bool isSmallScreen) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 12),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

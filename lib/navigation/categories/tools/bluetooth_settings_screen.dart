@@ -92,15 +92,17 @@ class _BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
 
     // Simulate scanning for 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
-      setState(() {
-        _isScanning = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Scanning completed'),
-          backgroundColor: Color(0xFF10B981),
-        ),
-      );
+      if (mounted) {
+        setState(() {
+          _isScanning = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Scanning completed'),
+            backgroundColor: Color(0xFF10B981),
+          ),
+        );
+      }
     });
   }
 
@@ -120,10 +122,8 @@ class _BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
       for (var d in _availableDevices) {
         d['isConnected'] = false;
       }
-      
       // Connect to selected device
       device['isConnected'] = true;
-      device['isPaired'] = true;
       _connectedDevice = device['name'];
     });
 
@@ -146,256 +146,133 @@ class _BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Disconnected from ${device['name']}'),
-        backgroundColor: const Color(0xFF6B7280),
+        backgroundColor: const Color(0xFFFF9800),
       ),
     );
-  }
-
-  void _unpairDevice(Map<String, dynamic> device) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Unpair Device'),
-        content: Text('Are you sure you want to unpair ${device['name']}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                device['isConnected'] = false;
-                device['isPaired'] = false;
-                if (_connectedDevice == device['name']) {
-                  _connectedDevice = null;
-                }
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${device['name']} unpaired'),
-                  backgroundColor: const Color(0xFF6B7280),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE91E63),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Unpair'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeviceDetails(Map<String, dynamic> device) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(device['name']),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDetailRow('Device Type:', device['type']),
-            _buildDetailRow('MAC Address:', device['address']),
-            _buildDetailRow('Signal Strength:', '${device['rssi']} dBm'),
-            _buildDetailRow('Status:', device['isConnected'] ? 'Connected' : 'Disconnected'),
-            _buildDetailRow('Pairing:', device['isPaired'] ? 'Paired' : 'Not Paired'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-          if (device['isPaired'] && !device['isConnected'])
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _connectToDevice(device);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Connect'),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSmallScreen = constraints.maxWidth < 400;
-        
-        return Padding(
-          padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 3 : 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: isSmallScreen ? 100 : 120,
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: isSmallScreen ? 12 : 14,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  value,
-                  style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Color _getSignalColor(int rssi) {
-    if (rssi >= -50) return const Color(0xFF10B981);
-    if (rssi >= -70) return const Color(0xFFFF805D);
-    return const Color(0xFFE91E63);
-  }
-
-  IconData _getDeviceIcon(String type) {
-    switch (type.toLowerCase()) {
-      case 'printer':
-        return Icons.print;
-      case 'audio':
-        return Icons.speaker;
-      case 'accessory':
-        return Icons.devices_other;
-      default:
-        return Icons.bluetooth;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildBluetoothStatus(),
-            _buildQuickActions(),
-            Expanded(child: _buildDevicesList()),
-          ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return Column(
+            children: [
+              _buildHeader(isSmallScreen),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildBluetoothStatus(isSmallScreen),
+                      _buildQuickActions(isSmallScreen),
+                      _buildDevicesList(isSmallScreen),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeader(bool isSmallScreen) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 12 : 16,
+            isSmallScreen ? 8 : 12,
+            isSmallScreen ? 12 : 16,
+            isSmallScreen ? 12 : 16,
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              SizedBox(width: isSmallScreen ? 6 : 8),
+              Expanded(
+                child: Text(
+                  'Bluetooth Settings',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 16.0 : 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.2,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                onPressed: _startScanning,
+                icon: _isScanning
+                    ? SizedBox(
+                        width: isSmallScreen ? 20 : 24,
+                        height: isSmallScreen ? 20 : 24,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Icon(
+                        Icons.search,
+                        color: Colors.white,
+                        size: isSmallScreen ? 20 : 24,
+                      ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSmallScreen = constraints.maxWidth < 400;
-        
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF5777B5), Color(0xFF26344F)],
-            ),
+  Widget _buildBluetoothStatus(bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
-          child: SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                isSmallScreen ? 16 : 20, 
-                isSmallScreen ? 14 : 18, 
-                isSmallScreen ? 16 : 20, 
-                isSmallScreen ? 18 : 24
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(
-                      Icons.arrow_back_ios, 
-                      color: Colors.white,
-                      size: isSmallScreen ? 20 : 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  SizedBox(width: isSmallScreen ? 6 : 8),
-                  Expanded(
-                    child: Text(
-                      'Bluetooth Settings',
-                      style: TextStyle(
-                        fontSize: isSmallScreen ? 16.0 : 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 0.2,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Transform.scale(
-                    scale: isSmallScreen ? 0.9 : 1.0,
-                    child: Switch(
-                      value: _isBluetoothEnabled,
-                      onChanged: (value) => _toggleBluetooth(),
-                      activeColor: Colors.white,
-                      activeTrackColor: const Color(0xFF10B981),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildBluetoothStatus() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSmallScreen = constraints.maxWidth < 400;
-        
-        return Container(
-          margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
-          padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 1,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
             children: [
-              Container(
-                padding: EdgeInsets.all(isSmallScreen ? 10 : 12),
-                decoration: BoxDecoration(
-                  color: (_isBluetoothEnabled ? const Color(0xFF10B981) : const Color(0xFF6B7280)).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.bluetooth,
-                  color: _isBluetoothEnabled ? const Color(0xFF10B981) : const Color(0xFF6B7280),
-                  size: isSmallScreen ? 28 : 32,
-                ),
+              Icon(
+                Icons.bluetooth,
+                color: _isBluetoothEnabled ? const Color(0xFF10B981) : Colors.grey,
+                size: isSmallScreen ? 28 : 32,
               ),
               SizedBox(width: isSmallScreen ? 12 : 16),
               Expanded(
@@ -403,371 +280,362 @@ class _BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bluetooth Status',
+                      'Bluetooth',
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 14 : 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: isSmallScreen ? 16 : 18,
+                        fontWeight: FontWeight.w600,
                         color: const Color(0xFF26344F),
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       _isBluetoothEnabled ? 'Enabled' : 'Disabled',
                       style: TextStyle(
-                        color: _isBluetoothEnabled ? const Color(0xFF10B981) : const Color(0xFF6B7280),
-                        fontWeight: FontWeight.w500,
-                        fontSize: isSmallScreen ? 13 : 14,
+                        fontSize: isSmallScreen ? 12 : 14,
+                        color: _isBluetoothEnabled ? const Color(0xFF10B981) : Colors.grey,
                       ),
                     ),
-                    if (_connectedDevice != null)
-                      Text(
-                        'Connected to: $_connectedDevice',
-                        style: TextStyle(
-                          color: const Color(0xFF6B7280),
-                          fontSize: isSmallScreen ? 11 : 12,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
                   ],
                 ),
+              ),
+              Switch(
+                value: _isBluetoothEnabled,
+                onChanged: (value) => _toggleBluetooth(),
+                activeColor: const Color(0xFF10B981),
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildQuickActions() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSmallScreen = constraints.maxWidth < 400;
-        
-        return Container(
-          color: Colors.white,
-          margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
-          padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 1,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+          if (_connectedDevice != null) ...[
+            SizedBox(height: isSmallScreen ? 12 : 16),
+            Container(
+              padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
               ),
-            ],
-          ),
-          child: isSmallScreen
-              ? Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _isScanning ? null : _startScanning,
-                        icon: _isScanning 
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.search, size: 18),
-                        label: Text(
-                          _isScanning ? 'Scanning...' : 'Scan Devices',
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5777B5),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _isBluetoothEnabled ? () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Making device discoverable...'),
-                              backgroundColor: Color(0xFF10B981),
-                            ),
-                          );
-                        } : null,
-                        icon: const Icon(Icons.visibility, size: 18),
-                        label: const Text(
-                          'Make Discoverable',
-                          style: TextStyle(fontSize: 13),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF805D),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _isScanning ? null : _startScanning,
-                        icon: _isScanning 
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.search, size: 20),
-                        label: Text(_isScanning ? 'Scanning...' : 'Scan Devices'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5777B5),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _isBluetoothEnabled ? () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Making device discoverable...'),
-                              backgroundColor: Color(0xFF10B981),
-                            ),
-                          );
-                        } : null,
-                        icon: const Icon(Icons.visibility, size: 20),
-                        label: const Text('Make Discoverable'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF805D),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-        );
-      },
-    );
-  }
-
-  Widget _buildDevicesList() {
-    final pairedDevices = _availableDevices.where((device) => device['isPaired']).toList();
-    final availableDevices = _availableDevices.where((device) => !device['isPaired']).toList();
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSmallScreen = constraints.maxWidth < 400;
-        
-        return Container(
-          margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (pairedDevices.isNotEmpty) ...[
-                Text(
-                  'Paired Devices',
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 16 : 18,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF26344F),
-                  ),
-                ),
-                SizedBox(height: isSmallScreen ? 8 : 12),
-                ...pairedDevices.map((device) => _buildDeviceCard(device, isPaired: true, isSmallScreen: isSmallScreen)),
-              ],
-              if (availableDevices.isNotEmpty) ...[
-                SizedBox(height: isSmallScreen ? 12 : 16),
-                Text(
-                  'Available Devices',
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 16 : 18,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF26344F),
-                  ),
-                ),
-                SizedBox(height: isSmallScreen ? 8 : 12),
-                ...availableDevices.map((device) => _buildDeviceCard(device, isPaired: false, isSmallScreen: isSmallScreen)),
-              ],
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildDeviceCard(Map<String, dynamic> device, {required bool isPaired, bool isSmallScreen = false}) {
-    return Card(
-      margin: EdgeInsets.only(bottom: isSmallScreen ? 6 : 8),
-      child: ListTile(
-        leading: Container(
-          padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF5777B5).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            _getDeviceIcon(device['type']),
-            color: const Color(0xFF5777B5),
-            size: isSmallScreen ? 18 : 20,
-          ),
-        ),
-        title: Text(
-          device['name'],
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF26344F),
-            fontSize: isSmallScreen ? 13 : 14,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              device['address'],
-              style: TextStyle(
-                color: const Color(0xFF6B7280),
-                fontSize: isSmallScreen ? 10 : 12,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            Row(
-              children: [
-                Icon(
-                  Icons.signal_cellular_alt,
-                  size: isSmallScreen ? 10 : 12,
-                  color: _getSignalColor(device['rssi']),
-                ),
-                SizedBox(width: isSmallScreen ? 2 : 4),
-                Text(
-                  '${device['rssi']} dBm',
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 9 : 10,
-                    color: _getSignalColor(device['rssi']),
-                  ),
-                ),
-                SizedBox(width: isSmallScreen ? 6 : 8),
-                if (device['isConnected'])
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isSmallScreen ? 4 : 6, 
-                      vertical: 2
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      'Connected',
-                      style: TextStyle(
-                        fontSize: isSmallScreen ? 9 : 10,
-                        color: const Color(0xFF10B981),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
-        trailing: PopupMenuButton<String>(
-          onSelected: (value) {
-            switch (value) {
-              case 'connect':
-                _connectToDevice(device);
-                break;
-              case 'disconnect':
-                _disconnectDevice(device);
-                break;
-              case 'unpair':
-                _unpairDevice(device);
-                break;
-              case 'details':
-                _showDeviceDetails(device);
-                break;
-            }
-          },
-          itemBuilder: (context) => [
-            if (isPaired && !device['isConnected'])
-              PopupMenuItem(
-                value: 'connect',
-                child: Row(
-                  children: [
-                    Icon(Icons.link, size: isSmallScreen ? 14 : 16),
-                    SizedBox(width: isSmallScreen ? 6 : 8),
-                    Text(
-                      'Connect',
-                      style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
-                    ),
-                  ],
-                ),
-              ),
-            if (device['isConnected'])
-              PopupMenuItem(
-                value: 'disconnect',
-                child: Row(
-                  children: [
-                    Icon(Icons.link_off, size: isSmallScreen ? 14 : 16),
-                    SizedBox(width: isSmallScreen ? 6 : 8),
-                    Text(
-                      'Disconnect',
-                      style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
-                    ),
-                  ],
-                ),
-              ),
-            if (isPaired)
-              PopupMenuItem(
-                value: 'unpair',
-                child: Row(
-                  children: [
-                    Icon(Icons.bluetooth_disabled, size: isSmallScreen ? 14 : 16),
-                    SizedBox(width: isSmallScreen ? 6 : 8),
-                    Text(
-                      'Unpair',
-                      style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
-                    ),
-                  ],
-                ),
-              ),
-            PopupMenuItem(
-              value: 'details',
               child: Row(
                 children: [
-                  Icon(Icons.info, size: isSmallScreen ? 14 : 16),
+                  Icon(
+                    Icons.check_circle,
+                    color: const Color(0xFF10B981),
+                    size: isSmallScreen ? 16 : 18,
+                  ),
                   SizedBox(width: isSmallScreen ? 6 : 8),
-                  Text(
-                    'Details',
-                    style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                  Expanded(
+                    child: Text(
+                      'Connected to $_connectedDevice',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 14,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF10B981),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
             ),
           ],
-        ),
-        onTap: () {
-          if (!isPaired) {
-            // Pair new device
-            setState(() {
-              device['isPaired'] = true;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('${device['name']} paired successfully'),
-                backgroundColor: const Color(0xFF10B981),
-              ),
-            );
-          } else if (!device['isConnected']) {
-            _connectToDevice(device);
-          }
-        },
+        ],
       ),
     );
+  }
+
+  Widget _buildQuickActions(bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildActionButton(
+              'Scan Devices',
+              Icons.search,
+              _isScanning ? null : _startScanning,
+              _isScanning,
+              isSmallScreen,
+            ),
+          ),
+          SizedBox(width: isSmallScreen ? 8 : 12),
+          Expanded(
+            child: _buildActionButton(
+              'Pair Device',
+              Icons.add,
+              () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Pairing mode activated'),
+                    backgroundColor: Color(0xFF5777B5),
+                  ),
+                );
+              },
+              false,
+              isSmallScreen,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(
+    String label,
+    IconData icon,
+    VoidCallback? onPressed,
+    bool isLoading,
+    bool isSmallScreen,
+  ) {
+    return Container(
+      margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 12),
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: isLoading
+            ? SizedBox(
+                width: isSmallScreen ? 16 : 18,
+                height: isSmallScreen ? 16 : 18,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Icon(
+                icon,
+                size: isSmallScreen ? 16 : 18,
+                color: Colors.white,
+              ),
+        label: Text(
+          label,
+          style: TextStyle(
+            fontSize: isSmallScreen ? 12 : 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF5777B5),
+          foregroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(
+            vertical: isSmallScreen ? 12 : 16,
+            horizontal: isSmallScreen ? 8 : 12,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDevicesList(bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+            child: Text(
+              'Available Devices',
+              style: TextStyle(
+                fontSize: isSmallScreen ? 16 : 18,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF26344F),
+              ),
+            ),
+          ),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _availableDevices.length,
+            separatorBuilder: (context, index) => Divider(
+              height: 1,
+              color: Colors.grey[200],
+            ),
+            itemBuilder: (context, index) {
+              final device = _availableDevices[index];
+              return _buildDeviceItem(device, isSmallScreen);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeviceItem(Map<String, dynamic> device, bool isSmallScreen) {
+    return Container(
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      child: Row(
+        children: [
+          // Device Icon
+          Container(
+            padding: EdgeInsets.all(isSmallScreen ? 8 : 10),
+            decoration: BoxDecoration(
+              color: _getDeviceColor(device['type']).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              _getDeviceIcon(device['type']),
+              color: _getDeviceColor(device['type']),
+              size: isSmallScreen ? 20 : 24,
+            ),
+          ),
+          SizedBox(width: isSmallScreen ? 12 : 16),
+          
+          // Device Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        device['name'],
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 14 : 16,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF26344F),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (device['isConnected'])
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 6 : 8,
+                          vertical: isSmallScreen ? 2 : 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Connected',
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 9 : 10,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                SizedBox(height: isSmallScreen ? 2 : 4),
+                Text(
+                  device['address'],
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 11 : 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.signal_cellular_alt,
+                      size: isSmallScreen ? 12 : 14,
+                      color: _getSignalColor(device['rssi']),
+                    ),
+                    SizedBox(width: isSmallScreen ? 4 : 6),
+                    Text(
+                      '${device['rssi']} dBm',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 10 : 11,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                    if (device['isPaired']) ...[
+                      SizedBox(width: isSmallScreen ? 8 : 12),
+                      Icon(
+                        Icons.link,
+                        size: isSmallScreen ? 12 : 14,
+                        color: const Color(0xFF5777B5),
+                      ),
+                      SizedBox(width: isSmallScreen ? 2 : 4),
+                      Text(
+                        'Paired',
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 10 : 11,
+                          color: const Color(0xFF5777B5),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+          
+          // Action Button
+          if (_isBluetoothEnabled)
+            device['isConnected']
+                ? IconButton(
+                    onPressed: () => _disconnectDevice(device),
+                    icon: Icon(
+                      Icons.link_off,
+                      color: const Color(0xFFE91E63),
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  )
+                : IconButton(
+                    onPressed: () => _connectToDevice(device),
+                    icon: Icon(
+                      Icons.link,
+                      color: const Color(0xFF5777B5),
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getDeviceIcon(String type) {
+    switch (type) {
+      case 'Printer':
+        return Icons.print;
+      case 'Audio':
+        return Icons.speaker;
+      case 'Accessory':
+        return Icons.inventory;
+      default:
+        return Icons.device_unknown;
+    }
+  }
+
+  Color _getDeviceColor(String type) {
+    switch (type) {
+      case 'Printer':
+        return const Color(0xFF5777B5);
+      case 'Audio':
+        return const Color(0xFF10B981);
+      case 'Accessory':
+        return const Color(0xFFFF9800);
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color _getSignalColor(int rssi) {
+    if (rssi > -50) {
+      return const Color(0xFF10B981); // Strong signal
+    } else if (rssi > -70) {
+      return const Color(0xFFFF9800); // Medium signal
+    } else {
+      return const Color(0xFFE91E63); // Weak signal
+    }
   }
 }

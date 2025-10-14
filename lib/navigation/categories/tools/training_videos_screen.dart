@@ -18,8 +18,6 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
       'description': 'Learn the basics of using BillBazar for your business',
       'category': 'Basics',
       'duration': '5:30',
-      'thumbnail': 'assets/video_thumbnails/getting_started.jpg',
-      'videoUrl': 'https://example.com/video1.mp4',
       'difficulty': 'Beginner',
       'views': 1250,
       'isWatched': false,
@@ -30,8 +28,6 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
       'description': 'Master inventory tracking and stock management',
       'category': 'Inventory',
       'duration': '8:45',
-      'thumbnail': 'assets/video_thumbnails/inventory.jpg',
-      'videoUrl': 'https://example.com/video2.mp4',
       'difficulty': 'Intermediate',
       'views': 980,
       'isWatched': true,
@@ -42,8 +38,6 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
       'description': 'Learn to create and customize professional bills',
       'category': 'Billing',
       'duration': '6:20',
-      'thumbnail': 'assets/video_thumbnails/billing.jpg',
-      'videoUrl': 'https://example.com/video3.mp4',
       'difficulty': 'Beginner',
       'views': 1500,
       'isWatched': false,
@@ -54,8 +48,6 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
       'description': 'Generate detailed reports and analytics',
       'category': 'Reports',
       'duration': '12:15',
-      'thumbnail': 'assets/video_thumbnails/reports.jpg',
-      'videoUrl': 'https://example.com/video4.mp4',
       'difficulty': 'Advanced',
       'views': 750,
       'isWatched': false,
@@ -66,8 +58,6 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
       'description': 'Track and manage customer credit effectively',
       'category': 'Billing',
       'duration': '7:30',
-      'thumbnail': 'assets/video_thumbnails/credit.jpg',
-      'videoUrl': 'https://example.com/video5.mp4',
       'difficulty': 'Intermediate',
       'views': 890,
       'isWatched': true,
@@ -78,14 +68,13 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
       'description': 'Set up thermal printers and customize settings',
       'category': 'Setup',
       'duration': '4:45',
-      'thumbnail': 'assets/video_thumbnails/printer.jpg',
-      'videoUrl': 'https://example.com/video6.mp4',
       'difficulty': 'Beginner',
       'views': 1100,
       'isWatched': false,
     },
   ];
 
+  final List<String> _categories = ['All', 'Basics', 'Inventory', 'Billing', 'Reports', 'Setup'];
   List<Map<String, dynamic>> _filteredVideos = [];
 
   @override
@@ -112,118 +101,46 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
     });
   }
 
-  void _playVideo(Map<String, dynamic> video) {
+  void _toggleWatched(int id) {
     setState(() {
-      video['isWatched'] = true;
-    });
-    
-    // In a real app, you would navigate to a video player screen
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(video['title']),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.play_circle_filled,
-                  size: 64,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(video['description']),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Playing: ${video['title']}'),
-                  backgroundColor: const Color(0xFF10B981),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF805D),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Play Video'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _markAsWatched(int videoId) {
-    setState(() {
-      final index = _trainingVideos.indexWhere((video) => video['id'] == videoId);
+      final index = _trainingVideos.indexWhere((video) => video['id'] == id);
       if (index != -1) {
         _trainingVideos[index]['isWatched'] = !_trainingVideos[index]['isWatched'];
+        _filterVideos();
       }
     });
-  }
-
-  Color _getDifficultyColor(String difficulty) {
-    switch (difficulty.toLowerCase()) {
-      case 'beginner':
-        return const Color(0xFF10B981);
-      case 'intermediate':
-        return const Color(0xFFFF805D);
-      case 'advanced':
-        return const Color(0xFFE91E63);
-      default:
-        return const Color(0xFF6B7280);
-    }
-  }
-
-  int get _watchedCount {
-    return _trainingVideos.where((video) => video['isWatched']).length;
-  }
-
-  String get _totalDuration {
-    int totalMinutes = 0;
-    for (var video in _trainingVideos) {
-      final duration = video['duration'].split(':');
-      totalMinutes += int.parse(duration[0]) * 60 + int.parse(duration[1]);
-    }
-    final hours = totalMinutes ~/ 60;
-    final minutes = totalMinutes % 60;
-    return hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildProgressCards(),
-            _buildSearchAndFilter(),
-            Expanded(child: _buildVideoList()),
-          ],
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return Column(
+            children: [
+              _buildHeader(isSmallScreen),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildProgressCards(isSmallScreen),
+                      _buildSearchAndFilter(isSmallScreen),
+                      _buildVideoGrid(isSmallScreen),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isSmallScreen) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -235,37 +152,51 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 12 : 16,
+            isSmallScreen ? 8 : 12,
+            isSmallScreen ? 12 : 16,
+            isSmallScreen ? 12 : 16,
+          ),
           child: Row(
             children: [
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 8),
-              const Expanded(
+              SizedBox(width: isSmallScreen ? 6 : 8),
+              Expanded(
                 child: Text(
                   'Training Videos',
                   style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: isSmallScreen ? 16.0 : 18.0,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: 0.2,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               IconButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Downloading all videos...'),
+                      content: Text('Video Filters'),
                       backgroundColor: Color(0xFF5777B5),
                     ),
                   );
                 },
-                icon: const Icon(Icons.download, color: Colors.white),
+                icon: Icon(
+                  Icons.video_library,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -276,35 +207,43 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
     );
   }
 
-  Widget _buildProgressCards() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+  Widget _buildProgressCards(bool isSmallScreen) {
+    final watchedVideos = _trainingVideos.where((v) => v['isWatched']).length;
+    final totalVideos = _trainingVideos.length;
+    final completionPercentage = ((watchedVideos / totalVideos) * 100).round();
+
+    return Container(
+      margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Row(
         children: [
           Expanded(
-            child: _buildProgressCard(
-              'Videos Watched',
-              '$_watchedCount/${_trainingVideos.length}',
-              const Color(0xFF10B981),
-              Icons.check_circle,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildProgressCard(
-              'Total Duration',
-              _totalDuration,
-              const Color(0xFFFF805D),
-              Icons.schedule,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildProgressCard(
+            flex: 2,
+            child: _buildStatsCard(
               'Progress',
-              '${((_watchedCount / _trainingVideos.length) * 100).toInt()}%',
-              const Color(0xFF5777B5),
+              '$completionPercentage%',
               Icons.trending_up,
+              const Color(0xFF4CAF50),
+              isSmallScreen,
+            ),
+          ),
+          SizedBox(width: isSmallScreen ? 8 : 12),
+          Expanded(
+            child: _buildStatsCard(
+              'Watched',
+              '$watchedVideos',
+              Icons.check_circle,
+              const Color(0xFF5777B5),
+              isSmallScreen,
+            ),
+          ),
+          SizedBox(width: isSmallScreen ? 8 : 12),
+          Expanded(
+            child: _buildStatsCard(
+              'Total',
+              '$totalVideos',
+              Icons.video_library,
+              const Color(0xFFFF9800),
+              isSmallScreen,
             ),
           ),
         ],
@@ -312,9 +251,9 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
     );
   }
 
-  Widget _buildProgressCard(String title, String value, Color color, IconData icon) {
+  Widget _buildStatsCard(String title, String value, IconData icon, Color color, bool isSmallScreen) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -329,22 +268,25 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
+          Icon(
+            icon,
+            color: color,
+            size: isSmallScreen ? 20 : 24,
+          ),
+          SizedBox(height: isSmallScreen ? 4 : 8),
           Text(
             value,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: isSmallScreen ? 16 : 20,
               fontWeight: FontWeight.bold,
-              color: color,
+              color: const Color(0xFF26344F),
             ),
           ),
-          const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 10,
-              color: Color(0xFF6B7280),
+            style: TextStyle(
+              fontSize: isSmallScreen ? 10 : 12,
+              color: Colors.grey[600],
             ),
             textAlign: TextAlign.center,
           ),
@@ -353,43 +295,85 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
     );
   }
 
-  Widget _buildSearchAndFilter() {
-    final categories = ['All', 'Basics', 'Billing', 'Inventory', 'Reports', 'Setup'];
-    
+  Widget _buildSearchAndFilter(bool isSmallScreen) {
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(16.0),
+      margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         children: [
+          // Search Bar
           TextField(
             controller: _searchController,
-            decoration: const InputDecoration(
+            style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+            decoration: InputDecoration(
               hintText: 'Search training videos...',
-              prefixIcon: Icon(Icons.search, color: Color(0xFF6B7280)),
+              hintStyle: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+              prefixIcon: Icon(
+                Icons.search,
+                size: isSmallScreen ? 18 : 22,
+                color: Colors.grey[600],
+              ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFF5777B5)),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 12 : 16,
+                vertical: isSmallScreen ? 8 : 12,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          
+          // Category Filter
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: categories.map((category) {
+              children: _categories.map((category) {
                 final isSelected = _selectedCategory == category;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text(category),
-                    selected: isSelected,
-                    onSelected: (selected) {
+                return Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () {
                       setState(() {
                         _selectedCategory = category;
+                        _filterVideos();
                       });
-                      _filterVideos();
                     },
-                    selectedColor: const Color(0xFFFF805D).withOpacity(0.2),
-                    checkmarkColor: const Color(0xFFFF805D),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isSmallScreen ? 12 : 16,
+                        vertical: isSmallScreen ? 6 : 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFF5777B5) : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 12 : 14,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                        ),
+                      ),
+                    ),
                   ),
                 );
               }).toList(),
@@ -400,161 +384,258 @@ class _TrainingVideosScreenState extends State<TrainingVideosScreen> {
     );
   }
 
-  Widget _buildVideoList() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.builder(
-        itemCount: _filteredVideos.length,
-        itemBuilder: (context, index) {
-          final video = _filteredVideos[index];
-          return _buildVideoCard(video);
-        },
-      ),
-    );
-  }
-
-  Widget _buildVideoCard(Map<String, dynamic> video) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () => _playVideo(video),
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildVideoGrid(bool isSmallScreen) {
+    if (_filteredVideos.isEmpty) {
+      return Container(
+        margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+        height: 200,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Video Thumbnail
-              Container(
-                width: 120,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF26344F),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    const Icon(
-                      Icons.play_circle_filled,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                    Positioned(
-                      bottom: 4,
-                      right: 4,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          video['duration'],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              Icon(
+                Icons.video_library_outlined,
+                size: isSmallScreen ? 48 : 64,
+                color: Colors.grey[400],
               ),
-              const SizedBox(width: 16),
-              // Video Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            video['title'],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF26344F),
-                            ),
-                          ),
-                        ),
-                        if (video['isWatched'])
-                          const Icon(
-                            Icons.check_circle,
-                            color: Color(0xFF10B981),
-                            size: 20,
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      video['description'],
-                      style: const TextStyle(
-                        color: Color(0xFF6B7280),
-                        fontSize: 12,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _getDifficultyColor(video['difficulty']).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            video['difficulty'],
-                            style: TextStyle(
-                              color: _getDifficultyColor(video['difficulty']),
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF5777B5).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            video['category'],
-                            style: const TextStyle(
-                              color: Color(0xFF5777B5),
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${video['views']} views',
-                          style: const TextStyle(
-                            color: Color(0xFF6B7280),
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Action Button
-              IconButton(
-                onPressed: () => _markAsWatched(video['id']),
-                icon: Icon(
-                  video['isWatched'] ? Icons.check_circle : Icons.check_circle_outline,
-                  color: video['isWatched'] ? const Color(0xFF10B981) : const Color(0xFF6B7280),
+              SizedBox(height: isSmallScreen ? 12 : 16),
+              Text(
+                'No videos found',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 14 : 16,
+                  color: Colors.grey[600],
                 ),
               ),
             ],
           ),
         ),
+      );
+    }
+
+    return Container(
+      margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: isSmallScreen ? 1 : 2,
+          crossAxisSpacing: isSmallScreen ? 8 : 12,
+          mainAxisSpacing: isSmallScreen ? 8 : 12,
+          childAspectRatio: isSmallScreen ? 3.0 : 2.5,
+        ),
+        itemCount: _filteredVideos.length,
+        itemBuilder: (context, index) {
+          final video = _filteredVideos[index];
+          return _buildVideoCard(video, isSmallScreen);
+        },
+      ),
+    );
+  }
+
+  Widget _buildVideoCard(Map<String, dynamic> video, bool isSmallScreen) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () {
+          _showVideoDialog(video, isSmallScreen);
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with difficulty and watched status
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmallScreen ? 6 : 8,
+                      vertical: isSmallScreen ? 2 : 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getDifficultyColor(video['difficulty']),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      video['difficulty'],
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 9 : 10,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  if (video['isWatched'])
+                    Icon(
+                      Icons.check_circle,
+                      color: const Color(0xFF4CAF50),
+                      size: isSmallScreen ? 16 : 18,
+                    ),
+                ],
+              ),
+              SizedBox(height: isSmallScreen ? 8 : 12),
+              
+              // Video Title
+              Text(
+                video['title'],
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 14 : 16,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF26344F),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: isSmallScreen ? 4 : 6),
+              
+              // Description
+              Text(
+                video['description'],
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 11 : 12,
+                  color: Colors.grey[600],
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const Spacer(),
+              
+              // Bottom row with duration and views
+              Row(
+                children: [
+                  Icon(
+                    Icons.play_circle_outline,
+                    size: isSmallScreen ? 14 : 16,
+                    color: Colors.grey[600],
+                  ),
+                  SizedBox(width: isSmallScreen ? 4 : 6),
+                  Text(
+                    video['duration'],
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 11 : 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.visibility,
+                    size: isSmallScreen ? 14 : 16,
+                    color: Colors.grey[600],
+                  ),
+                  SizedBox(width: isSmallScreen ? 4 : 6),
+                  Text(
+                    '${video['views']}',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 11 : 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _getDifficultyColor(String difficulty) {
+    switch (difficulty) {
+      case 'Beginner':
+        return const Color(0xFF4CAF50);
+      case 'Intermediate':
+        return const Color(0xFFFF9800);
+      case 'Advanced':
+        return const Color(0xFFE91E63);
+      default:
+        return Colors.grey;
+    }
+  }
+
+  void _showVideoDialog(Map<String, dynamic> video, bool isSmallScreen) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          video['title'],
+          style: TextStyle(fontSize: isSmallScreen ? 16 : 18),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              video['description'],
+              style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+            ),
+            SizedBox(height: isSmallScreen ? 12 : 16),
+            Row(
+              children: [
+                Icon(Icons.timer, size: isSmallScreen ? 16 : 18),
+                SizedBox(width: isSmallScreen ? 4 : 6),
+                Text(
+                  'Duration: ${video['duration']}',
+                  style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                ),
+              ],
+            ),
+            SizedBox(height: isSmallScreen ? 4 : 6),
+            Row(
+              children: [
+                Icon(Icons.bar_chart, size: isSmallScreen ? 16 : 18),
+                SizedBox(width: isSmallScreen ? 4 : 6),
+                Text(
+                  'Level: ${video['difficulty']}',
+                  style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Close',
+              style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _toggleWatched(video['id']);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    video['isWatched'] ? 'Marked as unwatched' : 'Marked as watched',
+                  ),
+                  backgroundColor: const Color(0xFF4CAF50),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF5777B5),
+              foregroundColor: Colors.white,
+            ),
+            child: Text(
+              'Watch Now',
+              style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+            ),
+          ),
+        ],
       ),
     );
   }
