@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:email_validator/email_validator.dart';
 import '../constants/colors.dart';
+// TODO: Uncomment these when implementing backend functionality
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
+// import '../config/api_config.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -45,31 +49,95 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _isLoading = true;
       });
 
+      // Simulate loading for better UX
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Account created successfully! Please verify your email.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Navigate to OTP screen
+        Navigator.pushNamed(
+          context,
+          '/otp',
+          arguments: {
+            'email': _emailController.text,
+            'name': _nameController.text,
+            'password': _passwordController.text,
+          },
+        );
+      }
+
+      /* COMMENTED OUT - BACKEND FUNCTIONALITY (FOR FUTURE USE)
       try {
-         // Simulate sign up
-        await Future.delayed(const Duration(seconds: 1));
+        // API endpoint for signup
+        const String apiUrl = ApiConfig.signupEndpoint;
+        
+        // Prepare request body
+        final Map<String, dynamic> requestBody = {
+          'name': _nameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'password': _passwordController.text,
+        };
+
+        // Make API call
+        final response = await http.post(
+          Uri.parse(apiUrl),
+          headers: ApiConfig.headers,
+          body: json.encode(requestBody),
+        );
 
         if (mounted) {
           setState(() {
             _isLoading = false;
           });
 
-          // Navigate to OTP screen for verification
-          Navigator.pushNamed(
-            context,
-            '/otp',
-            arguments: {
-              'email': _emailController.text,
-              'name': _nameController.text,
-              'password': _passwordController.text,
-            },
-          );
+          if (response.statusCode == 200 || response.statusCode == 201) {
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Account created successfully! Please verify your email.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            // Navigate to OTP screen for verification
+            Navigator.pushNamed(
+              context,
+              '/otp',
+              arguments: {
+                'email': _emailController.text,
+                'name': _nameController.text,
+                'password': _passwordController.text,
+              },
+            );
+          } else {
+            // Handle error response
+            final errorData = json.decode(response.body);
+            final errorMessage = errorData['message'] ?? 'Signup failed. Please try again.';
+            
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error: ${e.toString()}'),
+              content: Text('Network error: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -78,34 +146,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           });
         }
       }
+      */
     }
   }
 
-  Widget _buildPasswordRequirement(String requirement, bool isValid) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Icon(
-            isValid ? Icons.check_circle : Icons.radio_button_unchecked,
-            size: 14,
-            color: isValid ? Colors.green[600] : Colors.grey[400],
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              requirement,
-              style: TextStyle(
-                fontSize: 11,
-                color: isValid ? Colors.green[600] : Colors.grey[600],
-                fontWeight: isValid ? FontWeight.w500 : FontWeight.w400,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {

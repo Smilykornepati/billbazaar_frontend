@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants/colors.dart';
+// TODO: Uncomment these when implementing backend functionality  
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
+// import '../config/api_config.dart';
 
 class OTPScreen extends StatefulWidget {
   final String email;
@@ -76,34 +80,86 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
       _isLoading = true;
     });
 
+    // Simulate loading for better UX
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Account verified successfully!'),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+
+      // Navigate to home screen (using main route for testing)
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/main',
+        (route) => false,
+      );
+    }
+
+    /* COMMENTED OUT - BACKEND FUNCTIONALITY (FOR FUTURE USE)
     try {
-      // Simulate OTP verification
-      await Future.delayed(const Duration(seconds: 2));
+      // API endpoint for OTP verification
+      const String apiUrl = ApiConfig.verifyOtpEndpoint;
       
-      // For demo purposes, any 4-digit code works
-      final success = _otp.length == 4;
+      // Prepare request body
+      final Map<String, dynamic> requestBody = {
+        'email': widget.email,
+        'otp': _otp,
+        'name': widget.name,
+        'password': widget.password,
+      };
 
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Account verified successfully!'),
-            backgroundColor: Colors.green.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
+      // Make API call
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: ApiConfig.headers,
+        body: json.encode(requestBody),
+      );
 
-        // Navigate to home screen
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/home',
-          (route) => false,
-        );
-      } else {
-        if (mounted) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (response.statusCode == 200) {
+          // Store authentication token if provided
+          // final token = responseData['token'];
+          // await SharedPreferences.getInstance().then((prefs) {
+          //   prefs.setString('auth_token', token);
+          // });
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Invalid verification code. Please try again.'),
+              content: const Text('Account verified successfully!'),
+              backgroundColor: Colors.green.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+
+          // Navigate to home screen
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/home',
+            (route) => false,
+          );
+        } else {
+          // Handle error response
+          final errorData = json.decode(response.body);
+          final errorMessage = errorData['message'] ?? 'Invalid verification code. Please try again.';
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
               backgroundColor: Colors.red.shade600,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -116,20 +172,18 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('Network error: ${e.toString()}'),
             backgroundColor: Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
-      }
-    } finally {
-      if (mounted) {
         setState(() {
           _isLoading = false;
         });
       }
     }
+    */
   }
 
   Future<void> _resendOtp() async {
@@ -137,38 +191,89 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
       _isResending = true;
     });
 
+    // Simulate resending for better UX
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (mounted) {
+      setState(() {
+        _isResending = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Verification code sent successfully!'),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+
+      // Clear OTP fields for new code
+      _clearOtp();
+    }
+
+    /* COMMENTED OUT - BACKEND FUNCTIONALITY (FOR FUTURE USE)
     try {
-      // Simulate OTP resend
-      await Future.delayed(const Duration(seconds: 2));
+      // API endpoint for resend OTP
+      const String apiUrl = ApiConfig.resendOtpEndpoint;
       
+      // Prepare request body
+      final Map<String, dynamic> requestBody = {
+        'email': widget.email,
+      };
+
+      // Make API call
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: ApiConfig.headers,
+        body: json.encode(requestBody),
+      );
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Verification code sent successfully!'),
-            backgroundColor: Colors.green.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
+        setState(() {
+          _isResending = false;
+        });
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Verification code sent successfully!'),
+              backgroundColor: Colors.green.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+        } else {
+          // Handle error response
+          final errorData = json.decode(response.body);
+          final errorMessage = errorData['message'] ?? 'Failed to resend verification code';
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to resend code: ${e.toString()}'),
+            content: Text('Network error: ${e.toString()}'),
             backgroundColor: Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
-      }
-    } finally {
-      if (mounted) {
         setState(() {
           _isResending = false;
         });
       }
     }
+    */
   }
 
   @override

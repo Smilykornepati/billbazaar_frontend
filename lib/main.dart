@@ -1,9 +1,35 @@
 import 'package:flutter/material.dart';
+
+// Core screens
 import 'screens/signin_screen.dart';
-import 'screens/home_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/otp_screen.dart';
+import 'screens/forgot_password_screen.dart';
+import 'screens/reset_password_screen.dart';
+
+// Navigation screens
+import 'navigation/main_navigation.dart';
+import 'navigation/categories/billing/quick_bill_screen.dart';
+
+// Account screens
+import 'navigation/categories/account/subscription_screen.dart';
+import 'navigation/categories/account/reset_account_screen.dart';
+import 'navigation/categories/account/delete_account_screen.dart';
+import 'navigation/categories/account/logout_screen.dart';
+
+// Other screens
+import 'navigation/categories/other/contact_us_screen.dart';
+
+// Management screens
+import 'navigation/categories/customermanagement/customermanagement.dart';
+import 'navigation/categories/customermanagement/addcustomer/addcustomer.dart';
+import 'navigation/categories/staffmanagement/staffmanagement.dart';
+import 'navigation/categories/staffmanagement/addstaff/addstaff.dart';
+
+// Billing screens
+import 'navigation/categories/billing/additem/add_item_screen.dart';
+import 'navigation/categories/billing/addclient/add_client_screen.dart';
 
 void main() {
   runApp(const BillBazarApp());
@@ -35,21 +61,14 @@ class BillBazarApp extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: Color(0xFF1B365D),
           ),
-          bodyLarge: TextStyle(
-            color: Color(0xFF1B365D),
-          ),
+          bodyLarge: TextStyle(color: Color(0xFF1B365D)),
         ),
         // Input decoration theme
         inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(
-              color: Color(0xFF1B365D),
-              width: 2,
-            ),
+            borderSide: const BorderSide(color: Color(0xFF1B365D), width: 2),
           ),
         ),
         // Elevated button theme
@@ -70,9 +89,20 @@ class BillBazarApp extends StatelessWidget {
         '/splash': (context) => const SplashScreen(),
         '/signin': (context) => const SignInScreen(),
         '/signup': (context) => const SignUpScreen(),
-        '/home': (context) => const HomeScreen(),
-        // Add more routes as needed
-        // '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/main': (context) => const MainNavigationScreen(),
+        '/quick-bill': (context) => const QuickBillScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/subscription': (context) => const SubscriptionScreen(),
+        '/reset-account': (context) => const ResetAccountScreen(),
+        '/delete-account': (context) => const DeleteAccountScreen(),
+        '/logout': (context) => const LogoutScreen(),
+        '/contact-us': (context) => const ContactUsScreen(),
+        '/customer-management': (context) => const CustomerListScreen(),
+        '/add-customer': (context) => const AddCustomerScreen(),
+        '/staff-management': (context) => const StaffManagementScreen(),
+        '/add-staff': (context) => const AddStaffScreen(),
+        '/add-item': (context) => const AddItemScreen(),
+        '/add-client': (context) => const AddClientScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {
@@ -83,6 +113,12 @@ class BillBazarApp extends StatelessWidget {
               name: args['name']!,
               password: args['password']!,
             ),
+          );
+        }
+        if (settings.name == '/reset-password') {
+          final args = settings.arguments as Map<String, String>;
+          return MaterialPageRoute(
+            builder: (context) => ResetPasswordScreen(email: args['email']!),
           );
         }
         return null;
