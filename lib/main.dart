@@ -30,6 +30,14 @@ import 'navigation/categories/staffmanagement/addstaff/addstaff.dart';
 // Billing screens
 import 'navigation/categories/billing/additem/add_item_screen.dart';
 import 'navigation/categories/billing/addclient/add_client_screen.dart';
+import 'navigation/categories/billing/itemwise_bill_screen.dart';
+import 'navigation/categories/billing/credit_details_screen.dart';
+import 'navigation/categories/billing/cash_management_screen.dart';
+
+// Tools screens
+import 'navigation/categories/tools/training_videos_screen.dart';
+import 'navigation/categories/tools/bluetooth_settings_screen.dart';
+import 'navigation/categories/tools/printer_settings_screen.dart';
 
 void main() {
   runApp(const BillBazarApp());
@@ -103,6 +111,12 @@ class BillBazarApp extends StatelessWidget {
         '/add-staff': (context) => const AddStaffScreen(),
         '/add-item': (context) => const AddItemScreen(),
         '/add-client': (context) => const AddClientScreen(),
+        '/itemwise-bill': (context) => const ItemwiseBillScreen(),
+        '/credit-details': (context) => const CreditDetailsScreen(),
+        '/cash-management': (context) => const CashManagementScreen(),
+        '/training-videos': (context) => const TrainingVideosScreen(),
+        '/bluetooth-settings': (context) => const BluetoothSettingsScreen(),
+        '/printer-settings': (context) => const PrinterSettingsScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {

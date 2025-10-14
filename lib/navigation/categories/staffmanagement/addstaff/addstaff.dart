@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AddStaffScreen extends StatefulWidget {
-  const AddStaffScreen({Key? key}) : super(key: key);
+  const AddStaffScreen({super.key});
 
   @override
   State<AddStaffScreen> createState() => _AddStaffScreenState();

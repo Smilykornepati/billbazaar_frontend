@@ -12,7 +12,7 @@ class AppColors {
 }
 
 class LogoutScreen extends StatefulWidget {
-  const LogoutScreen({Key? key}) : super(key: key);
+  const LogoutScreen({super.key});
 
   @override
   State<LogoutScreen> createState() => _LogoutScreenState();

@@ -429,14 +429,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       // Navigate to Cash Management screen
       Navigator.pushNamed(context, '/cash-management');
     } else if (itemName.contains('item wise bill')) {
-      // Show coming soon for item wise bill
-      _showComingSoonDialog('Item-wise Bill');
+      // Navigate to Item-wise Bill screen
+      Navigator.pushNamed(context, '/itemwise-bill');
     } else if (itemName.contains('credit details')) {
-      // Show coming soon for credit details
-      _showComingSoonDialog('Credit Details');
+      // Navigate to Credit Details screen
+      Navigator.pushNamed(context, '/credit-details');
     } else if (itemName.contains('training video')) {
-      // Show coming soon for training videos
-      _showComingSoonDialog('Training Videos');
+      // Navigate to Training Videos screen
+      Navigator.pushNamed(context, '/training-videos');
     } else if (itemName.contains('item wise sales report') || itemName.contains('day report') || itemName.contains('sales summary')) {
       // Navigate to Reports screen
       ScaffoldMessenger.of(context).showSnackBar(
@@ -447,8 +447,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       );
       widget.onNavigationTap(3); // Switch to reports tab
     } else if (itemName.contains('bluetooth') || itemName.contains('printer setting')) {
-      // Show coming soon for printing features
-      _showComingSoonDialog('Printing Features');
+      // Navigate to appropriate printer/bluetooth screens
+      if (itemName.contains('bluetooth')) {
+        Navigator.pushNamed(context, '/bluetooth-settings');
+      } else if (itemName.contains('printer setting')) {
+        Navigator.pushNamed(context, '/printer-settings');
+      }
     } else if (itemName.contains('barcode maker') || itemName.contains('business card maker') || itemName.contains('poster maker')) {
       // Show coming soon for smart tools
       _showComingSoonDialog('Smart Tools');
