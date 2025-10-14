@@ -67,7 +67,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             _buildHeader(),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 child: Column(
                   children: [
                     _buildGoPremiumTitle(),
@@ -89,65 +89,80 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildHeader() {
-    return SafeArea(
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF5777B5),
-              Color(0xFF26344F),
-            ],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: Row(
-            children: [
-              // Back arrow
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                  size: 24,
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return SafeArea(
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF5777B5),
+                  Color(0xFF26344F),
+                ],
               ),
-              const SizedBox(width: 8.0),
-              // Title
-              const Expanded(
-                child: Text(
-                  'Subscription',
-                  style: TextStyle(
-                    fontSize: 22.0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 14 : 18, 
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 18 : 24
+              ),
+              child: Row(
+                children: [
+                  // Back arrow
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
-                ),
-              ),
-              // Payment Report button
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryOrange,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'Payment Report',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                  SizedBox(width: isSmallScreen ? 6.0 : 8.0),
+                  // Title
+                  Expanded(
+                    child: Text(
+                      'Subscription',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 18.0 : 22.0,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
+                  // Payment Report button
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmallScreen ? 12 : 16, 
+                      vertical: isSmallScreen ? 6 : 8
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryOrange,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Payment Report',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

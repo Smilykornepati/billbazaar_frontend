@@ -169,7 +169,12 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(child: Text('${item['name']} x${item['quantity']}')),
+                    Expanded(
+                      child: Text(
+                        '${item['name']} x${item['quantity']}',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     Text('₹${item['totalPrice'].toStringAsFixed(2)}'),
                   ],
                 ),
@@ -330,50 +335,62 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
 
   // Header with back button and title - exact match to design
   Widget _buildHeader() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF5777B5), // Blue
-            Color(0xFF26344F), // Dark Blue
-          ],
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: Row(
-            children: [
-              // Back button
-              GestureDetector(
-                onTap: () {
-                  Navigator.pop(context); // Navigate back to categories
-                },
-                child: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                  size: 24.0,
-                ),
-              ),
-              const SizedBox(width: 16.0),
-              // Title
-              const Expanded(
-                child: Text(
-                  'Quick Bill',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF5777B5), // Blue
+                Color(0xFF26344F), // Dark Blue
+              ],
+            ),
           ),
-        ),
-      ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 14 : 18, 
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 18 : 24
+              ),
+              child: Row(
+                children: [
+                  // Back button
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context); // Navigate back to categories
+                    },
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                      size: isSmallScreen ? 20.0 : 24.0,
+                    ),
+                  ),
+                  SizedBox(width: isSmallScreen ? 12.0 : 16.0),
+                  // Title
+                  Expanded(
+                    child: Text(
+                      'Quick Bill',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 18.0 : 20.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

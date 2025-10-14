@@ -292,111 +292,131 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  // Items grid - 4 columns to match design
+  // Items grid - responsive columns based on screen width
   Widget _buildItemsGrid(List<Map<String, dynamic>> items) {
-    // Calculate rows needed
-    final int itemsPerRow = 4;
-    final int rowCount = (items.length / itemsPerRow).ceil();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate responsive items per row based on screen width
+        int itemsPerRow;
+        if (constraints.maxWidth < 300) {
+          itemsPerRow = 2; // Very small screens
+        } else if (constraints.maxWidth < 450) {
+          itemsPerRow = 3; // Medium screens
+        } else {
+          itemsPerRow = 4; // Large screens (original design)
+        }
+        
+        final int rowCount = (items.length / itemsPerRow).ceil();
 
-    return Column(
-      children: List.generate(rowCount, (rowIndex) {
-        final startIndex = rowIndex * itemsPerRow;
-        final endIndex = (startIndex + itemsPerRow).clamp(0, items.length);
-        final rowItems = items.sublist(startIndex, endIndex);
+        return Column(
+          children: List.generate(rowCount, (rowIndex) {
+            final startIndex = rowIndex * itemsPerRow;
+            final endIndex = (startIndex + itemsPerRow).clamp(0, items.length);
+            final rowItems = items.sublist(startIndex, endIndex);
 
-        return Padding(
-          padding: EdgeInsets.only(bottom: rowIndex < rowCount - 1 ? 20.0 : 0.0),
-          child: Row(
-            children: [
-              ...rowItems.map((item) => Expanded(child: _buildItemCard(item))),
-              // Add empty spaces if row is not complete
-              ...List.generate(
-                itemsPerRow - rowItems.length,
-                (index) => const Expanded(child: SizedBox()),
+            return Padding(
+              padding: EdgeInsets.only(bottom: rowIndex < rowCount - 1 ? 20.0 : 0.0),
+              child: Row(
+                children: [
+                  ...rowItems.map((item) => Expanded(child: _buildItemCard(item))),
+                  // Add empty spaces if row is not complete
+                  ...List.generate(
+                    itemsPerRow - rowItems.length,
+                    (index) => const Expanded(child: SizedBox()),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          }),
         );
-      }),
+      },
     );
   }
 
-  // Item card - exact match to design
+  // Item card - responsive design
   Widget _buildItemCard(Map<String, dynamic> item) {
     return GestureDetector(
       onTap: () {
         // Handle item tap
         _handleItemTap(item);
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6.0),
-        child: Column(
-          children: [
-            // Icon container
-            Container(
-              width: 64.0,
-              height: 64.0,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: const Color(0xFFE2E8F0),
-                  width: 1.0,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 8.0,
-                    offset: const Offset(0, 2),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 80;
+          final iconSize = isSmallScreen ? 56.0 : 64.0;
+          final imageSize = isSmallScreen ? 28.0 : 36.0;
+          
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 4.0 : 6.0),
+            child: Column(
+              children: [
+                // Icon container
+                Container(
+                  width: iconSize,
+                  height: iconSize,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0),
+                      width: 1.0,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8.0,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Center(
-                child: Image.asset(
-                  item['icon'],
-                  width: 36.0,
-                  height: 36.0,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    // Debug: Print which asset failed to load
-                    print('Failed to load asset: ${item['icon']}');
-                    // Fallback icon if image fails to load
-                    return Container(
-                      width: 36.0,
-                      height: 36.0,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4A90E2).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Icon(
-                        _getIconForItem(item['name']),
-                        color: const Color(0xFF4A90E2),
-                        size: 24.0,
-                      ),
-                    );
-                  },
+                  child: Center(
+                    child: Image.asset(
+                      item['icon'],
+                      width: imageSize,
+                      height: imageSize,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Debug: Print which asset failed to load
+                        print('Failed to load asset: ${item['icon']}');
+                        // Fallback icon if image fails to load
+                        return Container(
+                          width: imageSize,
+                          height: imageSize,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4A90E2).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Icon(
+                            _getIconForItem(item['name']),
+                            color: const Color(0xFF4A90E2),
+                            size: isSmallScreen ? 18.0 : 24.0,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12.0),
-            // Item name
-            SizedBox(
-              height: 36.0, // Fixed height to align all text
-              child: Text(
-                item['name'],
-                style: const TextStyle(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF374151),
-                  height: 1.2,
+                SizedBox(height: isSmallScreen ? 8.0 : 12.0),
+                // Item name
+                SizedBox(
+                  height: isSmallScreen ? 30.0 : 36.0, // Fixed height to align all text
+                  child: Text(
+                    item['name'],
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 10.0 : 12.0,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF374151),
+                      height: 1.2,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

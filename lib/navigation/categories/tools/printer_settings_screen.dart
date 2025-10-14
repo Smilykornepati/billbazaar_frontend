@@ -290,48 +290,68 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'Printer Settings',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: _testPrint,
-                icon: const Icon(Icons.print, color: Colors.white),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF5777B5), Color(0xFF26344F)],
+            ),
           ),
-        ),
-      ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 14 : 18, 
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 18 : 24
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.arrow_back_ios, 
+                      color: Colors.white,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  SizedBox(width: isSmallScreen ? 6 : 8),
+                  Expanded(
+                    child: Text(
+                      'Printer Settings',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 16.0 : 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.2,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _testPrint,
+                    icon: Icon(
+                      Icons.print, 
+                      color: Colors.white,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -341,121 +361,151 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
       orElse: () => _availablePrinters.first,
     );
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(currentPrinter['status']).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.print,
-                  color: _getStatusColor(currentPrinter['status']),
-                  size: 32,
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+          padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Current Printer',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF6B7280),
-                      ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(isSmallScreen ? 10 : 12),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(currentPrinter['status']).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    Text(
-                      currentPrinter['name'],
-                      style: const TextStyle(
-                        fontSize: 18,
+                    child: Icon(
+                      Icons.print,
+                      color: _getStatusColor(currentPrinter['status']),
+                      size: isSmallScreen ? 28 : 32,
+                    ),
+                  ),
+                  SizedBox(width: isSmallScreen ? 12 : 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Current Printer',
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 11 : 12,
+                            color: const Color(0xFF6B7280),
+                          ),
+                        ),
+                        Text(
+                          currentPrinter['name'],
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 16 : 18,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF26344F),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          currentPrinter['model'],
+                          style: TextStyle(
+                            color: const Color(0xFF6B7280),
+                            fontSize: isSmallScreen ? 13 : 14,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmallScreen ? 8 : 12, 
+                      vertical: isSmallScreen ? 4 : 6
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(currentPrinter['status']).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      currentPrinter['status'],
+                      style: TextStyle(
+                        color: _getStatusColor(currentPrinter['status']),
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF26344F),
+                        fontSize: isSmallScreen ? 10 : 12,
                       ),
                     ),
-                    Text(
-                      currentPrinter['model'],
-                      style: const TextStyle(
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(currentPrinter['status']).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  currentPrinter['status'],
-                  style: TextStyle(
-                    color: _getStatusColor(currentPrinter['status']),
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
                   ),
-                ),
+                ],
+              ),
+              SizedBox(height: isSmallScreen ? 12 : 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _testPrint,
+                      icon: Icon(
+                        Icons.print_outlined, 
+                        size: isSmallScreen ? 18 : 20
+                      ),
+                      label: Text(
+                        'Test Print',
+                        style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF5777B5),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          vertical: isSmallScreen ? 10 : 12
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: isSmallScreen ? 8 : 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Checking printer status...'),
+                            backgroundColor: Color(0xFF10B981),
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.refresh, 
+                        size: isSmallScreen ? 18 : 20
+                      ),
+                      label: Text(
+                        'Refresh',
+                        style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFF805D),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          vertical: isSmallScreen ? 10 : 12
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _testPrint,
-                  icon: const Icon(Icons.print_outlined, size: 20),
-                  label: const Text('Test Print'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5777B5),
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Checking printer status...'),
-                        backgroundColor: Color(0xFF10B981),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.refresh, size: 20),
-                  label: const Text('Refresh'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF805D),
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

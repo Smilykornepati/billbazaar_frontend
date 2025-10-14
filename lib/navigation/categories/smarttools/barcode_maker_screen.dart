@@ -208,172 +208,331 @@ class _BarcodeMakerScreenState extends State<BarcodeMakerScreen> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'Barcode Maker',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Help & Tutorial'),
-                      backgroundColor: Color(0xFF5777B5),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.help_outline, color: Colors.white),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF5777B5), Color(0xFF26344F)],
+            ),
           ),
-        ),
-      ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 14 : 18, 
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 18 : 24
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.arrow_back_ios, 
+                      color: Colors.white,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  SizedBox(width: isSmallScreen ? 6 : 8),
+                  Expanded(
+                    child: Text(
+                      'Barcode Maker',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 16.0 : 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.2,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Help & Tutorial'),
+                          backgroundColor: Color(0xFF5777B5),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.help_outline, 
+                      color: Colors.white,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildBarcodeGenerator() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Generate Barcode',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF26344F),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _textController,
-            decoration: const InputDecoration(
-              labelText: 'Enter text or number',
-              hintText: 'e.g., PROD12345 or 1234567890',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            value: _selectedBarcodeType,
-            decoration: const InputDecoration(
-              labelText: 'Barcode Type',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-            ),
-            items: _barcodeTypes.map((type) {
-              return DropdownMenuItem(value: type, child: Text(type));
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                _selectedBarcodeType = value!;
-              });
-            },
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Width: ${_barcodeWidth.toInt()}'),
-                    Slider(
-                      value: _barcodeWidth,
-                      min: 1,
-                      max: 5,
-                      divisions: 4,
-                      activeColor: const Color(0xFFFF805D),
-                      onChanged: (value) {
-                        setState(() {
-                          _barcodeWidth = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Height: ${_barcodeHeight.toInt()}'),
-                    Slider(
-                      value: _barcodeHeight,
-                      min: 50,
-                      max: 200,
-                      divisions: 15,
-                      activeColor: const Color(0xFFFF805D),
-                      onChanged: (value) {
-                        setState(() {
-                          _barcodeHeight = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+          padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-          SwitchListTile(
-            title: const Text('Show Text Below Barcode'),
-            value: _showText,
-            activeColor: const Color(0xFFFF805D),
-            onChanged: (value) {
-              setState(() {
-                _showText = value;
-              });
-            },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Generate Barcode',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 16 : 18,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF26344F),
+                ),
+              ),
+              SizedBox(height: isSmallScreen ? 12 : 16),
+              TextField(
+                controller: _textController,
+                decoration: InputDecoration(
+                  labelText: 'Enter text or number',
+                  hintText: 'e.g., PROD12345 or 1234567890',
+                  labelStyle: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+                  hintStyle: TextStyle(fontSize: isSmallScreen ? 12 : 13),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                ),
+                style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+              ),
+              SizedBox(height: isSmallScreen ? 12 : 16),
+              DropdownButtonFormField<String>(
+                value: _selectedBarcodeType,
+                decoration: InputDecoration(
+                  labelText: 'Barcode Type',
+                  labelStyle: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 13 : 14,
+                  color: Colors.black,
+                ),
+                items: _barcodeTypes.map((type) {
+                  return DropdownMenuItem(
+                    value: type, 
+                    child: Text(
+                      type,
+                      style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedBarcodeType = value!;
+                  });
+                },
+              ),
+              SizedBox(height: isSmallScreen ? 12 : 16),
+              isSmallScreen 
+                ? Column(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Width: ${_barcodeWidth.toInt()}',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                          Slider(
+                            value: _barcodeWidth,
+                            min: 1,
+                            max: 5,
+                            divisions: 4,
+                            activeColor: const Color(0xFFFF805D),
+                            onChanged: (value) {
+                              setState(() {
+                                _barcodeWidth = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Height: ${_barcodeHeight.toInt()}',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                          Slider(
+                            value: _barcodeHeight,
+                            min: 50,
+                            max: 200,
+                            divisions: 6,
+                            activeColor: const Color(0xFFFF805D),
+                            onChanged: (value) {
+                              setState(() {
+                                _barcodeHeight = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Width: ${_barcodeWidth.toInt()}'),
+                            Slider(
+                              value: _barcodeWidth,
+                              min: 1,
+                              max: 5,
+                              divisions: 4,
+                              activeColor: const Color(0xFFFF805D),
+                              onChanged: (value) {
+                                setState(() {
+                                  _barcodeWidth = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Height: ${_barcodeHeight.toInt()}'),
+                            Slider(
+                              value: _barcodeHeight,
+                              min: 50,
+                              max: 200,
+                              divisions: 6,
+                              activeColor: const Color(0xFFFF805D),
+                              onChanged: (value) {
+                                setState(() {
+                                  _barcodeHeight = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+              SwitchListTile(
+                title: Text(
+                  'Show Text Below Barcode',
+                  style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+                ),
+                value: _showText,
+                activeColor: const Color(0xFFFF805D),
+                onChanged: (value) {
+                  setState(() {
+                    _showText = value;
+                  });
+                },
+              ),
+              SizedBox(height: isSmallScreen ? 12 : 16),
+              isSmallScreen
+                ? Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _generateBarcode,
+                          icon: const Icon(Icons.qr_code, size: 18),
+                          label: const Text(
+                            'Generate Barcode',
+                            style: TextStyle(fontSize: 13),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFF805D),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _generatedBarcode.isNotEmpty ? _saveBarcode : null,
+                          icon: const Icon(Icons.save, size: 18),
+                          label: const Text(
+                            'Save Barcode',
+                            style: TextStyle(fontSize: 13),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF10B981),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _generateBarcode,
+                          icon: const Icon(Icons.qr_code, size: 20),
+                          label: const Text('Generate Barcode'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFF805D),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _generatedBarcode.isNotEmpty ? _saveBarcode : null,
+                          icon: const Icon(Icons.save, size: 20),
+                          label: const Text('Save Barcode'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF10B981),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

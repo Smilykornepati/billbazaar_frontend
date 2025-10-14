@@ -403,34 +403,51 @@ class _InventoryScreenState extends State<InventoryScreen> {
         bottom: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Inventory',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 0.2,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isSmallScreen = constraints.maxWidth < 400;
+              
+              return Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Inventory',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 16.0 : 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              _buildExportButton('Export PDF', Icons.download, () => _exportData('PDF')),
-              const SizedBox(width: 8),
-              _buildExportButton('Export CSV', Icons.description, () => _exportData('CSV')),
-            ],
+                  if (isSmallScreen) ...[
+                    // Icon-only buttons for small screens
+                    _buildExportButton('', Icons.picture_as_pdf, () => _exportData('PDF'), iconOnly: true),
+                    const SizedBox(width: 6),
+                    _buildExportButton('', Icons.description, () => _exportData('CSV'), iconOnly: true),
+                  ] else ...[
+                    // Full text buttons for larger screens
+                    _buildExportButton('Export PDF', Icons.download, () => _exportData('PDF')),
+                    const SizedBox(width: 8),
+                    _buildExportButton('Export CSV', Icons.description, () => _exportData('CSV')),
+                  ],
+                ],
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildExportButton(String text, IconData icon, VoidCallback onTap) {
+  Widget _buildExportButton(String text, IconData icon, VoidCallback onTap, {bool iconOnly = false}) {
     return GestureDetector(
       onTap: _isLoading ? null : onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: iconOnly ? 8.0 : 12.0, 
+          vertical: 6.0,
+        ),
         decoration: BoxDecoration(
           color: _isLoading 
               ? Colors.grey.withOpacity(0.3)
@@ -460,15 +477,17 @@ class _InventoryScreenState extends State<InventoryScreen> {
               )
             else
               Icon(icon, color: Colors.white, size: 14.0),
-            const SizedBox(width: 4.0),
-            Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12.0,
-                fontWeight: FontWeight.w500,
+            if (!iconOnly) ...[
+              const SizedBox(width: 4.0),
+              Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -489,60 +508,109 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildSummaryCard(
-              title: 'Total Products',
-              value: totalProducts.toString(),
-              color: const Color(0xFF10B981),
-              icon: Icons.inventory_2,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  dropValue3 = 'Low Stock';
-                  _filterProducts();
-                });
-              },
-              child: _buildSummaryCard(
-                title: 'Low Stock',
-                value: lowStockProducts.toString(),
-                color: const Color(0xFFFF805D),
-                icon: Icons.warning,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  dropValue3 = 'Expired';
-                  _filterProducts();
-                });
-              },
-              child: _buildSummaryCard(
-                title: 'Expired',
-                value: expiredProducts.toString(),
-                color: const Color(0xFFE91E63),
-                icon: Icons.schedule,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildSummaryCard(
-              title: 'Total Value',
-              value: '₹$totalValue',
-              color: const Color(0xFF5777B5),
-              icon: Icons.currency_rupee,
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          // Use 2x2 grid for small screens, 1x4 for larger screens
+          if (isSmallScreen) {
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildSummaryCard(
+                        title: 'Total Products',
+                        value: totalProducts.toString(),
+                        color: const Color(0xFF10B981),
+                        icon: Icons.inventory_2,
+                        isSmall: true,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildSummaryCard(
+                        title: 'Low Stock',
+                        value: lowStockProducts.toString(),
+                        color: const Color(0xFFFF805D),
+                        icon: Icons.warning,
+                        isSmall: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildSummaryCard(
+                        title: 'Expired',
+                        value: expiredProducts.toString(),
+                        color: const Color(0xFFE91E63),
+                        icon: Icons.schedule,
+                        isSmall: true,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildSummaryCard(
+                        title: 'Total Value',
+                        value: '₹$totalValue',
+                        color: const Color(0xFF5777B5),
+                        icon: Icons.account_balance_wallet,
+                        isSmall: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          } else {
+            return Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryCard(
+                    title: 'Total Products',
+                    value: totalProducts.toString(),
+                    color: const Color(0xFF10B981),
+                    icon: Icons.inventory_2,
+                    isSmall: false,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSummaryCard(
+                    title: 'Low Stock',
+                    value: lowStockProducts.toString(),
+                    color: const Color(0xFFFF805D),
+                    icon: Icons.warning,
+                    isSmall: false,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSummaryCard(
+                    title: 'Expired',
+                    value: expiredProducts.toString(),
+                    color: const Color(0xFFE91E63),
+                    icon: Icons.schedule,
+                    isSmall: false,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSummaryCard(
+                    title: 'Total Value',
+                    value: '₹$totalValue',
+                    color: const Color(0xFF5777B5),
+                    icon: Icons.account_balance_wallet,
+                    isSmall: false,
+                  ),
+                ),
+              ],
+            );
+          }
+        },
       ),
     );
   }
@@ -552,9 +620,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
     required String value,
     required Color color,
     required IconData icon,
+    bool isSmall = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(isSmall ? 8 : 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -569,24 +638,26 @@ class _InventoryScreenState extends State<InventoryScreen> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
+          Icon(icon, color: color, size: isSmall ? 18 : 24),
+          SizedBox(height: isSmall ? 4 : 8),
           Text(
             value,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: isSmall ? 14 : 18,
               fontWeight: FontWeight.bold,
               color: color,
             ),
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: isSmall ? 2 : 4),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Color(0xFF6B7280),
+            style: TextStyle(
+              fontSize: isSmall ? 9 : 11,
+              color: const Color(0xFF6B7280),
             ),
             textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -814,146 +885,173 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   Widget _buildProductCard(Map<String, dynamic> product, int index) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              // Product Image
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.inventory_2,
-                  color: Color(0xFF26344F),
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Product Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product['name'],
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF26344F),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        _detailItem('Price', product['price']),
-                        const SizedBox(width: 16),
-                        _detailItem('Stock', product['stock']),
-                        const SizedBox(width: 16),
-                        _detailItem('GST', product['gst']),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Status indicator
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: product['isExpired'] 
-                      ? const Color(0xFFE91E63) 
-                      : const Color(0xFF10B981),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  product['isExpired'] ? 'Expired' : 'Fresh',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Row(
+          child: Column(
             children: [
-              Expanded(
-                child: _detailItem('Total Value', product['value']),
-              ),
-              Expanded(
-                child: _detailItem('Expiry', product['expiry']),
-              ),
-              // Actions
               Row(
                 children: [
-                  IconButton(
-                    onPressed: () => _editProduct(index),
-                    icon: const Icon(
-                      Icons.edit,
-                      color: Color(0xFF10B981),
-                      size: 20,
+                  // Product Image
+                  Container(
+                    width: isSmallScreen ? 40 : 50,
+                    height: isSmallScreen ? 40 : 50,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
+                    child: Icon(
+                      Icons.inventory_2,
+                      color: const Color(0xFF26344F),
+                      size: isSmallScreen ? 20 : 24,
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () => _deleteProduct(index),
-                    icon: const Icon(
-                      Icons.delete,
-                      color: Color(0xFFE91E63),
-                      size: 20,
+                  SizedBox(width: isSmallScreen ? 8 : 12),
+                  // Product Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product['name'],
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 14 : 16,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF26344F),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: isSmallScreen ? 6 : 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: _detailItem('Price', product['price'], isSmallScreen),
+                            ),
+                            SizedBox(width: isSmallScreen ? 4 : 8),
+                            Expanded(
+                              flex: 2,
+                              child: _detailItem('Stock', product['stock'], isSmallScreen),
+                            ),
+                            SizedBox(width: isSmallScreen ? 4 : 8),
+                            Expanded(
+                              flex: 1,
+                              child: _detailItem('GST', product['gst'], isSmallScreen),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
+                  ),
+                  // Status indicator
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmallScreen ? 6 : 8, 
+                      vertical: isSmallScreen ? 3 : 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: product['isExpired'] 
+                          ? const Color(0xFFE91E63) 
+                          : const Color(0xFF10B981),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      product['isExpired'] ? 'Expired' : 'Fresh',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isSmallScreen ? 8 : 10,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: isSmallScreen ? 8 : 12),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: _detailItem('Total Value', product['value'], isSmallScreen),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: _detailItem('Expiry', product['expiry'], isSmallScreen),
+                  ),
+                  // Actions
+                  Expanded(
+                    flex: 2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          onPressed: () => _editProduct(index),
+                          icon: Icon(
+                            Icons.edit,
+                            color: const Color(0xFF10B981),
+                            size: isSmallScreen ? 16 : 20,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                        SizedBox(width: isSmallScreen ? 2 : 4),
+                        IconButton(
+                          onPressed: () => _deleteProduct(index),
+                          icon: Icon(
+                            Icons.delete,
+                            color: const Color(0xFFE91E63),
+                            size: isSmallScreen ? 16 : 20,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _detailItem(String label, String value) {
+  Widget _detailItem(String label, String value, [bool isSmallScreen = false]) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 10,
-            color: Color(0xFF6B7280),
+          style: TextStyle(
+            fontSize: isSmallScreen ? 8 : 10,
+            color: const Color(0xFF6B7280),
           ),
+          overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: isSmallScreen ? 1 : 2),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 12,
+          style: TextStyle(
+            fontSize: isSmallScreen ? 10 : 12,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF26344F),
+            color: const Color(0xFF26344F),
           ),
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

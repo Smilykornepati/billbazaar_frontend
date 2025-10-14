@@ -200,33 +200,40 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
         bottom: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'Item-wise Bill',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 0.2,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isSmallScreen = constraints.maxWidth < 400;
+              
+              return Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
-                ),
-              ),
-              IconButton(
-                onPressed: _generateBill,
-                icon: const Icon(Icons.receipt_long, color: Colors.white),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ],
+                  SizedBox(width: isSmallScreen ? 4 : 8),
+                  Expanded(
+                    child: Text(
+                      'Item-wise Bill',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 16.0 : 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.2,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _generateBill,
+                    icon: const Icon(Icons.receipt_long, color: Colors.white),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -329,59 +336,85 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
   Widget _buildItemCard(Map<String, dynamic> item) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: ListTile(
-        leading: Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.inventory_2,
-            color: Color(0xFF26344F),
-            size: 24,
-          ),
-        ),
-        title: Text(
-          item['name'],
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF26344F),
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Category: ${item['category']}'),
-            Text('Stock: ${item['stock']}'),
-          ],
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '₹${item['price']}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF10B981),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return ListTile(
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 8 : 16,
+              vertical: isSmallScreen ? 4 : 8,
+            ),
+            leading: Container(
+              width: isSmallScreen ? 40 : 50,
+              height: isSmallScreen ? 40 : 50,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.inventory_2,
+                color: const Color(0xFF26344F),
+                size: isSmallScreen ? 20 : 24,
               ),
             ),
-            const SizedBox(height: 4),
-            ElevatedButton(
-              onPressed: () => _addItemToBill(item),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF805D),
-                minimumSize: const Size(60, 30),
+            title: Text(
+              item['name'],
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF26344F),
+                fontSize: isSmallScreen ? 14 : 16,
               ),
-              child: const Text(
-                'Add',
-                style: TextStyle(color: Colors.white, fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Category: ${item['category']}',
+                  style: TextStyle(fontSize: isSmallScreen ? 11 : 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'Stock: ${item['stock']}',
+                  style: TextStyle(fontSize: isSmallScreen ? 11 : 12),
+                ),
+              ],
+            ),
+            trailing: SizedBox(
+              width: isSmallScreen ? 70 : 80,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '₹${item['price']}',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 16,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF10B981),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  ElevatedButton(
+                    onPressed: () => _addItemToBill(item),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF805D),
+                      minimumSize: Size(isSmallScreen ? 50 : 60, isSmallScreen ? 28 : 30),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                    child: Text(
+                      'Add',
+                      style: TextStyle(
+                        color: Colors.white, 
+                        fontSize: isSmallScreen ? 10 : 12,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -440,67 +473,90 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
   Widget _buildBillItemCard(Map<String, dynamic> item, int index) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              item['name'],
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF26344F),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return Padding(
+            padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('₹${item['price']} x ${item['quantity']}'),
                 Text(
-                  '₹${(item['price'] * item['quantity']).toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF10B981),
+                  item['name'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF26344F),
+                    fontSize: isSmallScreen ? 14 : 16,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                SizedBox(height: isSmallScreen ? 4 : 6),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IconButton(
-                      onPressed: () => _removeItemFromBill(index),
-                      icon: const Icon(Icons.remove, size: 16),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                    Flexible(
+                      child: Text(
+                        '₹${item['price']} x ${item['quantity']}',
+                        style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    Text('${item['quantity']}'),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () => _addItemToBill(item),
-                      icon: const Icon(Icons.add, size: 16),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                    Text(
+                      '₹${(item['price'] * item['quantity']).toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF10B981),
+                        fontSize: isSmallScreen ? 12 : 14,
+                      ),
                     ),
                   ],
                 ),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedItems.removeAt(index);
-                    });
-                  },
-                  icon: const Icon(Icons.delete, color: Color(0xFFE91E63), size: 16),
+                SizedBox(height: isSmallScreen ? 6 : 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => _removeItemFromBill(index),
+                            icon: Icon(Icons.remove, size: isSmallScreen ? 14 : 16),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                          SizedBox(width: isSmallScreen ? 6 : 8),
+                          Text(
+                            '${item['quantity']}',
+                            style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                          ),
+                          SizedBox(width: isSmallScreen ? 6 : 8),
+                          IconButton(
+                            onPressed: () => _addItemToBill(item),
+                            icon: Icon(Icons.add, size: isSmallScreen ? 14 : 16),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedItems.removeAt(index);
+                        });
+                      },
+                      icon: Icon(
+                        Icons.delete, 
+                        color: const Color(0xFFE91E63), 
+                        size: isSmallScreen ? 14 : 16,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

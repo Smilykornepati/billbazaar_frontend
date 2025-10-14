@@ -335,7 +335,7 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

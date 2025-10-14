@@ -13,8 +13,11 @@ class CustomBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 400;
+    
     return Container(
-      height: 90.0, // Increased height to accommodate larger central button
+      height: isSmallScreen ? 70.0 : 80.0, // Smaller, responsive height
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
@@ -28,31 +31,36 @@ class CustomBottomNavigation extends StatelessWidget {
         children: [
           // Main navigation items
           Positioned(
-            bottom: 8.0, // Adjusted bottom position
+            bottom: 6.0, // Reduced bottom position
             left: 0,
             right: 0,
             child: Container(
-              height: 70.0, // Increased height
-              padding: const EdgeInsets.symmetric(horizontal: 24.0), // Increased padding
+              height: isSmallScreen ? 54.0 : 60.0, // Smaller, responsive height
+              padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 16.0 : 20.0, // Responsive padding
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildNavItem(icon: _HomeIcon(), label: 'Home', index: 0),
+                  _buildNavItem(icon: _HomeIcon(), label: 'Home', index: 0, isSmallScreen: isSmallScreen),
                   _buildNavItem(
                     icon: _InventoryIcon(),
                     label: 'Inventory',
                     index: 1,
+                    isSmallScreen: isSmallScreen,
                   ),
-                  const SizedBox(width: 64.0), // Increased space for central button
+                  const SizedBox(width: 48.0), // Smaller space for central button
                   _buildNavItem(
                     icon: _ReportsIcon(),
                     label: 'Reports',
                     index: 3,
+                    isSmallScreen: isSmallScreen,
                   ),
                   _buildNavItem(
                     icon: _CategoriesIcon(),
                     label: 'Categories',
                     index: 4,
+                    isSmallScreen: isSmallScreen,
                   ),
                 ],
               ),
@@ -60,10 +68,10 @@ class CustomBottomNavigation extends StatelessWidget {
           ),
           // Central action button
           Positioned(
-            bottom: 28.0, // Adjusted position for larger button
+            bottom: isSmallScreen ? 20.0 : 22.0, // Responsive position for smaller button
             left: 0,
             right: 0,
-            child: Center(child: _buildCentralButton()),
+            child: Center(child: _buildCentralButton(isSmallScreen)),
           ),
         ],
       ),
@@ -74,6 +82,7 @@ class CustomBottomNavigation extends StatelessWidget {
     required Widget icon,
     required String label,
     required int index,
+    required bool isSmallScreen,
   }) {
     final isSelected = currentIndex == index;
 
@@ -81,14 +90,14 @@ class CustomBottomNavigation extends StatelessWidget {
       onTap: () => onTap(index),
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 60.0, // Increased width
-        height: 60.0, // Increased height
+        width: isSmallScreen ? 50.0 : 55.0, // Smaller, responsive width
+        height: isSmallScreen ? 50.0 : 55.0, // Smaller, responsive height
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 26.0, // Slightly larger icons
-              height: 26.0,
+              width: isSmallScreen ? 22.0 : 24.0, // Smaller, responsive icons
+              height: isSmallScreen ? 22.0 : 24.0,
               child: isSelected
                   ? ColorFiltered(
                       colorFilter: ColorFilter.mode(
@@ -99,11 +108,11 @@ class CustomBottomNavigation extends StatelessWidget {
                     )
                   : icon,
             ),
-            const SizedBox(height: 4.0), // Increased spacing
+            SizedBox(height: isSmallScreen ? 2.0 : 3.0), // Responsive spacing
             Text(
               label,
               style: TextStyle(
-                fontSize: 11.0, // Slightly larger font
+                fontSize: isSmallScreen ? 9.0 : 10.0, // Smaller, responsive font
                 fontWeight: FontWeight.w500,
                 color: isSelected
                     ? AppColors.primaryOrange
@@ -117,30 +126,30 @@ class CustomBottomNavigation extends StatelessWidget {
     );
   }
 
-  Widget _buildCentralButton() {
+  Widget _buildCentralButton(bool isSmallScreen) {
     return GestureDetector(
       onTap: () => onTap(2),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 60.0, // Increased size
-        height: 60.0,
+        width: isSmallScreen ? 48.0 : 52.0, // Smaller, responsive size
+        height: isSmallScreen ? 48.0 : 52.0,
         decoration: BoxDecoration(
           color: AppColors.primaryOrange,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
               color: AppColors.primaryOrange.withOpacity(0.25),
-              blurRadius: 12.0,
-              offset: const Offset(0, 4),
-              spreadRadius: 2.0,
+              blurRadius: 10.0,
+              offset: const Offset(0, 3),
+              spreadRadius: 1.5,
             ),
           ],
         ),
-        child: const Icon(
+        child: Icon(
           Icons.menu, // Changed from Icons.add to Icons.menu
           color: Colors.white,
-          size: 24.0, // Increased icon size
+          size: isSmallScreen ? 20.0 : 22.0, // Smaller, responsive icon size
         ),
       ),
     );

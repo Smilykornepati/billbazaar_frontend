@@ -229,21 +229,36 @@ class _BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
   }
 
   Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 3 : 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: isSmallScreen ? 100 : 120,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: isSmallScreen ? 12 : 14,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  value,
+                  style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          Expanded(child: Text(value)),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -284,175 +299,260 @@ class _BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'Bluetooth Settings',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ),
-              Switch(
-                value: _isBluetoothEnabled,
-                onChanged: (value) => _toggleBluetooth(),
-                activeColor: Colors.white,
-                activeTrackColor: const Color(0xFF10B981),
-              ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF5777B5), Color(0xFF26344F)],
+            ),
           ),
-        ),
-      ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 14 : 18, 
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 18 : 24
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.arrow_back_ios, 
+                      color: Colors.white,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  SizedBox(width: isSmallScreen ? 6 : 8),
+                  Expanded(
+                    child: Text(
+                      'Bluetooth Settings',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 16.0 : 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.2,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: isSmallScreen ? 0.9 : 1.0,
+                    child: Switch(
+                      value: _isBluetoothEnabled,
+                      onChanged: (value) => _toggleBluetooth(),
+                      activeColor: Colors.white,
+                      activeTrackColor: const Color(0xFF10B981),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildBluetoothStatus() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+          padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: (_isBluetoothEnabled ? const Color(0xFF10B981) : const Color(0xFF6B7280)).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.bluetooth,
-              color: _isBluetoothEnabled ? const Color(0xFF10B981) : const Color(0xFF6B7280),
-              size: 32,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Bluetooth Status',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF26344F),
-                  ),
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(isSmallScreen ? 10 : 12),
+                decoration: BoxDecoration(
+                  color: (_isBluetoothEnabled ? const Color(0xFF10B981) : const Color(0xFF6B7280)).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                Text(
-                  _isBluetoothEnabled ? 'Enabled' : 'Disabled',
-                  style: TextStyle(
-                    color: _isBluetoothEnabled ? const Color(0xFF10B981) : const Color(0xFF6B7280),
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Icon(
+                  Icons.bluetooth,
+                  color: _isBluetoothEnabled ? const Color(0xFF10B981) : const Color(0xFF6B7280),
+                  size: isSmallScreen ? 28 : 32,
                 ),
-                if (_connectedDevice != null)
-                  Text(
-                    'Connected to: $_connectedDevice',
-                    style: const TextStyle(
-                      color: Color(0xFF6B7280),
-                      fontSize: 12,
+              ),
+              SizedBox(width: isSmallScreen ? 12 : 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Bluetooth Status',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 16,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF26344F),
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-              ],
-            ),
+                    Text(
+                      _isBluetoothEnabled ? 'Enabled' : 'Disabled',
+                      style: TextStyle(
+                        color: _isBluetoothEnabled ? const Color(0xFF10B981) : const Color(0xFF6B7280),
+                        fontWeight: FontWeight.w500,
+                        fontSize: isSmallScreen ? 13 : 14,
+                      ),
+                    ),
+                    if (_connectedDevice != null)
+                      Text(
+                        'Connected to: $_connectedDevice',
+                        style: TextStyle(
+                          color: const Color(0xFF6B7280),
+                          fontSize: isSmallScreen ? 11 : 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildQuickActions() {
-    return Container(
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: _isScanning ? null : _startScanning,
-              icon: _isScanning 
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.search, size: 20),
-              label: Text(_isScanning ? 'Scanning...' : 'Scan Devices'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5777B5),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          color: Colors.white,
+          margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
+          padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
-            ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: _isBluetoothEnabled ? () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Making device discoverable...'),
-                    backgroundColor: Color(0xFF10B981),
-                  ),
-                );
-              } : null,
-              icon: const Icon(Icons.visibility, size: 20),
-              label: const Text('Make Discoverable'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF805D),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ),
-        ],
-      ),
+          child: isSmallScreen
+              ? Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isScanning ? null : _startScanning,
+                        icon: _isScanning 
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.search, size: 18),
+                        label: Text(
+                          _isScanning ? 'Scanning...' : 'Scan Devices',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF5777B5),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isBluetoothEnabled ? () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Making device discoverable...'),
+                              backgroundColor: Color(0xFF10B981),
+                            ),
+                          );
+                        } : null,
+                        icon: const Icon(Icons.visibility, size: 18),
+                        label: const Text(
+                          'Make Discoverable',
+                          style: TextStyle(fontSize: 13),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF805D),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isScanning ? null : _startScanning,
+                        icon: _isScanning 
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.search, size: 20),
+                        label: Text(_isScanning ? 'Scanning...' : 'Scan Devices'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF5777B5),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isBluetoothEnabled ? () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Making device discoverable...'),
+                              backgroundColor: Color(0xFF10B981),
+                            ),
+                          );
+                        } : null,
+                        icon: const Icon(Icons.visibility, size: 20),
+                        label: const Text('Make Discoverable'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF805D),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        );
+      },
     );
   }
 
@@ -460,47 +560,53 @@ class _BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
     final pairedDevices = _availableDevices.where((device) => device['isPaired']).toList();
     final availableDevices = _availableDevices.where((device) => !device['isPaired']).toList();
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (pairedDevices.isNotEmpty) ...[
-            const Text(
-              'Paired Devices',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF26344F),
-              ),
-            ),
-            const SizedBox(height: 12),
-            ...pairedDevices.map((device) => _buildDeviceCard(device, isPaired: true)),
-          ],
-          if (availableDevices.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            const Text(
-              'Available Devices',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF26344F),
-              ),
-            ),
-            const SizedBox(height: 12),
-            ...availableDevices.map((device) => _buildDeviceCard(device, isPaired: false)),
-          ],
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (pairedDevices.isNotEmpty) ...[
+                Text(
+                  'Paired Devices',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 16 : 18,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF26344F),
+                  ),
+                ),
+                SizedBox(height: isSmallScreen ? 8 : 12),
+                ...pairedDevices.map((device) => _buildDeviceCard(device, isPaired: true, isSmallScreen: isSmallScreen)),
+              ],
+              if (availableDevices.isNotEmpty) ...[
+                SizedBox(height: isSmallScreen ? 12 : 16),
+                Text(
+                  'Available Devices',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 16 : 18,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF26344F),
+                  ),
+                ),
+                SizedBox(height: isSmallScreen ? 8 : 12),
+                ...availableDevices.map((device) => _buildDeviceCard(device, isPaired: false, isSmallScreen: isSmallScreen)),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildDeviceCard(Map<String, dynamic> device, {required bool isPaired}) {
+  Widget _buildDeviceCard(Map<String, dynamic> device, {required bool isPaired, bool isSmallScreen = false}) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: isSmallScreen ? 6 : 8),
       child: ListTile(
         leading: Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
           decoration: BoxDecoration(
             color: const Color(0xFF5777B5).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
@@ -508,53 +614,60 @@ class _BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
           child: Icon(
             _getDeviceIcon(device['type']),
             color: const Color(0xFF5777B5),
+            size: isSmallScreen ? 18 : 20,
           ),
         ),
         title: Text(
           device['name'],
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w500,
-            color: Color(0xFF26344F),
+            color: const Color(0xFF26344F),
+            fontSize: isSmallScreen ? 13 : 14,
           ),
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               device['address'],
-              style: const TextStyle(
-                color: Color(0xFF6B7280),
-                fontSize: 12,
+              style: TextStyle(
+                color: const Color(0xFF6B7280),
+                fontSize: isSmallScreen ? 10 : 12,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
             Row(
               children: [
                 Icon(
                   Icons.signal_cellular_alt,
-                  size: 12,
+                  size: isSmallScreen ? 10 : 12,
                   color: _getSignalColor(device['rssi']),
                 ),
-                const SizedBox(width: 4),
+                SizedBox(width: isSmallScreen ? 2 : 4),
                 Text(
                   '${device['rssi']} dBm',
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: isSmallScreen ? 9 : 10,
                     color: _getSignalColor(device['rssi']),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: isSmallScreen ? 6 : 8),
                 if (device['isConnected'])
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmallScreen ? 4 : 6, 
+                      vertical: 2
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF10B981).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Connected',
                       style: TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF10B981),
+                        fontSize: isSmallScreen ? 9 : 10,
+                        color: const Color(0xFF10B981),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -582,45 +695,57 @@ class _BluetoothSettingsScreenState extends State<BluetoothSettingsScreen> {
           },
           itemBuilder: (context) => [
             if (isPaired && !device['isConnected'])
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'connect',
                 child: Row(
                   children: [
-                    Icon(Icons.link, size: 16),
-                    SizedBox(width: 8),
-                    Text('Connect'),
+                    Icon(Icons.link, size: isSmallScreen ? 14 : 16),
+                    SizedBox(width: isSmallScreen ? 6 : 8),
+                    Text(
+                      'Connect',
+                      style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                    ),
                   ],
                 ),
               ),
             if (device['isConnected'])
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'disconnect',
                 child: Row(
                   children: [
-                    Icon(Icons.link_off, size: 16),
-                    SizedBox(width: 8),
-                    Text('Disconnect'),
+                    Icon(Icons.link_off, size: isSmallScreen ? 14 : 16),
+                    SizedBox(width: isSmallScreen ? 6 : 8),
+                    Text(
+                      'Disconnect',
+                      style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                    ),
                   ],
                 ),
               ),
             if (isPaired)
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'unpair',
                 child: Row(
                   children: [
-                    Icon(Icons.bluetooth_disabled, size: 16),
-                    SizedBox(width: 8),
-                    Text('Unpair'),
+                    Icon(Icons.bluetooth_disabled, size: isSmallScreen ? 14 : 16),
+                    SizedBox(width: isSmallScreen ? 6 : 8),
+                    Text(
+                      'Unpair',
+                      style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                    ),
                   ],
                 ),
               ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'details',
               child: Row(
                 children: [
-                  Icon(Icons.info, size: 16),
-                  SizedBox(width: 8),
-                  Text('Details'),
+                  Icon(Icons.info, size: isSmallScreen ? 14 : 16),
+                  SizedBox(width: isSmallScreen ? 6 : 8),
+                  Text(
+                    'Details',
+                    style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                  ),
                 ],
               ),
             ),

@@ -249,9 +249,12 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
                             }),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            '${product['rating']} (${product['reviews']} reviews)',
-                            style: const TextStyle(color: Color(0xFF6B7280)),
+                          Expanded(
+                            child: Text(
+                              '${product['rating']} (${product['reviews']} reviews)',
+                              style: const TextStyle(color: Color(0xFF6B7280)),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
