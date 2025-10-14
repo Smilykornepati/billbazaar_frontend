@@ -20,6 +20,51 @@ class ContactUsScreen extends StatefulWidget {
 
 class _ContactUsScreenState extends State<ContactUsScreen> {
   final String phoneNumber = '+91 95867 77748';
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _messageController = TextEditingController();
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  // Handle form submission
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    // Simulate form submission
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      _isSubmitting = false;
+    });
+
+    // Clear form
+    _nameController.clear();
+    _emailController.clear();
+    _messageController.clear();
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Message sent successfully! We will get back to you soon.'),
+        backgroundColor: Color(0xFF10B981),
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
 
   Widget _buildHeader() {
     return Container(

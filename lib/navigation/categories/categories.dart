@@ -410,11 +410,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     if (itemName.contains('quick bill')) {
       // Navigate to Quick Bill screen
       Navigator.pushNamed(context, '/quick-bill');
-    } else if (itemName.contains('item-wise bill') || itemName.contains('item wise')) {
-      // Navigate to Item-wise Bill screen
-      Navigator.pushNamed(context, '/item-wise-bill');
     } else if (itemName.contains('inventory')) {
-      // Navigate to Inventory screen
+      // Navigate to Inventory Management screen
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Switching to Inventory tab...'),
+          backgroundColor: Color(0xFF5777B5),
+        ),
+      );
       widget.onNavigationTap(1); // Switch to inventory tab
     } else if (itemName.contains('staff management')) {
       // Navigate to Staff Management screen
@@ -422,6 +425,39 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     } else if (itemName.contains('customer management')) {
       // Navigate to Customer Management screen
       Navigator.pushNamed(context, '/customer-management');
+    } else if (itemName.contains('cash management')) {
+      // Navigate to Cash Management screen
+      Navigator.pushNamed(context, '/cash-management');
+    } else if (itemName.contains('item wise bill')) {
+      // Show coming soon for item wise bill
+      _showComingSoonDialog('Item-wise Bill');
+    } else if (itemName.contains('credit details')) {
+      // Show coming soon for credit details
+      _showComingSoonDialog('Credit Details');
+    } else if (itemName.contains('training video')) {
+      // Show coming soon for training videos
+      _showComingSoonDialog('Training Videos');
+    } else if (itemName.contains('item wise sales report') || itemName.contains('day report') || itemName.contains('sales summary')) {
+      // Navigate to Reports screen
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Switching to Reports tab...'),
+          backgroundColor: Color(0xFF5777B5),
+        ),
+      );
+      widget.onNavigationTap(3); // Switch to reports tab
+    } else if (itemName.contains('bluetooth') || itemName.contains('printer setting')) {
+      // Show coming soon for printing features
+      _showComingSoonDialog('Printing Features');
+    } else if (itemName.contains('barcode maker') || itemName.contains('business card maker') || itemName.contains('poster maker')) {
+      // Show coming soon for smart tools
+      _showComingSoonDialog('Smart Tools');
+    } else if (itemName.contains('buy printers')) {
+      // Show coming soon for printer purchase
+      _showComingSoonDialog('Printer Store');
+    } else if (itemName.contains('feedback')) {
+      // Show feedback dialog
+      _showFeedbackDialog();
     } else if (itemName.contains('subscription')) {
       // Navigate to Subscription screen
       Navigator.pushNamed(context, '/subscription');
@@ -441,6 +477,75 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       // Show coming soon dialog for other items
       _showComingSoonDialog(item['name']);
     }
+  }
+
+  // Show feedback dialog
+  void _showFeedbackDialog() {
+    final feedbackController = TextEditingController();
+    int rating = 5;
+    
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Send Feedback'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Rate your experience:'),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  return IconButton(
+                    onPressed: () {
+                      setState(() {
+                        rating = index + 1;
+                      });
+                    },
+                    icon: Icon(
+                      index < rating ? Icons.star : Icons.star_border,
+                      color: const Color(0xFFFF805D),
+                    ),
+                  );
+                }),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: feedbackController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: 'Share your thoughts...',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Thank you for your feedback!'),
+                    backgroundColor: Color(0xFF10B981),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF805D),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Send'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // Get fallback icon based on item name
