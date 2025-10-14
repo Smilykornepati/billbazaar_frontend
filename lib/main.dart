@@ -38,6 +38,12 @@ import 'navigation/categories/billing/cash_management_screen.dart';
 import 'navigation/categories/tools/training_videos_screen.dart';
 import 'navigation/categories/tools/bluetooth_settings_screen.dart';
 import 'navigation/categories/tools/printer_settings_screen.dart';
+import 'navigation/categories/tools/printer_store_screen.dart';
+
+// Smart Tools screens
+import 'navigation/categories/smarttools/barcode_maker_screen.dart';
+import 'navigation/categories/smarttools/business_card_maker_screen.dart';
+import 'navigation/categories/smarttools/poster_maker_screen.dart';
 
 void main() {
   runApp(const BillBazarApp());
@@ -117,6 +123,10 @@ class BillBazarApp extends StatelessWidget {
         '/training-videos': (context) => const TrainingVideosScreen(),
         '/bluetooth-settings': (context) => const BluetoothSettingsScreen(),
         '/printer-settings': (context) => const PrinterSettingsScreen(),
+        '/printer-store': (context) => const PrinterStoreScreen(),
+        '/barcode-maker': (context) => const BarcodeMakerScreen(),
+        '/business-card-maker': (context) => const BusinessCardMakerScreen(),
+        '/poster-maker': (context) => const PosterMakerScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {

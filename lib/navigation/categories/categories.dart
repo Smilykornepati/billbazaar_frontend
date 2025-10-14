@@ -428,7 +428,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     } else if (itemName.contains('cash management')) {
       // Navigate to Cash Management screen
       Navigator.pushNamed(context, '/cash-management');
-    } else if (itemName.contains('item wise bill')) {
+    } else if (itemName.contains('item-wise bill')) {
       // Navigate to Item-wise Bill screen
       Navigator.pushNamed(context, '/itemwise-bill');
     } else if (itemName.contains('credit details')) {
@@ -453,12 +453,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       } else if (itemName.contains('printer setting')) {
         Navigator.pushNamed(context, '/printer-settings');
       }
-    } else if (itemName.contains('barcode maker') || itemName.contains('business card maker') || itemName.contains('poster maker')) {
-      // Show coming soon for smart tools
-      _showComingSoonDialog('Smart Tools');
+    } else if (itemName.contains('barcode maker')) {
+      // Navigate to Barcode Maker screen
+      Navigator.pushNamed(context, '/barcode-maker');
+    } else if (itemName.contains('business card maker')) {
+      // Navigate to Business Card Maker screen
+      Navigator.pushNamed(context, '/business-card-maker');
+    } else if (itemName.contains('poster maker')) {
+      // Navigate to Poster Maker screen
+      Navigator.pushNamed(context, '/poster-maker');
     } else if (itemName.contains('buy printers')) {
-      // Show coming soon for printer purchase
-      _showComingSoonDialog('Printer Store');
+      // Navigate to Printer Store screen
+      Navigator.pushNamed(context, '/printer-store');
     } else if (itemName.contains('feedback')) {
       // Show feedback dialog
       _showFeedbackDialog();

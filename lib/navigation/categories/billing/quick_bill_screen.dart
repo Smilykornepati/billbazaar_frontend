@@ -331,45 +331,47 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
   // Header with back button and title - exact match to design
   Widget _buildHeader() {
     return Container(
-      height: 60.0,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [
             Color(0xFF5777B5), // Blue
             Color(0xFF26344F), // Dark Blue
           ],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Row(
-          children: [
-            // Back button
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context); // Navigate back to categories
-              },
-              child: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: 24.0,
-              ),
-            ),
-            const SizedBox(width: 16.0),
-            // Title
-            const Expanded(
-              child: Text(
-                'Quick Bill',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          child: Row(
+            children: [
+              // Back button
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context); // Navigate back to categories
+                },
+                child: const Icon(
+                  Icons.arrow_back,
                   color: Colors.white,
+                  size: 24.0,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 16.0),
+              // Title
+              const Expanded(
+                child: Text(
+                  'Quick Bill',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,0 +1,627 @@
+import 'package:flutter/material.dart';
+
+class BarcodeMakerScreen extends StatefulWidget {
+  const BarcodeMakerScreen({super.key});
+
+  @override
+  State<BarcodeMakerScreen> createState() => _BarcodeMakerScreenState();
+}
+
+class _BarcodeMakerScreenState extends State<BarcodeMakerScreen> {
+  final TextEditingController _textController = TextEditingController();
+  String _selectedBarcodeType = 'Code128';
+  double _barcodeWidth = 2.0;
+  double _barcodeHeight = 100.0;
+  bool _showText = true;
+  String _generatedBarcode = '';
+
+  final List<String> _barcodeTypes = [
+    'Code128',
+    'Code39',
+    'EAN13',
+    'EAN8',
+    'UPC-A',
+    'UPC-E',
+    'QR Code',
+    'Data Matrix',
+  ];
+
+  final List<Map<String, dynamic>> _savedBarcodes = [
+    {
+      'id': 1,
+      'text': 'BILL001',
+      'type': 'Code128',
+      'date': '2025-01-14',
+      'isActive': true,
+    },
+    {
+      'id': 2,
+      'text': 'PROD12345',
+      'type': 'Code39',
+      'date': '2025-01-13',
+      'isActive': true,
+    },
+    {
+      'id': 3,
+      'text': 'https://billbazar.com',
+      'type': 'QR Code',
+      'date': '2025-01-12',
+      'isActive': false,
+    },
+  ];
+
+  void _generateBarcode() {
+    if (_textController.text.isNotEmpty) {
+      setState(() {
+        _generatedBarcode = _textController.text;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Barcode generated successfully!'),
+          backgroundColor: Color(0xFF10B981),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter text to generate barcode'),
+          backgroundColor: Color(0xFFE91E63),
+        ),
+      );
+    }
+  }
+
+  void _saveBarcode() {
+    if (_generatedBarcode.isNotEmpty) {
+      setState(() {
+        _savedBarcodes.insert(0, {
+          'id': _savedBarcodes.length + 1,
+          'text': _generatedBarcode,
+          'type': _selectedBarcodeType,
+          'date': '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}',
+          'isActive': true,
+        });
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Barcode saved to library!'),
+          backgroundColor: Color(0xFF10B981),
+        ),
+      );
+    }
+  }
+
+  void _printBarcode() {
+    if (_generatedBarcode.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Print Barcode'),
+          content: const Text('Send barcode to printer?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Barcode sent to printer!'),
+                    backgroundColor: Color(0xFF10B981),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF805D),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Print'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _exportBarcode() {
+    if (_generatedBarcode.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Export Barcode'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.image),
+                title: const Text('Export as PNG'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Barcode exported as PNG!'),
+                      backgroundColor: Color(0xFF10B981),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf),
+                title: const Text('Export as PDF'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Barcode exported as PDF!'),
+                      backgroundColor: Color(0xFF10B981),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7FAFC),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildBarcodeGenerator(),
+                    _buildBarcodePreview(),
+                    _buildActionButtons(),
+                    _buildSavedBarcodes(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Barcode Maker',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Help & Tutorial'),
+                      backgroundColor: Color(0xFF5777B5),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.help_outline, color: Colors.white),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBarcodeGenerator() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Generate Barcode',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF26344F),
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _textController,
+            decoration: const InputDecoration(
+              labelText: 'Enter text or number',
+              hintText: 'e.g., PROD12345 or 1234567890',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            value: _selectedBarcodeType,
+            decoration: const InputDecoration(
+              labelText: 'Barcode Type',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+            ),
+            items: _barcodeTypes.map((type) {
+              return DropdownMenuItem(value: type, child: Text(type));
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedBarcodeType = value!;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Width: ${_barcodeWidth.toInt()}'),
+                    Slider(
+                      value: _barcodeWidth,
+                      min: 1,
+                      max: 5,
+                      divisions: 4,
+                      activeColor: const Color(0xFFFF805D),
+                      onChanged: (value) {
+                        setState(() {
+                          _barcodeWidth = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Height: ${_barcodeHeight.toInt()}'),
+                    Slider(
+                      value: _barcodeHeight,
+                      min: 50,
+                      max: 200,
+                      divisions: 15,
+                      activeColor: const Color(0xFFFF805D),
+                      onChanged: (value) {
+                        setState(() {
+                          _barcodeHeight = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SwitchListTile(
+            title: const Text('Show Text Below Barcode'),
+            value: _showText,
+            activeColor: const Color(0xFFFF805D),
+            onChanged: (value) {
+              setState(() {
+                _showText = value;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBarcodePreview() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          const Text(
+            'Barcode Preview',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF26344F),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            height: _barcodeHeight + 40,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: _generatedBarcode.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Enter text and tap Generate to preview barcode',
+                      style: TextStyle(color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Simulated barcode representation
+                      Container(
+                        width: 200,
+                        height: _barcodeHeight,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: CustomPaint(
+                          painter: BarcodePainter(),
+                        ),
+                      ),
+                      if (_showText) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          _generatedBarcode,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _generateBarcode,
+                  icon: const Icon(Icons.qr_code_2, size: 20),
+                  label: const Text('Generate'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF805D),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _generatedBarcode.isNotEmpty ? _saveBarcode : null,
+                  icon: const Icon(Icons.save, size: 20),
+                  label: const Text('Save'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF5777B5),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _generatedBarcode.isNotEmpty ? _printBarcode : null,
+                  icon: const Icon(Icons.print, size: 20),
+                  label: const Text('Print'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _generatedBarcode.isNotEmpty ? _exportBarcode : null,
+                  icon: const Icon(Icons.file_download, size: 20),
+                  label: const Text('Export'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6B7280),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSavedBarcodes() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Saved Barcodes',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF26344F),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _savedBarcodes.length,
+            itemBuilder: (context, index) {
+              final barcode = _savedBarcodes[index];
+              return Card(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5777B5).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.qr_code,
+                      color: Color(0xFF5777B5),
+                    ),
+                  ),
+                  title: Text(
+                    barcode['text'],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF26344F),
+                    ),
+                  ),
+                  subtitle: Text('${barcode['type']} • ${barcode['date']}'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _textController.text = barcode['text'];
+                            _selectedBarcodeType = barcode['type'];
+                            _generatedBarcode = barcode['text'];
+                          });
+                        },
+                        icon: const Icon(Icons.edit, color: Color(0xFF5777B5)),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _savedBarcodes.removeAt(index);
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Barcode deleted'),
+                              backgroundColor: Color(0xFF6B7280),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.delete, color: Color(0xFFE91E63)),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BarcodePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 1.0;
+
+    // Draw simple barcode pattern
+    for (int i = 0; i < size.width; i += 3) {
+      if (i % 6 == 0) {
+        canvas.drawLine(
+          Offset(i.toDouble(), 0),
+          Offset(i.toDouble(), size.height),
+          paint,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
