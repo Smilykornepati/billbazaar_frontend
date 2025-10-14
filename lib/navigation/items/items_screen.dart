@@ -365,21 +365,34 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
           
           // Products grid
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.9,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: _filteredProducts.length,
-                itemBuilder: (context, index) {
-                  final product = _filteredProducts[index];
-                  return _buildProductCard(product);
-                },
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmallScreen = constraints.maxWidth < 400;
+                final crossAxisCount = isSmallScreen ? 2 : 3;
+                final childAspectRatio = isSmallScreen ? 0.85 : 0.9;
+                
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    isSmallScreen ? 8 : 10, 
+                    0, 
+                    isSmallScreen ? 8 : 10, 
+                    isSmallScreen ? 8 : 10
+                  ),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      childAspectRatio: childAspectRatio,
+                      crossAxisSpacing: isSmallScreen ? 6 : 8,
+                      mainAxisSpacing: isSmallScreen ? 8 : 10,
+                    ),
+                    itemCount: _filteredProducts.length,
+                    itemBuilder: (context, index) {
+                      final product = _filteredProducts[index];
+                      return _buildProductCard(product, isSmallScreen);
+                    },
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -387,11 +400,11 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product) {
+  Widget _buildProductCard(Map<String, dynamic> product, [bool isSmallScreen = false]) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(isSmallScreen ? 8 : 10),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -405,16 +418,16 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
         children: [
           // Product Image
           Expanded(
-            flex: 3,
+            flex: isSmallScreen ? 2 : 3,
             child: Container(
               width: double.infinity,
-              margin: const EdgeInsets.all(6),
+              margin: EdgeInsets.all(isSmallScreen ? 4 : 6),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(isSmallScreen ? 4 : 6),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(isSmallScreen ? 4 : 6),
                 child: Image.asset(
                   product['image'],
                   fit: BoxFit.cover,
@@ -433,7 +446,7 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                       child: Center(
                         child: Icon(
                           _getProductIcon(product['image']),
-                          size: 20,
+                          size: isSmallScreen ? 16 : 20,
                           color: Colors.black54,
                         ),
                       ),
@@ -446,31 +459,36 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
           
           // Product Details
           Expanded(
-            flex: 2,
+            flex: isSmallScreen ? 3 : 2,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 4 : 6, 
+                0, 
+                isSmallScreen ? 4 : 6, 
+                isSmallScreen ? 4 : 6
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Price
                   Text(
                     '₹${product['price']}',
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 12 : 14,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827),
+                      color: const Color(0xFF111827),
                     ),
                   ),
-                  const SizedBox(height: 1),
+                  SizedBox(height: isSmallScreen ? 0.5 : 1),
                   
                   // Product Name
                   Expanded(
                     child: Text(
                       product['name'],
-                      style: const TextStyle(
-                        fontSize: 11,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 9 : 11,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF374151),
+                        color: const Color(0xFF374151),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -481,30 +499,34 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        product['weight'],
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.grey[500],
+                      Flexible(
+                        child: Text(
+                          product['weight'],
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 8 : 9,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey[500],
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      SizedBox(width: isSmallScreen ? 4 : 6),
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: isSmallScreen ? 20 : 24,
+                        height: isSmallScreen ? 20 : 24,
                         decoration: BoxDecoration(
                           color: const Color(0xFF5777B5),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(isSmallScreen ? 4 : 6),
                         ),
                         child: IconButton(
                           onPressed: () {
                             _addToCart(product);
                           },
                           padding: EdgeInsets.zero,
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.add,
                             color: Colors.white,
-                            size: 14,
+                            size: isSmallScreen ? 12 : 14,
                           ),
                         ),
                       ),

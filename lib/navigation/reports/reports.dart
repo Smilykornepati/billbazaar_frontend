@@ -441,56 +441,78 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   // Individual metric card
   Widget _buildMetricCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 24),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.arrow_upward, color: color, size: 16),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 120;
+        
+        return Container(
+          padding: EdgeInsets.all(isSmallScreen ? 8 : 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    icon, 
+                    color: color, 
+                    size: isSmallScreen ? 18 : 24
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: EdgeInsets.all(isSmallScreen ? 2 : 4),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.arrow_upward, 
+                      color: color, 
+                      size: isSmallScreen ? 12 : 16
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: isSmallScreen ? 6 : 12),
+              Flexible(
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 14 : 20,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+              SizedBox(height: isSmallScreen ? 2 : 4),
+              Flexible(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 9 : 12,
+                    color: const Color(0xFF6B7280),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF6B7280),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -466,21 +466,27 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildSearchAndFilters(),
-            Expanded(
-              child: _buildProductGrid(),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(isSmallScreen),
+                _buildSearchAndFilters(isSmallScreen),
+                Expanded(
+                  child: _buildProductGrid(isSmallScreen),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isSmallScreen) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -492,25 +498,35 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 12 : 18,
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 16 : 24,
+          ),
           child: Row(
             children: [
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 8),
-              const Expanded(
+              SizedBox(width: isSmallScreen ? 6 : 8),
+              Expanded(
                 child: Text(
                   'Printer Store',
                   style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: isSmallScreen ? 16.0 : 18.0,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: 0.2,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               IconButton(
@@ -522,7 +538,11 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.shopping_cart, color: Colors.white),
+                icon: Icon(
+                  Icons.shopping_cart,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -533,17 +553,22 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
     );
   }
 
-  Widget _buildSearchAndFilters() {
+  Widget _buildSearchAndFilters(bool isSmallScreen) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       child: Column(
         children: [
           // Search Bar
           TextField(
             controller: _searchController,
+            style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
             decoration: InputDecoration(
               hintText: 'Search printers...',
-              prefixIcon: const Icon(Icons.search),
+              hintStyle: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+              prefixIcon: Icon(
+                Icons.search,
+                size: isSmallScreen ? 20 : 24,
+              ),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
                       onPressed: () {
@@ -617,7 +642,7 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
     );
   }
 
-  Widget _buildProductGrid() {
+  Widget _buildProductGrid(bool isSmallScreen) {
     final products = _filteredProducts;
     
     if (products.isEmpty) {
@@ -646,28 +671,28 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: isSmallScreen ? 2 : 3,
+        childAspectRatio: isSmallScreen ? 0.7 : 0.75,
+        crossAxisSpacing: isSmallScreen ? 8 : 12,
+        mainAxisSpacing: isSmallScreen ? 8 : 12,
       ),
       itemCount: products.length,
       itemBuilder: (context, index) {
         final product = products[index];
-        return _buildProductCard(product);
+        return _buildProductCard(product, isSmallScreen);
       },
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product) {
+  Widget _buildProductCard(Map<String, dynamic> product, bool isSmallScreen) {
     return GestureDetector(
       onTap: () => _showProductDetails(product),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(isSmallScreen ? 8 : 12),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.1),
@@ -682,7 +707,7 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
           children: [
             // Product Image
             Expanded(
-              flex: 3,
+              flex: isSmallScreen ? 2 : 3,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
@@ -702,21 +727,21 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
             Expanded(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       product['name'],
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF26344F),
+                        color: const Color(0xFF26344F),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: isSmallScreen ? 2 : 4),
                     
                     Row(
                       children: [

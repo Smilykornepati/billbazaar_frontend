@@ -160,29 +160,59 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildSearchAndFilter(),
-            Expanded(
-              child: Row(
-                children: [
-                  // Items list
-                  Expanded(
-                    flex: 2,
-                    child: _buildItemsList(),
-                  ),
-                  // Selected items (bill)
-                  Expanded(
-                    flex: 1,
-                    child: _buildBillSection(),
-                  ),
-                ],
-              ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 600;
+          
+          return SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(),
+                _buildSearchAndFilter(),
+                Expanded(
+                  child: isSmallScreen 
+                    ? Column(
+                        children: [
+                          // Items list
+                          Expanded(
+                            flex: _selectedItems.isEmpty ? 1 : 3,
+                            child: _buildItemsList(),
+                          ),
+                          // Selected items (bill) - only show if items selected
+                          if (_selectedItems.isNotEmpty) ...[
+                            const Divider(height: 1),
+                            Expanded(
+                              flex: 2,
+                              child: _buildBillSection(),
+                            ),
+                          ],
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          // Items list
+                          Expanded(
+                            flex: 2,
+                            child: _buildItemsList(),
+                          ),
+                          // Selected items (bill)
+                          if (_selectedItems.isNotEmpty)
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  border: Border(left: BorderSide(color: Color(0xFFE5E7EB))),
+                                ),
+                                child: _buildBillSection(),
+                              ),
+                            ),
+                        ],
+                      ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -198,21 +228,30 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
       ),
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final isSmallScreen = constraints.maxWidth < 400;
-              
-              return Row(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isSmallScreen = constraints.maxWidth < 400;
+            
+            return Padding(
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 14 : 18, 
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 18 : 24
+              ),
+              child: Row(
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    icon: Icon(
+                      Icons.arrow_back_ios, 
+                      color: Colors.white,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
-                  SizedBox(width: isSmallScreen ? 4 : 8),
+                  SizedBox(width: isSmallScreen ? 6 : 8),
                   Expanded(
                     child: Text(
                       'Item-wise Bill',
@@ -220,25 +259,19 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
                         fontSize: isSmallScreen ? 16.0 : 18.0,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
-                        letterSpacing: 0.2,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  IconButton(
-                    onPressed: _generateBill,
-                    icon: const Icon(Icons.receipt_long, color: Colors.white),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
                 ],
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
+
 
   Widget _buildSearchAndFilter() {
     return Container(

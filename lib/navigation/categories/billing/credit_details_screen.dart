@@ -221,15 +221,21 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildSummaryCards(),
-            _buildSearchAndFilter(),
-            Expanded(child: _buildCreditList()),
-          ],
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(isSmallScreen),
+                _buildSummaryCards(isSmallScreen),
+                _buildSearchAndFilter(isSmallScreen),
+                Expanded(child: _buildCreditList(isSmallScreen)),
+              ],
+            ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddCreditDialog,
@@ -239,7 +245,7 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isSmallScreen) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -251,25 +257,35 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 12 : 18,
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 16 : 24,
+          ),
           child: Row(
             children: [
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 8),
-              const Expanded(
+              SizedBox(width: isSmallScreen ? 6 : 8),
+              Expanded(
                 child: Text(
                   'Credit Details',
                   style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: isSmallScreen ? 16.0 : 18.0,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: 0.2,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               IconButton(
@@ -282,7 +298,11 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.file_download, color: Colors.white),
+                icon: Icon(
+                  Icons.file_download,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -293,9 +313,9 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
     );
   }
 
-  Widget _buildSummaryCards() {
+  Widget _buildSummaryCards(bool isSmallScreen) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
       child: Row(
         children: [
           Expanded(
@@ -304,24 +324,27 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
               '₹${_totalPendingCredit.toStringAsFixed(0)}',
               const Color(0xFFFF805D),
               Icons.schedule,
+              isSmallScreen,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: isSmallScreen ? 8 : 12),
           Expanded(
             child: _buildSummaryCard(
               'Overdue',
               '₹${_totalOverdueCredit.toStringAsFixed(0)}',
               const Color(0xFFE91E63),
               Icons.warning,
+              isSmallScreen,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: isSmallScreen ? 8 : 12),
           Expanded(
             child: _buildSummaryCard(
               'Total Records',
               '${_creditRecords.length}',
               const Color(0xFF5777B5),
               Icons.receipt_long,
+              isSmallScreen,
             ),
           ),
         ],
@@ -329,9 +352,9 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, Color color, IconData icon) {
+  Widget _buildSummaryCard(String title, String value, Color color, IconData icon, bool isSmallScreen) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -346,22 +369,22 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
+          Icon(icon, color: color, size: isSmallScreen ? 20 : 24),
+          SizedBox(height: isSmallScreen ? 6 : 8),
           Text(
             value,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: isSmallScreen ? 16 : 18,
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: isSmallScreen ? 2 : 4),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Color(0xFF6B7280),
+            style: TextStyle(
+              fontSize: isSmallScreen ? 10 : 11,
+              color: const Color(0xFF6B7280),
             ),
             textAlign: TextAlign.center,
           ),
@@ -370,10 +393,10 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
     );
   }
 
-  Widget _buildSearchAndFilter() {
+  Widget _buildSearchAndFilter(bool isSmallScreen) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
       child: Row(
         children: [
           Expanded(
@@ -418,7 +441,7 @@ class _CreditDetailsScreenState extends State<CreditDetailsScreen> {
     );
   }
 
-  Widget _buildCreditList() {
+  Widget _buildCreditList(bool isSmallScreen) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.builder(

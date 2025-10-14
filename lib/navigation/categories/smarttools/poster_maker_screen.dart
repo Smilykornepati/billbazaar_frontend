@@ -18,7 +18,6 @@ class _PosterMakerScreenState extends State<PosterMakerScreen> {
   String _selectedSize = 'A4 (210x297mm)';
   Color _primaryColor = const Color(0xFFFF805D);
   Color _backgroundColor = Colors.white;
-  String _selectedFont = 'Bold';
 
   final List<String> _templates = [
     'Sale Poster',
@@ -36,24 +35,6 @@ class _PosterMakerScreenState extends State<PosterMakerScreen> {
     'Letter (216x279mm)',
     'Legal (216x356mm)',
     'Banner (914x610mm)',
-  ];
-
-  final List<String> _fonts = [
-    'Bold',
-    'Regular',
-    'Light',
-    'Extra Bold',
-  ];
-
-  final List<Color> _colorOptions = [
-    const Color(0xFFFF805D),
-    const Color(0xFF5777B5),
-    const Color(0xFF10B981),
-    const Color(0xFFE91E63),
-    const Color(0xFF9C27B0),
-    const Color(0xFF2196F3),
-    const Color(0xFF4CAF50),
-    const Color(0xFFFF9800),
   ];
 
   final List<Map<String, dynamic>> _savedPosters = [
@@ -104,138 +85,39 @@ class _PosterMakerScreenState extends State<PosterMakerScreen> {
     }
   }
 
-  void _printPoster() {
-    if (_titleController.text.isNotEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Print Poster'),
-          content: Text('Print poster in ${_selectedSize}?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Poster sent to printer!'),
-                    backgroundColor: Color(0xFF10B981),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF805D),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Print'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  void _exportPoster() {
-    if (_titleController.text.isNotEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Export Poster'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.image),
-                title: const Text('Export as High-Quality PNG'),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Poster exported as PNG!'),
-                      backgroundColor: Color(0xFF10B981),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.picture_as_pdf),
-                title: const Text('Export as PDF'),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Poster exported as PDF!'),
-                      backgroundColor: Color(0xFF10B981),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.image_outlined),
-                title: const Text('Export as JPEG'),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Poster exported as JPEG!'),
-                      backgroundColor: Color(0xFF10B981),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _subtitleController.dispose();
-    _descriptionController.dispose();
-    _priceController.dispose();
-    _contactController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildPosterEditor(),
-                    _buildPosterPreview(),
-                    _buildActionButtons(),
-                    _buildSavedPosters(),
-                  ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(isSmallScreen),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        _buildPosterEditor(isSmallScreen),
+                        _buildPosterPreview(isSmallScreen),
+                        _buildActionButtons(isSmallScreen),
+                        _buildSavedPosters(isSmallScreen),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isSmallScreen) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -247,25 +129,35 @@ class _PosterMakerScreenState extends State<PosterMakerScreen> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 12 : 18,
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 16 : 24,
+          ),
           child: Row(
             children: [
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 8),
-              const Expanded(
+              SizedBox(width: isSmallScreen ? 6 : 8),
+              Expanded(
                 child: Text(
                   'Poster Maker',
                   style: TextStyle(
-                    fontSize: 18.0,
+                    fontSize: isSmallScreen ? 16.0 : 18.0,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: 0.2,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               IconButton(
@@ -277,7 +169,11 @@ class _PosterMakerScreenState extends State<PosterMakerScreen> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.design_services, color: Colors.white),
+                icon: Icon(
+                  Icons.design_services,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -288,10 +184,10 @@ class _PosterMakerScreenState extends State<PosterMakerScreen> {
     );
   }
 
-  Widget _buildPosterEditor() {
+  Widget _buildPosterEditor(bool isSmallScreen) {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -307,477 +203,344 @@ class _PosterMakerScreenState extends State<PosterMakerScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Poster Content',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: isSmallScreen ? 16 : 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF26344F),
+              color: const Color(0xFF26344F),
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: _selectedTemplate,
-                  decoration: const InputDecoration(
-                    labelText: 'Template',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
+          SizedBox(height: isSmallScreen ? 12 : 16),
+          
+          // Template and Size Selection
+          if (isSmallScreen)
+            // Vertical layout for small screens
+            Column(
+              children: [
+                _buildDropdown(
+                  'Template',
+                  _selectedTemplate,
+                  _templates,
+                  (value) => setState(() => _selectedTemplate = value!),
+                  isSmallScreen,
+                ),
+                SizedBox(height: isSmallScreen ? 8 : 12),
+                _buildDropdown(
+                  'Size',
+                  _selectedSize,
+                  _sizes,
+                  (value) => setState(() => _selectedSize = value!),
+                  isSmallScreen,
+                ),
+              ],
+            )
+          else
+            // Horizontal layout for larger screens
+            Row(
+              children: [
+                Expanded(
+                  child: _buildDropdown(
+                    'Template',
+                    _selectedTemplate,
+                    _templates,
+                    (value) => setState(() => _selectedTemplate = value!),
+                    isSmallScreen,
                   ),
-                  items: _templates.map((template) {
-                    return DropdownMenuItem(value: template, child: Text(template));
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedTemplate = value!;
-                    });
-                  },
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: _selectedSize,
-                  decoration: const InputDecoration(
-                    labelText: 'Size',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildDropdown(
+                    'Size',
+                    _selectedSize,
+                    _sizes,
+                    (value) => setState(() => _selectedSize = value!),
+                    isSmallScreen,
                   ),
-                  items: _sizes.map((size) {
-                    return DropdownMenuItem(value: size, child: Text(size));
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedSize = value!;
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _titleController,
-            decoration: const InputDecoration(
-              labelText: 'Main Title *',
-              hintText: 'e.g., GRAND SALE',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-            ),
-            onChanged: (value) => setState(() {}),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _subtitleController,
-            decoration: const InputDecoration(
-              labelText: 'Subtitle',
-              hintText: 'e.g., Up to 50% OFF',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-            ),
-            onChanged: (value) => setState(() {}),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _descriptionController,
-            decoration: const InputDecoration(
-              labelText: 'Description',
-              hintText: 'Add details about your offer...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-            ),
-            maxLines: 3,
-            onChanged: (value) => setState(() {}),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _priceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Price/Offer',
-                    hintText: '₹999 only',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                  ),
-                  onChanged: (value) => setState(() {}),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _contactController,
-                  decoration: const InputDecoration(
-                    labelText: 'Contact Info',
-                    hintText: 'Phone or Address',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                  ),
-                  onChanged: (value) => setState(() {}),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPosterPreview() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Poster Preview',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF26344F),
-                ),
-              ),
-              DropdownButton<String>(
-                value: _selectedFont,
-                items: _fonts.map((font) {
-                  return DropdownMenuItem(value: font, child: Text(font));
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedFont = value!;
-                  });
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            height: 400,
-            decoration: BoxDecoration(
-              color: _backgroundColor,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 2,
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: _buildPosterTemplate(),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Text('Colors: '),
-              const SizedBox(width: 8),
-              Expanded(
-                child: SizedBox(
-                  height: 40,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _colorOptions.length,
-                    itemBuilder: (context, index) {
-                      final color = _colorOptions[index];
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _primaryColor = color;
-                          });
-                        },
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          margin: const EdgeInsets.only(right: 8),
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                            border: _primaryColor == color
-                                ? Border.all(color: Colors.black, width: 2)
-                                : null,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
+          
+          SizedBox(height: isSmallScreen ? 12 : 16),
+          
+          // Text Fields
+          _buildTextField('Title', _titleController, isSmallScreen),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          _buildTextField('Subtitle', _subtitleController, isSmallScreen),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          _buildTextField('Description', _descriptionController, isSmallScreen, maxLines: 3),
         ],
       ),
     );
   }
 
-  Widget _buildPosterTemplate() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            _primaryColor.withOpacity(0.1),
-            Colors.white,
-          ],
+  Widget _buildDropdown(
+    String label,
+    String value,
+    List<String> items,
+    Function(String?) onChanged,
+    bool isSmallScreen,
+  ) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 12 : 16,
+          vertical: isSmallScreen ? 8 : 12,
+        ),
+      ),
+      style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+      items: items.map((item) {
+        return DropdownMenuItem(value: item, child: Text(item));
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller,
+    bool isSmallScreen, {
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 12 : 16,
+          vertical: isSmallScreen ? 8 : 12,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPosterPreview(bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          // Header with title
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _primaryColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              _titleController.text.isNotEmpty ? _titleController.text.toUpperCase() : 'YOUR TITLE HERE',
-              style: TextStyle(
-                fontSize: _selectedFont == 'Extra Bold' ? 24 : 20,
-                fontWeight: _selectedFont == 'Light' ? FontWeight.w300 : FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(height: 20),
-          
-          // Subtitle
-          if (_subtitleController.text.isNotEmpty)
-            Text(
-              _subtitleController.text,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: _primaryColor,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          
-          const SizedBox(height: 16),
-          
-          // Description
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (_descriptionController.text.isNotEmpty)
-                    Text(
-                      _descriptionController.text,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF6B7280),
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Price/Offer
-                  if (_priceController.text.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: _primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: _primaryColor),
-                      ),
-                      child: Text(
-                        _priceController.text,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: _primaryColor,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          
-          // Contact info
-          if (_contactController.text.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.contact_phone, color: _primaryColor, size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    _contactController.text,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: _primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _savePoster,
-                  icon: const Icon(Icons.save, size: 20),
-                  label: const Text('Save Poster'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5777B5),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _printPoster,
-                  icon: const Icon(Icons.print, size: 20),
-                  label: const Text('Print'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF10B981),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _exportPoster,
-              icon: const Icon(Icons.file_download, size: 20),
-              label: const Text('Export Poster'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF805D),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSavedPosters() {
-    return Container(
-      margin: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Saved Posters',
+          Text(
+            'Preview',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: isSmallScreen ? 16 : 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF26344F),
+              color: const Color(0xFF26344F),
             ),
           ),
-          const SizedBox(height: 12),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _savedPosters.length,
-            itemBuilder: (context, index) {
-              final poster = _savedPosters[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF805D).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.campaign,
-                      color: Color(0xFFFF805D),
-                    ),
-                  ),
-                  title: Text(
-                    poster['title'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF26344F),
-                    ),
-                  ),
-                  subtitle: Text('${poster['template']} • ${poster['size']}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _titleController.text = poster['title'];
-                            _subtitleController.text = poster['subtitle'];
-                            _selectedTemplate = poster['template'];
-                            _selectedSize = poster['size'];
-                          });
-                        },
-                        icon: const Icon(Icons.edit, color: Color(0xFF5777B5)),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _savedPosters.removeAt(index);
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Poster deleted'),
-                              backgroundColor: Color(0xFF6B7280),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.delete, color: Color(0xFFE91E63)),
-                      ),
-                    ],
-                  ),
+          SizedBox(height: isSmallScreen ? 12 : 16),
+          Container(
+            width: double.infinity,
+            height: isSmallScreen ? 200 : 250,
+            decoration: BoxDecoration(
+              color: _backgroundColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Center(
+              child: Text(
+                'Poster Preview\n${_titleController.text.isNotEmpty ? _titleController.text : 'Your Title Here'}',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 16 : 20,
+                  fontWeight: FontWeight.bold,
+                  color: _primaryColor,
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildActionButtons(bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      child: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: isSmallScreen ? 48 : 56,
+            child: ElevatedButton(
+              onPressed: _savePoster,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5777B5),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                'Save Poster',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 14 : 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          SizedBox(
+            width: double.infinity,
+            height: isSmallScreen ? 48 : 56,
+            child: OutlinedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Downloading poster...'),
+                    backgroundColor: Color(0xFF10B981),
+                  ),
+                );
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF5777B5),
+                side: const BorderSide(color: Color(0xFF5777B5)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                'Download',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 14 : 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSavedPosters(bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Saved Posters',
+            style: TextStyle(
+              fontSize: isSmallScreen ? 16 : 18,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF26344F),
+            ),
+          ),
+          SizedBox(height: isSmallScreen ? 12 : 16),
+          ..._savedPosters.map((poster) => _buildPosterCard(poster, isSmallScreen)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPosterCard(Map<String, dynamic> poster, bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 12),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  poster['title'],
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 14 : 16,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF26344F),
+                  ),
+                ),
+                if (poster['subtitle'].isNotEmpty)
+                  Text(
+                    poster['subtitle'],
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 12 : 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                Text(
+                  '${poster['template']} • ${poster['size']}',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 10 : 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Editing ${poster['title']}...'),
+                  backgroundColor: const Color(0xFF5777B5),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.edit,
+              color: const Color(0xFF5777B5),
+              size: isSmallScreen ? 18 : 20,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _subtitleController.dispose();
+    _descriptionController.dispose();
+    _priceController.dispose();
+    _contactController.dispose();
+    super.dispose();
   }
 }

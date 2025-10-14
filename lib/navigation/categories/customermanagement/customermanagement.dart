@@ -9,6 +9,41 @@ class CustomerListScreen extends StatefulWidget {
 
 class _CustomerListScreenState extends State<CustomerListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final List<Map<String, dynamic>> _customers = [
+    {
+      'id': 1,
+      'name': 'Rajesh Kumar',
+      'phone': '+91-9876543210',
+      'email': 'rajesh@example.com',
+      'address': 'Shop No. 123, Market Street, Delhi',
+      'totalPurchases': 25000,
+      'lastPurchase': '2025-01-12',
+      'category': 'Regular',
+    },
+    {
+      'id': 2,
+      'name': 'Priya Sharma',
+      'phone': '+91-8765432109',
+      'email': 'priya@example.com',
+      'address': 'House No. 456, Sector 15, Gurgaon',
+      'totalPurchases': 45000,
+      'lastPurchase': '2025-01-14',
+      'category': 'VIP',
+    },
+    {
+      'id': 3,
+      'name': 'Amit Singh',
+      'phone': '+91-7654321098',
+      'email': 'amit@example.com',
+      'address': 'Plot No. 789, New Colony, Mumbai',
+      'totalPurchases': 15000,
+      'lastPurchase': '2025-01-10',
+      'category': 'Regular',
+    },
+  ];
+
+  String _selectedFilter = 'All';
+  final List<String> _filterOptions = ['All', 'Regular', 'VIP', 'Premium'];
 
   @override
   void dispose() {
@@ -25,486 +60,447 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     );
   }
 
+  List<Map<String, dynamic>> get _filteredCustomers {
+    List<Map<String, dynamic>> filtered = _customers;
+    
+    // Filter by category
+    if (_selectedFilter != 'All') {
+      filtered = filtered.where((customer) => customer['category'] == _selectedFilter).toList();
+    }
+    
+    // Filter by search term
+    if (_searchController.text.isNotEmpty) {
+      final searchTerm = _searchController.text.toLowerCase();
+      filtered = filtered.where((customer) {
+        return customer['name'].toLowerCase().contains(searchTerm) ||
+               customer['phone'].contains(searchTerm) ||
+               customer['email'].toLowerCase().contains(searchTerm);
+      }).toList();
+    }
+    
+    return filtered;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header with gradient and back arrow
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF5777B5),
-                    Color(0xFF26344F),
-                  ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(isSmallScreen),
+                _buildSearchAndFilters(isSmallScreen),
+                _buildStats(isSmallScreen),
+                Expanded(
+                  child: _buildCustomerList(isSmallScreen),
                 ),
+              ],
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddCustomerBottomSheet,
+        backgroundColor: const Color(0xFF4CAF50),
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildHeader(bool isSmallScreen) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        isSmallScreen ? 12 : 20,
+        isSmallScreen ? 12 : 18,
+        isSmallScreen ? 12 : 20,
+        isSmallScreen ? 16 : 24,
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+              size: isSmallScreen ? 20 : 24,
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+          SizedBox(width: isSmallScreen ? 6 : 8),
+          Expanded(
+            child: Text(
+              'Customer Management',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: isSmallScreen ? 14 : 18,
+                fontWeight: FontWeight.w600,
               ),
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: const Text(
-                      'Customer Management',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Quick Bill Button
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4CAF50),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'Quick',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  // Item Wise Bill Button
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4CAF50),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'Item',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 8 : 12,
+              vertical: isSmallScreen ? 4 : 6,
+            ),
+            decoration: BoxDecoration(
+              color: const Color(0xFF4CAF50),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              'Quick',
+              style: TextStyle(
+                fontSize: isSmallScreen ? 9 : 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Main Content Area
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(top: 16),
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF7FAFC),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
+  Widget _buildSearchAndFilters(bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Search Bar
+          TextField(
+            controller: _searchController,
+            onChanged: (_) => setState(() {}),
+            style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+            decoration: InputDecoration(
+              hintText: 'Search customers...',
+              hintStyle: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+              prefixIcon: Icon(
+                Icons.search,
+                size: isSmallScreen ? 18 : 22,
+                color: Colors.grey[600],
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFF5777B5)),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 12 : 16,
+                vertical: isSmallScreen ? 8 : 12,
+              ),
+            ),
+          ),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          
+          // Filter Options
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _filterOptions.map((filter) {
+                final isSelected = _selectedFilter == filter;
+                return Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedFilter = filter),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isSmallScreen ? 12 : 16,
+                        vertical: isSmallScreen ? 6 : 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFF5777B5) : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        filter,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 12 : 14,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? Colors.white : Colors.grey[700],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                child: Column(
-                  children: [
-                    // Search Bar with better responsive design
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          // Search input row
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: Container(
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF7FAFC),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.grey.shade300,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: TextField(
-                                    controller: _searchController,
-                                    decoration: InputDecoration(
-                                      hintText: 'Search...',
-                                      hintStyle: TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.grey.shade500,
-                                      ),
-                                      border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
-                                      prefixIcon: Icon(
-                                        Icons.search,
-                                        color: Colors.grey.shade400,
-                                        size: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              // Search Button
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFF805D),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.search,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              // Clear Button
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade400,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.clear,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-                          
-                          const SizedBox(height: 16),
-                          
-                          // Stats Row
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Total Records: 0',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              Text(
-                                '0 - 0 of 0',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                    const SizedBox(height: 20),
+  Widget _buildStats(bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildStatCard(
+              'Total Customers',
+              '${_customers.length}',
+              Icons.people,
+              const Color(0xFF5777B5),
+              isSmallScreen,
+            ),
+          ),
+          SizedBox(width: isSmallScreen ? 8 : 12),
+          Expanded(
+            child: _buildStatCard(
+              'VIP Customers',
+              '${_customers.where((c) => c['category'] == 'VIP').length}',
+              Icons.star,
+              const Color(0xFFFF9800),
+              isSmallScreen,
+            ),
+          ),
+          SizedBox(width: isSmallScreen ? 8 : 12),
+          Expanded(
+            child: _buildStatCard(
+              'This Month',
+              '${_customers.where((c) => c['lastPurchase'].contains('2025-01')).length}',
+              Icons.calendar_month,
+              const Color(0xFF4CAF50),
+              isSmallScreen,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                    // Pagination Controls with better design
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Previous Button
-                          Flexible(
-                            child: Container(
-                              constraints: const BoxConstraints(
-                                minWidth: 80,
-                                maxWidth: 100,
-                              ),
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade400,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(
-                                Icons.chevron_left,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Page Number
-                          Container(
-                            width: 50,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF5777B5),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '1',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Next Button
-                          Flexible(
-                            child: Container(
-                              constraints: const BoxConstraints(
-                                minWidth: 80,
-                                maxWidth: 100,
-                              ),
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade400,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(
-                                Icons.chevron_right,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+  Widget _buildStatCard(String title, String value, IconData icon, Color color, bool isSmallScreen) {
+    return Container(
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: isSmallScreen ? 20 : 24,
+          ),
+          SizedBox(height: isSmallScreen ? 4 : 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: isSmallScreen ? 16 : 20,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF26344F),
+            ),
+          ),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: isSmallScreen ? 10 : 12,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
 
-                    const SizedBox(height: 20),
-
-                    // Empty State with better design
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Illustration
-                              Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF7FAFC),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Icon(
-                                  Icons.people_outline,
-                                  size: 80,
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              const Text(
-                                'No Customers Found!',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF212121),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Add your first customer to get started',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              // Add New Customer Button
-                              GestureDetector(
-                                onTap: () {
-                                  _showAddCustomerBottomSheet();
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 32,
-                                    vertical: 16,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFF805D),
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFFFF805D).withOpacity(0.3),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Text(
-                                    'Add New Customer',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Bottom Action Buttons with better responsive design
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        children: [
-                          // Import Button
-                          Expanded(
-                            flex: 2,
-                            child: Container(
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFF805D),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.file_upload_outlined,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      'Import',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          // Export Button
-                          Expanded(
-                            flex: 2,
-                            child: Container(
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade500,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.file_download_outlined,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      'Export',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+  Widget _buildCustomerList(bool isSmallScreen) {
+    final customers = _filteredCustomers;
+    
+    if (customers.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.people_outline,
+              size: isSmallScreen ? 48 : 64,
+              color: Colors.grey[400],
+            ),
+            SizedBox(height: isSmallScreen ? 12 : 16),
+            Text(
+              'No customers found',
+              style: TextStyle(
+                fontSize: isSmallScreen ? 14 : 16,
+                color: Colors.grey[600],
               ),
             ),
           ],
         ),
+      );
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      itemCount: customers.length,
+      itemBuilder: (context, index) {
+        final customer = customers[index];
+        return _buildCustomerCard(customer, isSmallScreen);
+      },
+    );
+  }
+
+  Widget _buildCustomerCard(Map<String, dynamic> customer, bool isSmallScreen) {
+    return Container(
+      margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 12),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: isSmallScreen ? 20 : 24,
+                backgroundColor: const Color(0xFF5777B5),
+                child: Text(
+                  customer['name'][0].toUpperCase(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: isSmallScreen ? 14 : 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              SizedBox(width: isSmallScreen ? 8 : 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            customer['name'],
+                            style: TextStyle(
+                              fontSize: isSmallScreen ? 14 : 16,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF26344F),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? 6 : 8,
+                            vertical: isSmallScreen ? 2 : 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: customer['category'] == 'VIP' 
+                                ? const Color(0xFFFF9800)
+                                : const Color(0xFF4CAF50),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            customer['category'],
+                            style: TextStyle(
+                              fontSize: isSmallScreen ? 9 : 10,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: isSmallScreen ? 2 : 4),
+                    Text(
+                      customer['phone'],
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          Text(
+            customer['address'],
+            style: TextStyle(
+              fontSize: isSmallScreen ? 11 : 12,
+              color: Colors.grey[600],
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          Row(
+            children: [
+              Icon(
+                Icons.shopping_bag,
+                size: isSmallScreen ? 14 : 16,
+                color: Colors.grey[600],
+              ),
+              SizedBox(width: isSmallScreen ? 4 : 6),
+              Text(
+                '₹${customer['totalPurchases']}',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 12 : 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF4CAF50),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                'Last: ${customer['lastPurchase']}',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 10 : 12,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -518,302 +514,182 @@ class AddCustomerBottomSheet extends StatefulWidget {
 }
 
 class _AddCustomerBottomSheetState extends State<AddCustomerBottomSheet> {
-  final TextEditingController _customerNameController = TextEditingController();
-  final TextEditingController _contactController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _addressController = TextEditingController();
+  
+  String _selectedCategory = 'Regular';
+  final List<String> _categories = ['Regular', 'VIP', 'Premium'];
 
   @override
   void dispose() {
-    _customerNameController.dispose();
-    _contactController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
     _addressController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF5777B5),
-                    Color(0xFF26344F),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              isSmallScreen ? 16 : 20,
+              isSmallScreen ? 20 : 24,
+              isSmallScreen ? 16 : 20,
+              MediaQuery.of(context).viewInsets.bottom + (isSmallScreen ? 20 : 24),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Add New Customer',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 16 : 18,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF26344F),
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(
+                        Icons.close,
+                        size: isSmallScreen ? 20 : 24,
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
                   ],
                 ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+                SizedBox(height: isSmallScreen ? 16 : 20),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      _buildTextField('Name', _nameController, Icons.person, isSmallScreen),
+                      SizedBox(height: isSmallScreen ? 12 : 16),
+                      _buildTextField('Phone', _phoneController, Icons.phone, isSmallScreen),
+                      SizedBox(height: isSmallScreen ? 12 : 16),
+                      _buildTextField('Email', _emailController, Icons.email, isSmallScreen),
+                      SizedBox(height: isSmallScreen ? 12 : 16),
+                      _buildTextField('Address', _addressController, Icons.location_on, isSmallScreen, maxLines: 3),
+                      SizedBox(height: isSmallScreen ? 12 : 16),
+                      
+                      // Category Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedCategory,
+                        decoration: InputDecoration(
+                          labelText: 'Category',
+                          prefixIcon: Icon(Icons.category, size: isSmallScreen ? 18 : 20),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? 12 : 16,
+                            vertical: isSmallScreen ? 8 : 12,
+                          ),
+                        ),
+                        style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+                        items: _categories.map((category) {
+                          return DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedCategory = value!);
+                        },
+                      ),
+                      
+                      SizedBox(height: isSmallScreen ? 20 : 24),
+                      
+                      // Save Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: isSmallScreen ? 48 : 56,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              // Save logic here
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Customer added successfully!'),
+                                  backgroundColor: Color(0xFF4CAF50),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4CAF50),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Add Customer',
+                            style: TextStyle(
+                              fontSize: isSmallScreen ? 14 : 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Add Customer',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(
-                      Icons.close,
-                      size: 28,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
+          ),
+        );
+      },
+    );
+  }
 
-            // Form Content
-            Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Customer Name Field
-                  const Text(
-                    'Customer Name',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF212121),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _customerNameController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter Customer Name',
-                      hintStyle: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade400,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 12),
-                        child: Icon(
-                          Icons.person_outline,
-                          size: 24,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                      prefixIconConstraints: const BoxConstraints(
-                        minWidth: 56,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF7FAFC),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 0,
-                        vertical: 20,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1.5,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1.5,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFFF805D),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 24),
-
-                  // Contact Field
-                  const Text(
-                    'Contact Number',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF212121),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _contactController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: 'Enter Mobile Number',
-                      hintStyle: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade400,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 12),
-                        child: Icon(
-                          Icons.phone_outlined,
-                          size: 24,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                      prefixIconConstraints: const BoxConstraints(
-                        minWidth: 56,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF7FAFC),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 0,
-                        vertical: 20,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1.5,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1.5,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFFF805D),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 24),
-
-                  // Customer Address Field
-                  const Text(
-                    'Customer Address',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF212121),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _addressController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: 'Enter Customer Address',
-                      hintStyle: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade400,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 12, top: 16),
-                        child: Icon(
-                          Icons.location_on_outlined,
-                          size: 24,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                      prefixIconConstraints: const BoxConstraints(
-                        minWidth: 56,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF7FAFC),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 0,
-                        vertical: 20,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1.5,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1.5,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFFF805D),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 32),
-
-                  // Add Customer Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle add customer action
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF805D),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text(
-                        'Add Customer',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller,
+    IconData icon,
+    bool isSmallScreen, {
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, size: isSmallScreen ? 18 : 20),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 12 : 16,
+          vertical: isSmallScreen ? 8 : 12,
         ),
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter $label';
+        }
+        return null;
+      },
     );
   }
 }
