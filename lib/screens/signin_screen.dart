@@ -344,14 +344,19 @@ class _SignInScreenState extends State<SignInScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Google Login
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
+                    Flexible(
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          minWidth: 48,
+                          maxWidth: 56,
+                          minHeight: 48,
+                          maxHeight: 56,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
                         onPressed: () {
                           // TODO: Implement Google login
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -403,20 +408,26 @@ class _SignInScreenState extends State<SignInScreen> {
                             ],
                           ),
                         ),
+                        ),
                       ),
                     ),
 
-                    const SizedBox(width: 24),
+                    const SizedBox(width: 16),
 
                     // Facebook Login
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
+                    Flexible(
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          minWidth: 48,
+                          maxWidth: 56,
+                          minHeight: 48,
+                          maxHeight: 56,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
                         onPressed: () {
                           // TODO: Implement Facebook login
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -429,6 +440,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           Icons.facebook,
                           color: Color(0xFF1877F2),
                           size: 28,
+                        ),
                         ),
                       ),
                     ),

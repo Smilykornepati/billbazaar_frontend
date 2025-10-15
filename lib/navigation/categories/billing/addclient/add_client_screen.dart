@@ -195,8 +195,19 @@ class _AddClientScreenState extends State<AddClientScreen> {
                               height: 56,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Handle create client action
-                                  Navigator.pop(context);
+                                  if (_clientNameController.text.isNotEmpty) {
+                                    Navigator.pop(context, {
+                                      'name': _clientNameController.text.trim(),
+                                      'contact': _contactController.text.trim(),
+                                    });
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Please enter client name'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFF805D),
@@ -411,8 +422,19 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
                     height: 56,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Handle create client action
-                        Navigator.pop(context);
+                        if (_clientNameController.text.isNotEmpty) {
+                          Navigator.pop(context, {
+                            'name': _clientNameController.text.trim(),
+                            'contact': _contactController.text.trim(),
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter client name'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF805D),

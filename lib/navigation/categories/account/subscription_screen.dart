@@ -61,36 +61,42 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    _buildGoPremiumTitle(),
-                    const SizedBox(height: 30),
-                    _buildSubscriptionPlans(),
-                    const SizedBox(height: 30),
-                    _buildPremiumFeatures(),
-                    const SizedBox(height: 40),
-                    _buildPayButton(),
-                    const SizedBox(height: 20),
-                  ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return Column(
+            children: [
+              _buildHeader(isSmallScreen),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 12 : 16, 
+                    vertical: isSmallScreen ? 16 : 20,
+                  ),
+                  child: Column(
+                    children: [
+                      _buildGoPremiumTitle(isSmallScreen),
+                      SizedBox(height: isSmallScreen ? 20 : 30),
+                      _buildSubscriptionPlans(isSmallScreen),
+                      SizedBox(height: isSmallScreen ? 20 : 30),
+                      _buildPremiumFeatures(isSmallScreen),
+                      SizedBox(height: isSmallScreen ? 30 : 40),
+                      _buildPayButton(isSmallScreen),
+                      SizedBox(height: isSmallScreen ? 16 : 20),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isSmallScreen) {
     return Container(
-      height: 100.0,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -101,72 +107,83 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           ],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
-        child: Row(
-          children: [
-            // Back arrow
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                child: const Icon(
-                  Icons.arrow_back_ios,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 12 : 16, 
+            isSmallScreen ? 8 : 12, 
+            isSmallScreen ? 12 : 16, 
+            isSmallScreen ? 12 : 16
+          ),
+          child: Row(
+            children: [
+              // Back arrow
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  Icons.arrow_back,
                   color: Colors.white,
-                  size: 20.0,
+                  size: isSmallScreen ? 20 : 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              SizedBox(width: isSmallScreen ? 6.0 : 8.0),
+              // Title
+              Expanded(
+                child: Text(
+                  'Subscription',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 16.0 : 18.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-            const SizedBox(width: 8.0),
-            // Title
-            const Expanded(
-              child: Text(
-                'Subscription',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+              // Payment Report button
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSmallScreen ? 8 : 12,
+                  vertical: isSmallScreen ? 4 : 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryOrange,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Payment Report',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 10 : 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),
-            // Payment Report button
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.primaryOrange,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Text(
-                'Payment Report',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildGoPremiumTitle() {
+  Widget _buildGoPremiumTitle(bool isSmallScreen) {
     return Column(
       children: [
-        const Text(
+        Text(
           'GO PREMIUM',
           style: TextStyle(
-            fontSize: 32,
+            fontSize: isSmallScreen ? 24 : 28,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1A202C),
-            letterSpacing: 1.5,
+            color: const Color(0xFF1A202C),
+            letterSpacing: 1.2,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: isSmallScreen ? 6 : 8),
         Container(
-          width: 60,
-          height: 4,
+          width: isSmallScreen ? 50 : 60,
+          height: isSmallScreen ? 3 : 4,
           decoration: BoxDecoration(
             color: AppColors.primaryOrange,
             borderRadius: BorderRadius.circular(2),
@@ -176,131 +193,106 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
-  Widget _buildSubscriptionPlans() {
+  Widget _buildSubscriptionPlans(bool isSmallScreen) {
     return Column(
       children: subscriptionPlans.asMap().entries.map((entry) {
         final index = entry.key;
         final plan = entry.value;
         final isSelected = selectedPlanIndex == index;
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                selectedPlanIndex = index;
-              });
-            },
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isSelected ? AppColors.primaryOrange : const Color(0xFFE2E8F0),
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 8.0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+        
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedPlanIndex = index;
+            });
+          },
+          child: Container(
+            margin: EdgeInsets.only(bottom: isSmallScreen ? 12 : 16),
+            padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isSelected ? AppColors.primaryOrange : Colors.grey.shade300,
+                width: isSelected ? 2 : 1,
               ),
-              child: Row(
-                children: [
-                  // Selection checkbox
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primaryOrange : Colors.transparent,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: isSelected ? AppColors.primaryOrange : Colors.grey[600]!,
-                        width: 2,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8.0,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        plan['title'],
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 16 : 18,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF1A202C),
+                        ),
                       ),
                     ),
-                    child: isSelected
-                        ? const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 16,
-                          )
-                        : null,
-                  ),
-
-                  const SizedBox(width: 16),
-
-                  // Plan details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          plan['title'],
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1A202C),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text(
-                              '₹${plan['originalPrice']}/-',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF9CA3AF),
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '₹${plan['discountedPrice']}/-',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryOrange,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Duration badge
-                  Column(
-                    children: [
+                    if (plan['badge'] != null)
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 8 : 12,
+                          vertical: isSmallScreen ? 4 : 6,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.primaryOrange,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Icon(
-                          Icons.star,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        plan['duration'],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF6B7280),
+                        child: Text(
+                          plan['badge'],
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 10 : 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
+                SizedBox(height: isSmallScreen ? 8 : 12),
+                Row(
+                  children: [
+                    Text(
+                      '₹${plan['discountedPrice']}',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 24 : 28,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryOrange,
+                      ),
+                    ),
+                    SizedBox(width: isSmallScreen ? 6 : 8),
+                    Text(
+                      '₹${plan['originalPrice']}',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade500,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      plan['duration'],
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 12 : 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         );
@@ -308,22 +300,22 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
-  Widget _buildPremiumFeatures() {
+  Widget _buildPremiumFeatures(bool isSmallScreen) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Premium Features',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: isSmallScreen ? 18 : 22,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1A202C),
+            color: const Color(0xFF1A202C),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: isSmallScreen ? 16 : 20),
         ...premiumFeatures.map((feature) => Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(16),
+          margin: EdgeInsets.only(bottom: isSmallScreen ? 12 : 16),
+          padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -338,112 +330,133 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           child: Row(
             children: [
               Container(
-                width: 24,
-                height: 24,
+                width: isSmallScreen ? 20 : 24,
+                height: isSmallScreen ? 20 : 24,
                 decoration: BoxDecoration(
-                  color: Colors.green,
+                  color: AppColors.primaryOrange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check,
-                  color: Colors.white,
-                  size: 16,
+                  color: AppColors.primaryOrange,
+                  size: isSmallScreen ? 14 : 16,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: isSmallScreen ? 12 : 16),
               Expanded(
                 child: Text(
                   feature,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 14 : 16,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF1A202C),
+                    color: const Color(0xFF1A202C),
                   ),
                 ),
               ),
             ],
           ),
-        )).toList(),
+        )),
       ],
     );
   }
 
-  Widget _buildPayButton() {
+  Widget _buildPayButton(bool isSmallScreen) {
     final selectedPlan = subscriptionPlans[selectedPlanIndex];
-
+    
     return Container(
       width: double.infinity,
-      height: 56,
+      height: isSmallScreen ? 50 : 60,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFF6B35), Color(0xFFFF8E53)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryOrange.withOpacity(0.3),
+            blurRadius: 12.0,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: ElevatedButton(
         onPressed: () {
-          _handlePayment();
+          _showPaymentDialog(selectedPlan, isSmallScreen);
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryOrange,
-          foregroundColor: Colors.white,
-          elevation: 0,
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
         ),
         child: Text(
-          'Pay ₹${selectedPlan['discountedPrice']}/-',
-          style: const TextStyle(
-            fontSize: 18,
+          'Pay ₹${selectedPlan['discountedPrice']} for ${selectedPlan['duration']}',
+          style: TextStyle(
+            fontSize: isSmallScreen ? 16 : 18,
             fontWeight: FontWeight.w700,
+            color: Colors.white,
           ),
         ),
       ),
     );
   }
 
-  void _handlePayment() {
-    final selectedPlan = subscriptionPlans[selectedPlanIndex];
-
-    // Show payment confirmation dialog
+  void _showPaymentDialog(Map<String, dynamic> selectedPlan, bool isSmallScreen) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
+          title: Text(
             'Confirm Payment',
-            style: TextStyle(
-              color: Color(0xFF1A202C),
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: isSmallScreen ? 16 : 18),
           ),
-          content: Text(
-            'You are about to purchase ${selectedPlan['title']} for ₹${selectedPlan['discountedPrice']}/-',
-            style: const TextStyle(
-              color: Color(0xFF6B7280),
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Plan: ${selectedPlan['title']}',
+                style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+              ),
+              SizedBox(height: isSmallScreen ? 6 : 8),
+              Text(
+                'Duration: ${selectedPlan['duration']}',
+                style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+              ),
+              SizedBox(height: isSmallScreen ? 6 : 8),
+              Text(
+                'Amount: ₹${selectedPlan['discountedPrice']}',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 16 : 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryOrange,
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
                 'Cancel',
-                style: TextStyle(
-                  color: Color(0xFF9CA3AF),
-                ),
+                style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
               ),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _processPayment();
+                _processPayment(selectedPlan);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryOrange,
-                foregroundColor: Colors.white,
               ),
-              child: const Text('Confirm'),
+              child: Text(
+                'Pay Now',
+                style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+              ),
             ),
           ],
         );
@@ -451,16 +464,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
-  void _processPayment() {
-    // Show success message
+  void _processPayment(Map<String, dynamic> selectedPlan) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Payment processed successfully!'),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        content: Text('Payment initiated for ${selectedPlan['title']}'),
+        backgroundColor: const Color(0xFF10B981),
       ),
     );
   }

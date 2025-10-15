@@ -1,0 +1,650 @@
+import 'package:flutter/material.dart';
+
+class ItemwiseBillScreen extends StatefulWidget {
+  const ItemwiseBillScreen({super.key});
+
+  @override
+  State<ItemwiseBillScreen> createState() => _ItemwiseBillScreenState();
+}
+
+class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedCategory = 'All Items';
+  List<Map<String, dynamic>> _selectedItems = [];
+  
+  final List<Map<String, dynamic>> _allItems = [
+    {
+      'id': 1,
+      'name': 'Maggie Noodles',
+      'category': 'Snacks',
+      'price': 20.0,
+      'stock': 50,
+      'image': 'assets/products/maggi.png',
+    },
+    {
+      'id': 2,
+      'name': 'Coca Cola 300ml',
+      'category': 'Beverages',
+      'price': 40.0,
+      'stock': 25,
+      'image': 'assets/products/coke.png',
+    },
+    {
+      'id': 3,
+      'name': 'Parle-G Biscuits',
+      'category': 'Snacks',
+      'price': 10.0,
+      'stock': 100,
+      'image': 'assets/products/parleg.png',
+    },
+    {
+      'id': 4,
+      'name': 'Lays Chips',
+      'category': 'Snacks',
+      'price': 30.0,
+      'stock': 75,
+      'image': 'assets/products/lays.png',
+    },
+  ];
+
+  List<Map<String, dynamic>> _filteredItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredItems = List.from(_allItems);
+    _searchController.addListener(_filterItems);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterItems() {
+    setState(() {
+      _filteredItems = _allItems.where((item) {
+        final matchesSearch = item['name'].toLowerCase().contains(_searchController.text.toLowerCase());
+        final matchesCategory = _selectedCategory == 'All Items' || item['category'] == _selectedCategory;
+        return matchesSearch && matchesCategory;
+      }).toList();
+    });
+  }
+
+  void _addItemToBill(Map<String, dynamic> item) {
+    setState(() {
+      final existingIndex = _selectedItems.indexWhere((selected) => selected['id'] == item['id']);
+      if (existingIndex != -1) {
+        _selectedItems[existingIndex]['quantity'] += 1;
+      } else {
+        _selectedItems.add({
+          ...item,
+          'quantity': 1,
+        });
+      }
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${item['name']} added to bill'),
+        backgroundColor: const Color(0xFF10B981),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _removeItemFromBill(int index) {
+    setState(() {
+      if (_selectedItems[index]['quantity'] > 1) {
+        _selectedItems[index]['quantity'] -= 1;
+      } else {
+        _selectedItems.removeAt(index);
+      }
+    });
+  }
+
+  double get _totalAmount {
+    return _selectedItems.fold(0.0, (sum, item) => sum + (item['price'] * item['quantity']));
+  }
+
+  void _generateBill() {
+    if (_selectedItems.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please add items to generate bill'),
+          backgroundColor: Color(0xFFE91E63),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Bill Generated'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Total Items: ${_selectedItems.length}'),
+            Text('Total Amount: ₹${_totalAmount.toStringAsFixed(2)}'),
+            const SizedBox(height: 16),
+            const Text('Bill has been generated successfully!'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                _selectedItems.clear();
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF805D),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('New Bill'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7FAFC),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 600;
+          
+          return SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(),
+                _buildSearchAndFilter(),
+                Expanded(
+                  child: isSmallScreen 
+                    ? Column(
+                        children: [
+                          // Items list
+                          Expanded(
+                            flex: _selectedItems.isEmpty ? 1 : 3,
+                            child: _buildItemsList(),
+                          ),
+                          // Selected items (bill) - only show if items selected
+                          if (_selectedItems.isNotEmpty) ...[
+                            const Divider(height: 1),
+                            Expanded(
+                              flex: 2,
+                              child: _buildBillSection(),
+                            ),
+                          ],
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          // Items list
+                          Expanded(
+                            flex: 2,
+                            child: _buildItemsList(),
+                          ),
+                          // Selected items (bill)
+                          if (_selectedItems.isNotEmpty)
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  border: Border(left: BorderSide(color: Color(0xFFE5E7EB))),
+                                ),
+                                child: _buildBillSection(),
+                              ),
+                            ),
+                        ],
+                      ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isSmallScreen = constraints.maxWidth < 400;
+            
+            return Padding(
+              padding: EdgeInsets.fromLTRB(
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 14 : 18, 
+                isSmallScreen ? 16 : 20, 
+                isSmallScreen ? 18 : 24
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.arrow_back_ios, 
+                      color: Colors.white,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  SizedBox(width: isSmallScreen ? 6 : 8),
+                  Expanded(
+                    child: Text(
+                      'Item-wise Bill',
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 16.0 : 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildSearchAndFilter() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // Search bar
+          TextField(
+            controller: _searchController,
+            decoration: const InputDecoration(
+              hintText: 'Search items...',
+              prefixIcon: Icon(Icons.search, color: Color(0xFF6B7280)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+                borderSide: BorderSide(color: Color(0xFFE5E7EB)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+                borderSide: BorderSide(color: Color(0xFF5777B5)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Category filter
+          DropdownButtonFormField<String>(
+            value: _selectedCategory,
+            decoration: const InputDecoration(
+              labelText: 'Category',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+            ),
+            items: ['All Items', 'Snacks', 'Beverages', 'General'].map((category) {
+              return DropdownMenuItem(
+                value: category,
+                child: Text(category),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedCategory = value!;
+              });
+              _filterItems();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItemsList() {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'Available Items',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF26344F),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: _filteredItems.length,
+              itemBuilder: (context, index) {
+                final item = _filteredItems[index];
+                return _buildItemCard(item);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItemCard(Map<String, dynamic> item) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return ListTile(
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 8 : 16,
+              vertical: isSmallScreen ? 4 : 8,
+            ),
+            leading: Container(
+              width: isSmallScreen ? 40 : 50,
+              height: isSmallScreen ? 40 : 50,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.inventory_2,
+                color: const Color(0xFF26344F),
+                size: isSmallScreen ? 20 : 24,
+              ),
+            ),
+            title: Text(
+              item['name'],
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF26344F),
+                fontSize: isSmallScreen ? 14 : 16,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Category: ${item['category']}',
+                  style: TextStyle(fontSize: isSmallScreen ? 11 : 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'Stock: ${item['stock']}',
+                  style: TextStyle(fontSize: isSmallScreen ? 11 : 12),
+                ),
+              ],
+            ),
+            trailing: SizedBox(
+              width: isSmallScreen ? 70 : 80,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '₹${item['price']}',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 16,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF10B981),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  ElevatedButton(
+                    onPressed: () => _addItemToBill(item),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF805D),
+                      minimumSize: Size(isSmallScreen ? 50 : 60, isSmallScreen ? 28 : 30),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                    child: Text(
+                      'Add',
+                      style: TextStyle(
+                        color: Colors.white, 
+                        fontSize: isSmallScreen ? 10 : 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBillSection() {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'Current Bill',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF26344F),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _selectedItems.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No items added',
+                      style: TextStyle(color: Color(0xFF6B7280)),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(8),
+                    itemCount: _selectedItems.length,
+                    itemBuilder: (context, index) {
+                      final item = _selectedItems[index];
+                      return _buildBillItemCard(item, index);
+                    },
+                  ),
+          ),
+          if (_selectedItems.isNotEmpty) _buildBillSummary(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBillItemCard(Map<String, dynamic> item, int index) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return Padding(
+            padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item['name'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF26344F),
+                    fontSize: isSmallScreen ? 14 : 16,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: isSmallScreen ? 4 : 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        '₹${item['price']} x ${item['quantity']}',
+                        style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      '₹${(item['price'] * item['quantity']).toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF10B981),
+                        fontSize: isSmallScreen ? 12 : 14,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: isSmallScreen ? 6 : 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => _removeItemFromBill(index),
+                            icon: Icon(Icons.remove, size: isSmallScreen ? 14 : 16),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                          SizedBox(width: isSmallScreen ? 6 : 8),
+                          Text(
+                            '${item['quantity']}',
+                            style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                          ),
+                          SizedBox(width: isSmallScreen ? 6 : 8),
+                          IconButton(
+                            onPressed: () => _addItemToBill(item),
+                            icon: Icon(Icons.add, size: isSmallScreen ? 14 : 16),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedItems.removeAt(index);
+                        });
+                      },
+                      icon: Icon(
+                        Icons.delete, 
+                        color: const Color(0xFFE91E63), 
+                        size: isSmallScreen ? 14 : 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBillSummary() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Total Items:'),
+              Text('${_selectedItems.length}'),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total Amount:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '₹${_totalAmount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF10B981),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _generateBill,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5777B5),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: const Text('Generate Bill'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

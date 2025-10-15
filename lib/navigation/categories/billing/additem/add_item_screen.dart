@@ -195,8 +195,30 @@ class _AddItemScreenState extends State<AddItemScreen> {
                               height: 56,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Handle create item action
-                                  Navigator.pop(context);
+                                  if (_itemNameController.text.isNotEmpty && 
+                                      _unitPriceController.text.isNotEmpty) {
+                                    final unitPrice = double.tryParse(_unitPriceController.text);
+                                    if (unitPrice != null && unitPrice > 0) {
+                                      Navigator.pop(context, {
+                                        'name': _itemNameController.text.trim(),
+                                        'unitPrice': unitPrice,
+                                      });
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Please enter a valid price'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Please fill all fields'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFF805D),
@@ -411,8 +433,30 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                     height: 56,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Handle create item action
-                        Navigator.pop(context);
+                        if (_itemNameController.text.isNotEmpty && 
+                            _unitPriceController.text.isNotEmpty) {
+                          final unitPrice = double.tryParse(_unitPriceController.text);
+                          if (unitPrice != null && unitPrice > 0) {
+                            Navigator.pop(context, {
+                              'name': _itemNameController.text.trim(),
+                              'unitPrice': unitPrice,
+                            });
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter a valid price'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill all fields'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF805D),
