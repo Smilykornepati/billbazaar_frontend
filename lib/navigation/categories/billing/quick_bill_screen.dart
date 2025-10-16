@@ -13,6 +13,14 @@ class QuickBillScreen extends StatefulWidget {
 
 class _QuickBillScreenState extends State<QuickBillScreen> {
   final TextEditingController _notesController = TextEditingController();
+  final TextEditingController _businessNameController = TextEditingController(text: 'BillBazar Store');
+  String? _selectedLogo;
+  final List<String> _availableLogos = [
+    'assets/logos/default_logo.png',
+    'assets/logos/restaurant_logo.png',
+    'assets/logos/retail_logo.png',
+    'assets/logos/grocery_logo.png',
+  ];
   String _selectedPaymentMethod = 'Cash';
   bool _isSinglePayment = true;
 
@@ -21,7 +29,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
   late String _issueDate;
   late String _dueDate;
   String? _selectedClient;
-  double _discount = 0.0;
 
   List<Map<String, dynamic>> _items = [];
   List<String> _clients = [];
@@ -55,28 +62,89 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
   }
 
   double get _grandTotal {
-    return _subtotal - _discount;
+    return _subtotal;
   }
 
   void _addItem(String name, double unitPrice) {
+    // Check available stock (mock data)
+    final availableStock = _getAvailableStock(name);
+    
     setState(() {
       // Check if item already exists
       final existingItemIndex = _items.indexWhere((item) => item['name'] == name);
+      
       if (existingItemIndex != -1) {
+        // Check if adding one more would exceed stock
+        final newQuantity = _items[existingItemIndex]['quantity'] + 1;
+        if (newQuantity > availableStock) {
+          _showStockWarning(name, availableStock);
+          return;
+        }
         // Increase quantity if item exists
-        _items[existingItemIndex]['quantity']++;
+        _items[existingItemIndex]['quantity'] = newQuantity;
         _items[existingItemIndex]['totalPrice'] = 
-            _items[existingItemIndex]['quantity'] * _items[existingItemIndex]['unitPrice'];
+            newQuantity * _items[existingItemIndex]['unitPrice'];
       } else {
+        if (availableStock <= 0) {
+          _showOutOfStockWarning(name);
+          return;
+        }
         // Add new item
         _items.add({
           'name': name,
-          'quantity': 1,
           'unitPrice': unitPrice,
+          'quantity': 1,
           'totalPrice': unitPrice,
         });
       }
     });
+  }
+
+  int _getAvailableStock(String itemName) {
+    // Mock inventory data - in real app this would come from database
+    final mockInventory = {
+      'Tea': 50,
+      'Coffee': 30,
+      'Sugar': 100,
+      'Milk': 25,
+      'Bread': 15,
+      'Biscuits': 0, // Out of stock
+      'Rice': 200,
+      'Dal': 75,
+    };
+    return mockInventory[itemName] ?? 10; // Default stock
+  }
+
+  void _showStockWarning(String itemName, int availableStock) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Insufficient Stock'),
+        content: Text('Only $availableStock units of $itemName are available in inventory.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOutOfStockWarning(String itemName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Out of Stock'),
+        content: Text('$itemName is currently out of stock.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _addClient(String name, String contact) {
@@ -95,14 +163,80 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
   }
 
   void _updateItemQuantity(int index, int newQuantity) {
-    setState(() {
-      if (newQuantity <= 0) {
+    if (newQuantity <= 0) {
+      setState(() {
         _items.removeAt(index);
-      } else {
-        _items[index]['quantity'] = newQuantity;
-        _items[index]['totalPrice'] = newQuantity * _items[index]['unitPrice'];
-      }
+      });
+      return;
+    }
+
+    // Check stock availability
+    final itemName = _items[index]['name'];
+    final availableStock = _getAvailableStock(itemName);
+    
+    if (newQuantity > availableStock) {
+      _showStockWarning(itemName, availableStock);
+      return;
+    }
+
+    setState(() {
+      _items[index]['quantity'] = newQuantity;
+      _items[index]['totalPrice'] = newQuantity * _items[index]['unitPrice'];
     });
+  }
+
+  void _showLogoSelection() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Business Logo'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.close),
+              title: const Text('No Logo'),
+              onTap: () {
+                setState(() {
+                  _selectedLogo = null;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ..._availableLogos.map((logo) => ListTile(
+              leading: const Icon(Icons.image),
+              title: Text(logo.split('/').last.replaceAll('.png', '')),
+              onTap: () {
+                setState(() {
+                  _selectedLogo = logo;
+                });
+                Navigator.pop(context);
+              },
+            )),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.add_photo_alternate),
+              title: const Text('Upload Custom Logo'),
+              subtitle: const Text('(Feature coming soon)'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Custom logo upload - Coming Soon!'),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -111,43 +245,16 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     super.dispose();
   }
 
-  void _showDiscountDialog() {
-    final TextEditingController discountController = TextEditingController();
-    discountController.text = _discount.toString();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Discount'),
-        content: TextField(
-          controller: discountController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Discount Amount (₹)',
-            hintText: 'Enter discount amount',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final discountValue = double.tryParse(discountController.text) ?? 0;
-              setState(() {
-                _discount = discountValue;
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Apply'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPreviewDialog() {
+  void _resetBill() {
+    setState(() {
+      _items.clear();
+      _selectedClient = null;
+      _notesController.clear();
+      _selectedPaymentMethod = 'Cash';
+      _isSinglePayment = true;
+      _generateInvoiceNumber();
+    });
+  }  void _showPreviewDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -186,13 +293,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                 children: [
                   const Text('Subtotal:'),
                   Text('₹${_subtotal.toStringAsFixed(2)}'),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Discount:'),
-                  Text('₹${_discount.toStringAsFixed(2)}'),
                 ],
               ),
               Row(
@@ -256,9 +356,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
       }).toList();
 
       final subtotal = _subtotal;
-      final gstAmount = subtotal * 0.18; // 18% GST
-      final discount = _discount;
-      final total = _grandTotal + gstAmount;
+      final total = _grandTotal;
 
       // Print the bill
       final printSuccess = await PrintService.instance.printBill(
@@ -266,10 +364,14 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         phoneNumber: '', // No phone field in this version
         items: items,
         subtotal: subtotal,
-        gstAmount: gstAmount,
-        discount: discount,
+        gstAmount: 0.0, // No GST
+        discount: 0.0, // No discount
         total: total,
         paymentMethod: _selectedPaymentMethod,
+        businessName: _businessNameController.text.isNotEmpty 
+            ? _businessNameController.text 
+            : 'BillBazar Store',
+        logoPath: _selectedLogo,
       );
 
       // Close printing dialog
@@ -310,19 +412,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         ),
       );
     }
-  }
-
-  void _resetBill() {
-    setState(() {
-      _items.clear();
-      _selectedClient = null;
-      _discount = 0.0;
-      _notesController.clear();
-      _selectedPaymentMethod = 'Cash';
-      _isSinglePayment = true;
-      _generateInvoiceNumber();
-      _setDates();
-    });
   }
 
   void _showAddItemBottomSheet() async {
@@ -476,6 +565,73 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
       ),
       child: Column(
         children: [
+          // Editable Business Name
+          Row(
+            children: [
+              const Text(
+                'Business Name',
+                style: TextStyle(fontSize: 14.0, color: Colors.grey),
+              ),
+              const Spacer(),
+              Expanded(
+                child: TextField(
+                  controller: _businessNameController,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF26344F),
+                  ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter business name',
+                    hintStyle: TextStyle(fontSize: 12.0, color: Colors.grey),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16.0),
+          // Logo Selection
+          Row(
+            children: [
+              const Text(
+                'Business Logo',
+                style: TextStyle(fontSize: 14.0, color: Colors.grey),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: _showLogoSelection,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _selectedLogo != null ? Icons.image : Icons.add_photo_alternate,
+                        size: 16.0,
+                        color: const Color(0xFF26344F),
+                      ),
+                      const SizedBox(width: 4.0),
+                      Text(
+                        _selectedLogo != null ? 'Logo Selected' : 'Select Logo',
+                        style: const TextStyle(
+                          fontSize: 12.0,
+                          color: Color(0xFF26344F),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16.0),
           // Invoice Number
           Row(
             children: [
@@ -707,30 +863,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
           ),
         ),
         const SizedBox(height: 12.0),
-        // Add discount button
-        OutlinedButton(
-          onPressed: () {
-            _showDiscountDialog();
-          },
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 12.0,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            side: BorderSide(color: Colors.grey[300]!),
-          ),
-          child: const Text(
-            'Add Discount',
-            style: TextStyle(
-              color: Color(0xFF26344F),
-              fontSize: 14.0,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
+        // Space where discount button was removed
       ],
     );
   }
@@ -790,12 +923,36 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                       ),
                     ),
                     const SizedBox(width: 12.0),
-                    Text(
-                      '${item['quantity']}',
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF26344F),
+                    // Editable quantity field
+                    Container(
+                      width: 60.0,
+                      height: 32.0,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: TextField(
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF26344F),
+                        ),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                        ),
+                        controller: TextEditingController(
+                          text: '${item['quantity']}',
+                        ),
+                        onSubmitted: (value) {
+                          final newQuantity = int.tryParse(value) ?? item['quantity'];
+                          _updateItemQuantity(
+                            _items.indexOf(item),
+                            newQuantity
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(width: 12.0),
@@ -881,8 +1038,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
       child: Column(
         children: [
           _buildSummaryRow('Subtotal', '₹${_subtotal.toStringAsFixed(2)}'),
-          const SizedBox(height: 12.0),
-          _buildSummaryRow('Discount', '₹${_discount.toStringAsFixed(2)}'),
           const SizedBox(height: 12.0),
           _buildSummaryRow('Grand Total', '₹${_grandTotal.toStringAsFixed(2)}', isTotal: true),
         ],

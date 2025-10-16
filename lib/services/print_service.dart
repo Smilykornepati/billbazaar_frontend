@@ -73,6 +73,7 @@ class PrintService {
     String businessAddress = '123 Business Street, City',
     String businessPhone = '+91 9876543210',
     String gstNumber = 'GST123456789',
+    String? logoPath, // Optional logo path
   }) async {
     try {
       // Simulate printing delay
@@ -102,6 +103,7 @@ class PrintService {
         businessAddress: businessAddress,
         businessPhone: businessPhone,
         gstNumber: gstNumber,
+        logoPath: logoPath,
       );
 
       // Log the print job (in a real app, this would send to printer)
@@ -141,6 +143,7 @@ class PrintService {
     required String businessAddress,
     required String businessPhone,
     required String gstNumber,
+    String? logoPath,
   }) {
     final now = DateTime.now();
     final dateStr = '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
@@ -152,7 +155,11 @@ class PrintService {
 
     final buffer = StringBuffer();
 
-    // Header
+    // Header with Logo
+    if (logoPath != null && logoPath.isNotEmpty) {
+      buffer.writeln(_centerText('[LOGO: $logoPath]', width));
+      buffer.writeln('');
+    }
     buffer.writeln(_centerText(businessName, width));
     buffer.writeln(_centerText(businessAddress, width));
     buffer.writeln(_centerText('Phone: $businessPhone', width));

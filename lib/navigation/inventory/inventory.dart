@@ -120,27 +120,74 @@ class _InventoryScreenState extends State<InventoryScreen> {
   void _showAddProductDialog() {
     final nameController = TextEditingController();
     final priceController = TextEditingController();
+    final costPriceController = TextEditingController();
     final stockController = TextEditingController();
     final maxStockController = TextEditingController();
+    String selectedCategory = 'General';
+    String selectedQtyType = 'Pieces';
+    
+    final categories = ['General', 'Electronics', 'Clothing', 'Food & Beverages', 'Health & Beauty', 'Books', 'Sports', 'Home & Garden'];
+    final qtyTypes = ['Pieces', 'Kg', 'Grams', 'Liters', 'ML', 'Meters', 'Boxes', 'Packets'];
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add New Product'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Product Name'),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: priceController,
-                decoration: const InputDecoration(labelText: 'Price'),
-                keyboardType: TextInputType.number,
-              ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Add New Product'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Product Name'),
+                ),
+                const SizedBox(height: 16),
+                // Category Dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedCategory,
+                  decoration: const InputDecoration(labelText: 'Category'),
+                  items: categories.map((category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setDialogState(() {
+                      selectedCategory = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                // Quantity Type Dropdown
+                DropdownButtonFormField<String>(
+                  value: selectedQtyType,
+                  decoration: const InputDecoration(labelText: 'Quantity Type'),
+                  items: qtyTypes.map((qtyType) {
+                    return DropdownMenuItem(
+                      value: qtyType,
+                      child: Text(qtyType),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setDialogState(() {
+                      selectedQtyType = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: priceController,
+                  decoration: const InputDecoration(labelText: 'Selling Price'),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: costPriceController,
+                  decoration: const InputDecoration(labelText: 'Cost Price'),
+                  keyboardType: TextInputType.number,
+                ),
               const SizedBox(height: 16),
               TextField(
                 controller: stockController,
@@ -165,19 +212,31 @@ class _InventoryScreenState extends State<InventoryScreen> {
             onPressed: () {
               if (nameController.text.isNotEmpty && 
                   priceController.text.isNotEmpty &&
+                  costPriceController.text.isNotEmpty &&
                   stockController.text.isNotEmpty &&
                   maxStockController.text.isNotEmpty) {
+                
+                final sellingPrice = int.parse(priceController.text);
+                final costPrice = int.parse(costPriceController.text);
+                final stock = int.parse(stockController.text);
+                final profit = sellingPrice - costPrice;
+                final profitMargin = ((profit / costPrice) * 100).toStringAsFixed(1);
                 
                 final newProduct = {
                   'name': nameController.text,
                   'image': 'assets/products/default.png',
                   'price': '₹${priceController.text}',
+                  'costPrice': '₹${costPriceController.text}',
+                  'profit': '₹$profit',
+                  'profitMargin': '$profitMargin%',
                   'stock': '${stockController.text}/${maxStockController.text}',
+                  'qtyType': selectedQtyType,
                   'gst': '12%',
-                  'value': '₹${int.parse(priceController.text) * int.parse(stockController.text)}',
+                  'value': '₹${sellingPrice * stock}',
                   'expiry': '31/12/2025',
                   'isExpired': false,
-                  'tags': ['General', 'In Stock', 'Fresh'],
+                  'category': selectedCategory,
+                  'tags': [selectedCategory, 'In Stock', 'Fresh'],
                 };
                 
                 setState(() {
@@ -201,7 +260,94 @@ class _InventoryScreenState extends State<InventoryScreen> {
             child: const Text('Add Product'),
           ),
         ],
+        ),
       ),
+    );
+  }
+
+  // Advanced Settings Dialog
+  void _showAdvancedSettings() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Advanced Settings'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.warning),
+                title: const Text('Low Stock Alert'),
+                subtitle: const Text('Set minimum stock levels'),
+                trailing: Switch(
+                  value: true,
+                  onChanged: (value) {},
+                ),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.date_range),
+                title: const Text('Expiry Notifications'),
+                subtitle: const Text('Alert for near-expiry items'),
+                trailing: Switch(
+                  value: true,
+                  onChanged: (value) {},
+                ),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.inventory),
+                title: const Text('Auto Reorder'),
+                subtitle: const Text('Automatic purchase orders'),
+                trailing: Switch(
+                  value: false,
+                  onChanged: (value) {},
+                ),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.category),
+                title: const Text('Category Management'),
+                subtitle: const Text('Add/Edit product categories'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showCategoryManagement();
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.shopping_cart),
+                title: const Text('Purchase Management'),
+                subtitle: const Text('Manage procurement'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showPurchaseManagement();
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCategoryManagement() {
+    // TODO: Implement category management
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Category Management - Coming Soon')),
+    );
+  }
+
+  void _showPurchaseManagement() {
+    // TODO: Implement purchase management
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Purchase Management - Coming Soon')),
     );
   }
 
@@ -422,11 +568,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   ),
                   if (isSmallScreen) ...[
                     // Icon-only buttons for small screens
+                    _buildExportButton('', Icons.settings, () => _showAdvancedSettings(), iconOnly: true),
+                    const SizedBox(width: 6),
                     _buildExportButton('', Icons.picture_as_pdf, () => _exportData('PDF'), iconOnly: true),
                     const SizedBox(width: 6),
                     _buildExportButton('', Icons.description, () => _exportData('CSV'), iconOnly: true),
                   ] else ...[
                     // Full text buttons for larger screens
+                    _buildExportButton('Advanced', Icons.settings, () => _showAdvancedSettings()),
+                    const SizedBox(width: 8),
                     _buildExportButton('Export PDF', Icons.download, () => _exportData('PDF')),
                     const SizedBox(width: 8),
                     _buildExportButton('Export CSV', Icons.description, () {
@@ -887,6 +1037,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   Widget _buildProductCard(Map<String, dynamic> product, int index) {
+    // Check if product is low stock
+    final stock = product['stock'].split('/');
+    final current = int.parse(stock[0]);
+    final max = int.parse(stock[1]);
+    final isLowStock = current < max * 0.5; // Less than 50% stock
+    
     return LayoutBuilder(
       builder: (context, constraints) {
         final isSmallScreen = constraints.maxWidth < 400;
@@ -896,6 +1052,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
+            border: isLowStock ? Border.all(color: Colors.orange, width: 2) : null,
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.1),
@@ -907,6 +1064,37 @@ class _InventoryScreenState extends State<InventoryScreen> {
           ),
           child: Column(
             children: [
+              // Low Stock Warning Banner
+              if (isLowStock)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.orange, width: 1),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.warning,
+                        color: Colors.orange,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'LOW STOCK',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               Row(
                 children: [
                   // Product Image
