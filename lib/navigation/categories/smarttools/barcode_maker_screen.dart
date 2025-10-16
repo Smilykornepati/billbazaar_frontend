@@ -315,6 +315,16 @@ class _BarcodeMakerScreenState extends State<BarcodeMakerScreen> {
               ),
               child: Row(
                 children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
                   SizedBox(width: isSmallScreen ? 6 : 8),
                   Expanded(
                     child: Text(

@@ -525,6 +525,16 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
           ),
           child: Row(
             children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
               SizedBox(width: isSmallScreen ? 6 : 8),
               Expanded(
                 child: Text(
@@ -683,7 +693,7 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
       padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: isSmallScreen ? 2 : 3,
-        childAspectRatio: isSmallScreen ? 0.7 : 0.75,
+        childAspectRatio: isSmallScreen ? 0.8 : 0.85,
         crossAxisSpacing: isSmallScreen ? 8 : 12,
         mainAxisSpacing: isSmallScreen ? 8 : 12,
       ),
@@ -736,21 +746,22 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
             Expanded(
               flex: 2,
               child: Padding(
-                padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
+                padding: EdgeInsets.all(isSmallScreen ? 4 : 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       product['name'],
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 12 : 14,
+                        fontSize: isSmallScreen ? 10 : 12,
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFF26344F),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: isSmallScreen ? 2 : 4),
+                    SizedBox(height: isSmallScreen ? 1 : 2),
                     
                     Row(
                       children: [
@@ -761,39 +772,39 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
                                   ? Icons.star
                                   : Icons.star_border,
                               color: const Color(0xFFFFB800),
-                              size: 12,
+                              size: 9,
                             );
                           }),
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 2),
                         Text(
                           '(${product['reviews']})',
                           style: const TextStyle(
                             color: Color(0xFF6B7280),
-                            fontSize: 10,
+                            fontSize: 8,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: isSmallScreen ? 2 : 4),
                     
                     Row(
                       children: [
                         Text(
                           '₹${product['price'].toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 12 : 14,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFFF805D),
+                            color: const Color(0xFFFF805D),
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 2),
                         Text(
                           '₹${product['originalPrice']}',
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 9 : 10,
                             decoration: TextDecoration.lineThrough,
-                            color: Color(0xFF6B7280),
+                            color: const Color(0xFF6B7280),
                           ),
                         ),
                       ],
@@ -804,14 +815,14 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
                         Icon(
                           product['inStock'] ? Icons.check_circle : Icons.cancel,
                           color: product['inStock'] ? const Color(0xFF10B981) : const Color(0xFFE91E63),
-                          size: 12,
+                          size: 9,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 2),
                         Text(
                           product['inStock'] ? 'In Stock' : 'Out of Stock',
                           style: TextStyle(
                             color: product['inStock'] ? const Color(0xFF10B981) : const Color(0xFFE91E63),
-                            fontSize: 10,
+                            fontSize: 8,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

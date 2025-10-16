@@ -170,13 +170,13 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
+            // Header - Fixed
             _buildHeader(),
             
-            // Search and Filter
+            // Search and Filter - Fixed
             _buildSearchAndFilter(),
             
-            // Main Content - Fixed Layout
+            // Main Content - Flexible layout
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -185,15 +185,14 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
                   if (isSmallScreen) {
                     return Column(
                       children: [
-                        // Items List - Takes most space
+                        // Items List - Takes remaining space after bill section
                         Expanded(
-                          flex: 3,
                           child: _buildItemsList(),
                         ),
                         
-                        // Current Bill - Fixed height, always visible
-                        Container(
-                          height: _selectedItems.isEmpty ? 120 : 200,
+                        // Current Bill - Fixed at bottom, always visible
+                        SizedBox(
+                          height: _selectedItems.isEmpty ? 60 : 120,
                           child: _buildBillSection(),
                         ),
                       ],
@@ -604,69 +603,70 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
 
   Widget _buildBillSection() {
     return Container(
-      margin: const EdgeInsets.all(8),
+      margin: const EdgeInsets.fromLTRB(8, 4, 8, 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _selectedItems.isEmpty ? Colors.grey.shade300 : const Color(0xFF5777B5),
-          width: 2,
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withOpacity(0.08),
             spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Header
+          // Header - More compact
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: _selectedItems.isEmpty 
                 ? Colors.grey.shade50 
-                : const Color(0xFF5777B5).withOpacity(0.1),
+                : const Color(0xFF5777B5).withOpacity(0.08),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(10),
-                topRight: Radius.circular(10),
+                topLeft: Radius.circular(11),
+                topRight: Radius.circular(11),
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   _selectedItems.isEmpty ? Icons.shopping_cart_outlined : Icons.shopping_cart,
-                  color: _selectedItems.isEmpty ? Colors.grey : const Color(0xFF5777B5),
+                  color: _selectedItems.isEmpty ? Colors.grey.shade500 : const Color(0xFF5777B5),
+                  size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     _selectedItems.isEmpty 
-                      ? 'Current Bill' 
-                      : 'Current Bill (${_selectedItems.length})',
+                      ? 'Current Bill - Add items to start' 
+                      : 'Current Bill (${_selectedItems.length} items)',
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                       color: _selectedItems.isEmpty ? Colors.grey.shade600 : const Color(0xFF26344F),
                     ),
                   ),
                 ),
                 if (_selectedItems.isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: const Color(0xFF10B981),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       '₹${_totalAmount.toStringAsFixed(0)}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: 11,
                       ),
                     ),
                   ),
@@ -677,23 +677,23 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
           // Items list or empty state
           Expanded(
             child: _selectedItems.isEmpty
-              ? const Center(
+              ? Center(
                   child: Padding(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(4),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.add_shopping_cart,
-                          size: 32,
-                          color: Colors.grey,
+                          Icons.add_shopping_cart_outlined,
+                          size: 20,
+                          color: Colors.grey.shade400,
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 2),
                         Text(
-                          'No items added yet',
+                          'Add items from above',
                           style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                            fontSize: 10,
                           ),
                         ),
                       ],
@@ -701,7 +701,7 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   itemCount: _selectedItems.length,
                   itemBuilder: (context, index) {
                     final item = _selectedItems[index];
@@ -710,12 +710,12 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
                 ),
           ),
           
-          // Generate Bill Button
+          // Generate Bill Button - More compact
           if (_selectedItems.isNotEmpty)
             Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+              padding: const EdgeInsets.fromLTRB(10, 3, 10, 4),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: Colors.grey.shade200)),
               ),
               child: SizedBox(
                 width: double.infinity,
@@ -724,12 +724,16 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5777B5),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 6),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(6),
                     ),
+                    elevation: 1,
                   ),
-                  child: const Text('Generate Bill'),
+                  child: const Text(
+                    'Generate Bill',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
             ),
@@ -740,12 +744,12 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
 
   Widget _buildBillItemCard(Map<String, dynamic> item, int index) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade200, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -783,7 +787,7 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
             ],
           ),
           
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           
           // Price per unit and quantity controls
           Row(

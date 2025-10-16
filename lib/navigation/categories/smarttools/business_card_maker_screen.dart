@@ -305,6 +305,16 @@ class _BusinessCardMakerScreenState extends State<BusinessCardMakerScreen> {
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
           child: Row(
             children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
               const SizedBox(width: 8),
               const Expanded(
                 child: Text(
