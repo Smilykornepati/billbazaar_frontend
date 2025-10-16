@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../navigation.dart';
-import '../../widgets/responsive_dialog.dart';
 
 class CategoriesScreen extends StatefulWidget {
   final int currentIndex;
@@ -501,100 +500,85 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final feedbackController = TextEditingController();
     int rating = 5;
     
-    showResponsiveDialog(
+    showDialog(
       context: context,
-      child: StatefulBuilder(
-        builder: (context, setState) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: const [
-                Icon(
-                  Icons.feedback,
-                  color: Color(0xFFFF805D),
-                  size: 24,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Row(
+            children: const [
+              Icon(
+                Icons.feedback,
+                color: Color(0xFFFF805D),
+                size: 24,
+              ),
+              SizedBox(width: 12),
+              Text('Send Feedback'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Rate your experience:'),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return IconButton(
+                      onPressed: () {
+                        setState(() {
+                          rating = index + 1;
+                        });
+                      },
+                      icon: Icon(
+                        index < rating ? Icons.star : Icons.star_border,
+                        color: const Color(0xFFFF805D),
+                      ),
+                    );
+                  }),
                 ),
-                SizedBox(width: 12),
-                Text(
-                  'Send Feedback',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A202C),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: feedbackController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    hintText: 'Share your thoughts...',
+                    border: OutlineInputBorder(),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            const Text('Rate your experience:'),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) {
-                return IconButton(
-                  onPressed: () {
-                    setState(() {
-                      rating = index + 1;
-                    });
-                  },
-                  icon: Icon(
-                    index < rating ? Icons.star : Icons.star_border,
-                    color: const Color(0xFFFF805D),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (feedbackController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter your feedback'),
+                      backgroundColor: Color(0xFFE91E63),
+                    ),
+                  );
+                  return;
+                }
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Thank you for your $rating-star feedback!'),
+                    backgroundColor: const Color(0xFF10B981),
+                    duration: const Duration(seconds: 3),
                   ),
                 );
-              }),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: feedbackController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: 'Share your thoughts...',
-                border: OutlineInputBorder(),
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF805D),
+                foregroundColor: Colors.white,
               ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        color: Color(0xFF6B7280),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Thank you for your feedback!'),
-                          backgroundColor: Color(0xFF10B981),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF805D),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Send',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-              ],
+              child: const Text('Send'),
             ),
           ],
         ),
@@ -650,59 +634,36 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   // Show coming soon dialog
   void _showComingSoonDialog(String itemName) {
-    showResponsiveDialog(
+    showDialog(
       context: context,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: const [
-              Icon(
-                Icons.schedule,
-                color: Color(0xFFFF805D),
-                size: 24,
-              ),
-              SizedBox(width: 12),
-              Text(
-                'Coming Soon',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A202C),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Text(
-            '$itemName feature is coming soon. Stay tuned for updates!',
-            style: const TextStyle(
-              color: Color(0xFF4A5568),
-              fontSize: 16,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(
+              Icons.schedule,
+              color: Color(0xFFFF805D),
+              size: 24,
             ),
-            textAlign: TextAlign.center,
+            SizedBox(width: 12),
+            Text('Coming Soon'),
+          ],
+        ),
+        content: Text(
+          '$itemName feature is coming soon. Stay tuned for updates!',
+          style: const TextStyle(
+            color: Color(0xFF4A5568),
+            fontSize: 16,
           ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF805D),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'OK',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF805D),
+              foregroundColor: Colors.white,
             ),
+            child: const Text('OK'),
           ),
         ],
       ),

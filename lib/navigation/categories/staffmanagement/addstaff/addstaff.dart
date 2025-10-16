@@ -41,6 +41,16 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   ),
                   child: Row(
                     children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
                       SizedBox(width: isSmallScreen ? 6 : 8),
                       Expanded(
                         child: Text(
@@ -275,29 +285,61 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                                 ),
                                 SizedBox(height: isSmallScreen ? 16 : 24),
 
-                                // Add Staff Button
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: isSmallScreen ? 48 : 56,
-                                  child: ElevatedButton(
-                                    onPressed: _addStaff,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF5777B5),
-                                      foregroundColor: Colors.white,
-                                      elevation: 2,
-                                      shadowColor: Colors.black.withOpacity(0.2),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                                // Buttons Row
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: const Color(0xFF5777B5),
+                                          side: const BorderSide(
+                                            color: Color(0xFF5777B5),
+                                            width: 1.5,
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: isSmallScreen ? 12 : 16,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            fontSize: isSmallScreen ? 14 : 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    child: Text(
-                                      'Add Staff',
-                                      style: TextStyle(
-                                        fontSize: isSmallScreen ? 16 : 18,
-                                        fontWeight: FontWeight.w600,
+                                    SizedBox(width: isSmallScreen ? 12 : 16),
+                                    Expanded(
+                                      flex: 2,
+                                      child: ElevatedButton(
+                                        onPressed: _addStaff,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFF5777B5),
+                                          foregroundColor: Colors.white,
+                                          elevation: 2,
+                                          shadowColor: Colors.black.withOpacity(0.2),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: isSmallScreen ? 12 : 16,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Add Staff',
+                                          style: TextStyle(
+                                            fontSize: isSmallScreen ? 14 : 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),

@@ -260,8 +260,13 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final isSmallScreen = mediaQuery.size.width < 400;
+    final isVerySmallScreen = mediaQuery.size.width < 320;
+    
     return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
+      height: screenHeight * (isVerySmallScreen ? 0.9 : 0.85),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -273,7 +278,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
         children: [
           // Handle bar
           Container(
-            margin: const EdgeInsets.only(top: 12),
+            margin: EdgeInsets.only(top: isSmallScreen ? 8 : 12),
             width: 40,
             height: 4,
             decoration: BoxDecoration(
@@ -284,30 +289,37 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
           
           // Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+            padding: EdgeInsets.fromLTRB(
+              isVerySmallScreen ? 16 : isSmallScreen ? 20 : 24, 
+              isSmallScreen ? 16 : 20, 
+              isVerySmallScreen ? 16 : isSmallScreen ? 20 : 24, 
+              0
+            ),
             child: Row(
               children: [
-                const Text(
-                  'Create new item',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF26344F),
+                Expanded(
+                  child: Text(
+                    'Create new item',
+                    style: TextStyle(
+                      fontSize: isVerySmallScreen ? 18 : isSmallScreen ? 19 : 20,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF26344F),
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    width: 32,
-                    height: 32,
+                    width: isSmallScreen ? 28 : 32,
+                    height: isSmallScreen ? 28 : 32,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
-                      size: 20,
+                      size: isSmallScreen ? 18 : 20,
                       color: Colors.grey,
                     ),
                   ),
@@ -319,22 +331,22 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
           // Content
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isVerySmallScreen ? 16 : isSmallScreen ? 20 : 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
+                  SizedBox(height: isSmallScreen ? 12 : 20),
                   
                   // Item Name Field
-                  const Text(
+                  Text(
                     'Item Name',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: isVerySmallScreen ? 14 : 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF26344F),
+                      color: const Color(0xFF26344F),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: isSmallScreen ? 8 : 12),
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF7FAFC),
@@ -346,39 +358,39 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                     ),
                     child: TextField(
                       controller: _itemNameController,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF26344F),
+                      style: TextStyle(
+                        fontSize: isVerySmallScreen ? 14 : 16,
+                        color: const Color(0xFF26344F),
                         fontWeight: FontWeight.w400,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter Item Name',
                         hintStyle: TextStyle(
-                          fontSize: 16,
+                          fontSize: isVerySmallScreen ? 14 : 16,
                           color: Colors.grey.shade400,
                           fontWeight: FontWeight.w400,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 12 : 16,
+                          vertical: isSmallScreen ? 12 : 16,
                         ),
                         border: InputBorder.none,
                       ),
                     ),
                   ),
                   
-                  const SizedBox(height: 24),
+                  SizedBox(height: isSmallScreen ? 16 : 24),
                   
                   // Unit Price Field
-                  const Text(
+                  Text(
                     'Unit Price',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: isVerySmallScreen ? 14 : 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF26344F),
+                      color: const Color(0xFF26344F),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: isSmallScreen ? 8 : 12),
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF7FAFC),
@@ -391,21 +403,21 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                     child: TextField(
                       controller: _unitPriceController,
                       keyboardType: TextInputType.number,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF26344F),
+                      style: TextStyle(
+                        fontSize: isVerySmallScreen ? 14 : 16,
+                        color: const Color(0xFF26344F),
                         fontWeight: FontWeight.w400,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter Item Price',
                         hintStyle: TextStyle(
-                          fontSize: 16,
+                          fontSize: isVerySmallScreen ? 14 : 16,
                           color: Colors.grey.shade400,
                           fontWeight: FontWeight.w400,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 12 : 16,
+                          vertical: isSmallScreen ? 12 : 16,
                         ),
                         border: InputBorder.none,
                       ),
@@ -417,7 +429,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                   // Create Item Button
                   SizedBox(
                     width: double.infinity,
-                    height: 56,
+                    height: isSmallScreen ? 48 : 56,
                     child: ElevatedButton(
                       onPressed: () {
                         if (_itemNameController.text.isNotEmpty && 

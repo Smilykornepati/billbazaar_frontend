@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
 import '../../../services/print_service.dart';
+import '../../../widgets/responsive_dialog.dart';
 import 'additem/add_item_screen.dart';
 import 'addclient/add_client_screen.dart';
 
@@ -116,15 +117,59 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
   }
 
   void _showStockWarning(String itemName, int availableStock) {
-    showDialog(
+    showResponsiveDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Insufficient Stock'),
-        content: Text('Only $availableStock units of $itemName are available in inventory.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: const [
+              Icon(
+                Icons.warning,
+                color: Colors.orange,
+                size: 24,
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Insufficient Stock',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A202C),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Only $availableStock units of $itemName are available in inventory.',
+            style: const TextStyle(
+              color: Color(0xFF4A5568),
+              fontSize: 16,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF805D),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -132,15 +177,59 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
   }
 
   void _showOutOfStockWarning(String itemName) {
-    showDialog(
+    showResponsiveDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Out of Stock'),
-        content: Text('$itemName is currently out of stock.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: const [
+              Icon(
+                Icons.error,
+                color: Colors.red,
+                size: 24,
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Out of Stock',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A202C),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            '$itemName is currently out of stock.',
+            style: const TextStyle(
+              color: Color(0xFF4A5568),
+              fontSize: 16,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF805D),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -255,66 +344,154 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
       _generateInvoiceNumber();
     });
   }  void _showPreviewDialog() {
-    showDialog(
+    showResponsiveDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Invoice $_invoiceNumber'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              if (_selectedClient != null)
-                Text('Client: $_selectedClient', style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text('Date: $_issueDate'),
-              const SizedBox(height: 16),
-              const Text('Items:', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              ..._items.map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${item['name']} x${item['quantity']}',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Text('₹${item['totalPrice'].toStringAsFixed(2)}'),
-                  ],
+              const Icon(
+                Icons.receipt,
+                color: Color(0xFFFF805D),
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Invoice $_invoiceNumber',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A202C),
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              )),
-              const Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Subtotal:'),
-                  Text('₹${_subtotal.toStringAsFixed(2)}'),
-                ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('₹${_grandTotal.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text('Payment: $_selectedPaymentMethod'),
-              if (_notesController.text.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text('Notes: ${_notesController.text}'),
-              ],
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+          const SizedBox(height: 20),
+          if (_selectedClient != null) ...[
+            Text(
+              'Client: $_selectedClient',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+          Text(
+            'Date: $_issueDate',
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Items:',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 200),
+            child: SingleChildScrollView(
+              child: Column(
+                children: _items.map((item) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${item['name']} x${item['quantity']}',
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                      ),
+                      Text(
+                        '₹${item['totalPrice'].toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                    ],
+                  ),
+                )).toList(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Divider(),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Subtotal:',
+                style: TextStyle(fontSize: 16),
+              ),
+              Text(
+                '₹${_subtotal.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                '₹${_grandTotal.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Payment: $_selectedPaymentMethod',
+            style: const TextStyle(fontSize: 16),
+          ),
+          if (_notesController.text.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Notes: ${_notesController.text}',
+              style: const TextStyle(fontSize: 16),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF805D),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Close',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -445,43 +622,55 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header with back button and title
-              _buildHeader(),
-              // Main content
-              Padding(
-                padding: const EdgeInsets.all(20.0),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isSmallScreen = constraints.maxWidth < 400;
+            final isVerySmallScreen = constraints.maxWidth < 320;
+            
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Invoice Details Card
-                    _buildInvoiceDetailsCard(),
-                    const SizedBox(height: 20.0),
-                    // Client Section
-                    _buildClientSection(),
-                    const SizedBox(height: 20.0),
-                    // Items Section
-                    _buildItemsSection(),
-                    const SizedBox(height: 20.0),
-                    // Summary Card
-                    _buildSummaryCard(),
-                    const SizedBox(height: 20.0),
-                    // Payment Method Card
-                    _buildPaymentMethodCard(),
-                    const SizedBox(height: 20.0),
-                    // Notes Section
-                    _buildNotesSection(),
-                    const SizedBox(height: 20.0),
-                    // Action Buttons
-                    _buildActionButtons(),
-                    const SizedBox(height: 40.0),
+                    // Header with back button and title
+                    _buildHeader(),
+                    // Main content
+                    Padding(
+                      padding: EdgeInsets.all(isVerySmallScreen ? 12.0 : isSmallScreen ? 16.0 : 20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Invoice Details Card
+                          _buildInvoiceDetailsCard(),
+                          SizedBox(height: isSmallScreen ? 16.0 : 20.0),
+                          // Client Section
+                          _buildClientSection(),
+                          SizedBox(height: isSmallScreen ? 16.0 : 20.0),
+                          // Items Section
+                          _buildItemsSection(),
+                          SizedBox(height: isSmallScreen ? 16.0 : 20.0),
+                          // Summary Card
+                          _buildSummaryCard(),
+                          SizedBox(height: isSmallScreen ? 16.0 : 20.0),
+                          // Payment Method Card
+                          _buildPaymentMethodCard(),
+                          SizedBox(height: isSmallScreen ? 16.0 : 20.0),
+                          // Notes Section
+                          _buildNotesSection(),
+                          SizedBox(height: isSmallScreen ? 16.0 : 20.0),
+                          // Action Buttons
+                          _buildActionButtons(),
+                          SizedBox(height: isSmallScreen ? 20.0 : 40.0),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -868,155 +1057,171 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Item card - exact match to design
+  // Item card - exact match to design with improved responsiveness
   Widget _buildItemCard(Map<String, dynamic> item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.blue[100],
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Row(
-        children: [
-          // Item details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item['name'],
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF26344F),
-                  ),
-                ),
-                const SizedBox(height: 4.0),
-                Text(
-                  '${item['quantity']}x₹${item['unitPrice'].toInt()}',
-                  style: const TextStyle(fontSize: 14.0, color: Colors.grey),
-                ),
-                const SizedBox(height: 12.0),
-                // Quantity controls
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _updateItemQuantity(
-                          _items.indexOf(item),
-                          item['quantity'] - 1
-                        );
-                      },
-                      child: Container(
-                        width: 32.0,
-                        height: 32.0,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.remove,
-                          color: Colors.white,
-                          size: 16.0,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12.0),
-                    // Editable quantity field
-                    Container(
-                      width: 60.0,
-                      height: 32.0,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: TextField(
-                        textAlign: TextAlign.center,
-                        keyboardType: TextInputType.number,
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF26344F),
-                        ),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-                        ),
-                        controller: TextEditingController(
-                          text: '${item['quantity']}',
-                        ),
-                        onSubmitted: (value) {
-                          final newQuantity = int.tryParse(value) ?? item['quantity'];
-                          _updateItemQuantity(
-                            _items.indexOf(item),
-                            newQuantity
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12.0),
-                    GestureDetector(
-                      onTap: () {
-                        _updateItemQuantity(
-                          _items.indexOf(item),
-                          item['quantity'] + 1
-                        );
-                      },
-                      child: Container(
-                        width: 32.0,
-                        height: 32.0,
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 16.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        final isVerySmallScreen = constraints.maxWidth < 320;
+        
+        return Container(
+          margin: EdgeInsets.only(bottom: isSmallScreen ? 8.0 : 12.0),
+          padding: EdgeInsets.all(isVerySmallScreen ? 12.0 : isSmallScreen ? 14.0 : 16.0),
+          decoration: BoxDecoration(
+            color: Colors.blue[100],
+            borderRadius: BorderRadius.circular(12.0),
           ),
-          // Price and options
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          child: Column(
             children: [
-              GestureDetector(
-                onTap: () {
-                  _removeItem(_items.indexOf(item));
-                },
-                child: Container(
-                  width: 24.0,
-                  height: 24.0,
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade100,
-                    shape: BoxShape.circle,
+              // Top row with item name and delete button
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['name'],
+                          style: TextStyle(
+                            fontSize: isVerySmallScreen ? 14.0 : isSmallScreen ? 15.0 : 16.0,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF26344F),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: isSmallScreen ? 2.0 : 4.0),
+                        Text(
+                          '${item['quantity']}x₹${item['unitPrice'].toInt()}',
+                          style: TextStyle(
+                            fontSize: isVerySmallScreen ? 12.0 : 14.0, 
+                            color: Colors.grey
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.delete_outline,
-                    color: Colors.red,
-                    size: 16.0,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          _removeItem(_items.indexOf(item));
+                        },
+                        child: Container(
+                          width: isSmallScreen ? 20.0 : 24.0,
+                          height: isSmallScreen ? 20.0 : 24.0,
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                            size: isSmallScreen ? 14.0 : 16.0,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: isSmallScreen ? 6.0 : 8.0),
+                      Text(
+                        '₹ ${item['totalPrice'].toInt()}',
+                        style: TextStyle(
+                          fontSize: isVerySmallScreen ? 14.0 : isSmallScreen ? 15.0 : 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF26344F),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 8.0),
-              Text(
-                '₹ ${item['totalPrice'].toInt()}',
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF26344F),
-                ),
+              SizedBox(height: isSmallScreen ? 8.0 : 12.0),
+              // Bottom row with quantity controls
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      _updateItemQuantity(
+                        _items.indexOf(item),
+                        item['quantity'] - 1
+                      );
+                    },
+                    child: Container(
+                      width: isSmallScreen ? 28.0 : 32.0,
+                      height: isSmallScreen ? 28.0 : 32.0,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.remove,
+                        color: Colors.white,
+                        size: isSmallScreen ? 14.0 : 16.0,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: isSmallScreen ? 8.0 : 12.0),
+                  // Editable quantity field
+                  Container(
+                    width: isSmallScreen ? 50.0 : 60.0,
+                    height: isSmallScreen ? 28.0 : 32.0,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                    child: TextField(
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(
+                        fontSize: isVerySmallScreen ? 14.0 : isSmallScreen ? 15.0 : 16.0,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF26344F),
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                      ),
+                      controller: TextEditingController(
+                        text: '${item['quantity']}',
+                      ),
+                      onSubmitted: (value) {
+                        final newQuantity = int.tryParse(value) ?? item['quantity'];
+                        _updateItemQuantity(
+                          _items.indexOf(item),
+                          newQuantity
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(width: isSmallScreen ? 8.0 : 12.0),
+                  GestureDetector(
+                    onTap: () {
+                      _updateItemQuantity(
+                        _items.indexOf(item),
+                        item['quantity'] + 1
+                      );
+                    },
+                    child: Container(
+                      width: isSmallScreen ? 28.0 : 32.0,
+                      height: isSmallScreen ? 28.0 : 32.0,
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: isSmallScreen ? 14.0 : 16.0,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -1340,58 +1545,69 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Action Buttons - exact match to design
+  // Action Buttons - improved responsiveness
   Widget _buildActionButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () {
-              _showPreviewDialog();
-            },
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              side: BorderSide(color: Colors.grey[300]!),
-            ),
-            child: const Text(
-              'Preview',
-              style: TextStyle(
-                color: Color(0xFF26344F),
-                fontSize: 16.0,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16.0),
-        Expanded(
-          flex: 2,
-          child: ElevatedButton(
-            onPressed: () {
-              _printBill();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryOrange,
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'Print Bill',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
-                fontWeight: FontWeight.w600,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+        final isVerySmallScreen = constraints.maxWidth < 320;
+        
+        return Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  _showPreviewDialog();
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    vertical: isVerySmallScreen ? 12.0 : isSmallScreen ? 14.0 : 16.0,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+                child: Text(
+                  'Preview',
+                  style: TextStyle(
+                    color: const Color(0xFF26344F),
+                    fontSize: isVerySmallScreen ? 14.0 : isSmallScreen ? 15.0 : 16.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+            SizedBox(width: isSmallScreen ? 12.0 : 16.0),
+            Expanded(
+              flex: 2,
+              child: ElevatedButton(
+                onPressed: () {
+                  _printBill();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryOrange,
+                  padding: EdgeInsets.symmetric(
+                    vertical: isVerySmallScreen ? 12.0 : isSmallScreen ? 14.0 : 16.0,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(
+                  'Print Bill',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: isVerySmallScreen ? 14.0 : isSmallScreen ? 15.0 : 16.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
