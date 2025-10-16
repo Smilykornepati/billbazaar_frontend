@@ -162,18 +162,24 @@ class _ReportsScreenState extends State<ReportsScreen> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          padding: EdgeInsets.fromLTRB(
+            MediaQuery.of(context).size.width < 360 ? 16 : 20,
+            MediaQuery.of(context).size.width < 360 ? 16 : 18,
+            MediaQuery.of(context).size.width < 360 ? 16 : 20,
+            MediaQuery.of(context).size.width < 360 ? 20 : 24,
+          ),
           child: LayoutBuilder(
             builder: (context, constraints) {
+              final isVerySmallScreen = constraints.maxWidth < 320;
               final isSmallScreen = constraints.maxWidth < 400;
               
               return Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Reports',
                       style: TextStyle(
-                        fontSize: 18.0,
+                        fontSize: isVerySmallScreen ? 16.0 : isSmallScreen ? 17.0 : 18.0,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         letterSpacing: 0.2,
@@ -181,7 +187,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     ),
                   ),
                   // Export buttons - responsive layout
-                  if (isSmallScreen) ...[
+                  if (isVerySmallScreen) ...[
+                    // For very small screens, use compact icon-only buttons
+                    _buildExportButton('', Icons.picture_as_pdf, () => _exportReport('PDF'), iconOnly: true, compact: true),
+                    const SizedBox(width: 4),
+                    _buildExportButton('', Icons.description, () => _exportReport('CSV'), iconOnly: true, compact: true),
+                  ] else if (isSmallScreen) ...[
                     // For small screens, use icon-only buttons
                     _buildExportButton('', Icons.picture_as_pdf, () => _exportReport('PDF'), iconOnly: true),
                     const SizedBox(width: 6),
@@ -204,50 +215,50 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   // Export button widget
-  Widget _buildExportButton(String text, IconData icon, VoidCallback onTap, {bool iconOnly = false}) {
+  Widget _buildExportButton(String text, IconData icon, VoidCallback onTap, {bool iconOnly = false, bool compact = false}) {
     return GestureDetector(
       onTap: _isLoading ? null : onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: iconOnly ? 8.0 : 12.0, 
-          vertical: 6.0,
+          horizontal: compact ? 6.0 : (iconOnly ? 8.0 : 12.0), 
+          vertical: compact ? 4.0 : 6.0,
         ),
         decoration: BoxDecoration(
           color: _isLoading 
               ? Colors.grey.withOpacity(0.3)
               : Colors.white.withOpacity(0.20),
-          borderRadius: BorderRadius.circular(8.0),
+          borderRadius: BorderRadius.circular(compact ? 6.0 : 8.0),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (_isLoading && text.contains('PDF'))
-              const SizedBox(
-                width: 12,
-                height: 12,
-                child: CircularProgressIndicator(
+              SizedBox(
+                width: compact ? 10 : 12,
+                height: compact ? 10 : 12,
+                child: const CircularProgressIndicator(
                   color: Colors.white,
                   strokeWidth: 2,
                 ),
               )
             else if (_isLoading && text.contains('CSV'))
-              const SizedBox(
-                width: 12,
-                height: 12,
-                child: CircularProgressIndicator(
+              SizedBox(
+                width: compact ? 10 : 12,
+                height: compact ? 10 : 12,
+                child: const CircularProgressIndicator(
                   color: Colors.white,
                   strokeWidth: 2,
                 ),
               )
             else
-              Icon(icon, color: Colors.white, size: 14.0),
+              Icon(icon, color: Colors.white, size: compact ? 12.0 : 14.0),
             if (!iconOnly) ...[
-              const SizedBox(width: 4.0),
+              SizedBox(width: compact ? 3.0 : 4.0),
               Text(
                 text,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 11.0,
+                  fontSize: compact ? 10.0 : 11.0,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.1,
                 ),
@@ -263,27 +274,27 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _buildFilterAndTabs() {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(MediaQuery.of(context).size.width < 360 ? 12.0 : 16.0),
       child: Column(
         children: [
           // Date filter
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.calendar_today,
-                color: Color(0xFF26344F),
-                size: 20.0,
+                color: const Color(0xFF26344F),
+                size: MediaQuery.of(context).size.width < 360 ? 18.0 : 20.0,
               ),
-              const SizedBox(width: 12.0),
+              SizedBox(width: MediaQuery.of(context).size.width < 360 ? 8.0 : 12.0),
               Expanded(
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedDate,
                     isExpanded: true,
-                    style: const TextStyle(
-                      fontSize: 16.0,
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width < 360 ? 14.0 : 16.0,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF26344F),
+                      color: const Color(0xFF26344F),
                     ),
                     items: [
                       'Today',
@@ -310,48 +321,55 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16.0),
-          // Tab selector
+          SizedBox(height: MediaQuery.of(context).size.width < 360 ? 12.0 : 16.0),
+          // Tab selector - Enhanced for small screens
           LayoutBuilder(
             builder: (context, constraints) {
+              final isVerySmallScreen = constraints.maxWidth < 320;
               final isSmallScreen = constraints.maxWidth < 400;
               
-              return Row(
-                children: _tabs.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  String tab = entry.value;
-                  bool isSelected = _selectedTabIndex == index;
-                  
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedTabIndex = index;
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: isSmallScreen ? 10.0 : 12.0,
-                          horizontal: 4.0,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF5777B5) : Colors.transparent,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Text(
-                          tab,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: isSmallScreen ? 12.0 : 14.0,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color: isSelected ? Colors.white : const Color(0xFF6B7280),
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _tabs.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    String tab = entry.value;
+                    bool isSelected = _selectedTabIndex == index;
+                    
+                    return Container(
+                      width: isVerySmallScreen ? 70 : (isSmallScreen ? 80 : null),
+                      margin: EdgeInsets.only(right: isVerySmallScreen ? 4.0 : 8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedTabIndex = index;
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: isVerySmallScreen ? 8.0 : (isSmallScreen ? 10.0 : 12.0),
+                            horizontal: isVerySmallScreen ? 6.0 : (isSmallScreen ? 8.0 : 12.0),
                           ),
-                          overflow: TextOverflow.ellipsis,
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFF5777B5) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Text(
+                            tab,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: isVerySmallScreen ? 10.0 : (isSmallScreen ? 12.0 : 14.0),
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                              color: isSelected ? Colors.white : const Color(0xFF6B7280),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               );
             },
           ),
@@ -378,17 +396,24 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   // Overview tab content
   Widget _buildOverviewContent() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmallScreen = screenWidth < 320;
+    final isSmallScreen = screenWidth < 400;
+    
+    double padding = isVerySmallScreen ? 12.0 : (isSmallScreen ? 14.0 : 16.0);
+    double spacing = isVerySmallScreen ? 16 : (isSmallScreen ? 18 : 20);
+    
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(padding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Key metrics cards
           _buildMetricsGrid(),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing),
           // Charts section
           _buildChartsSection(),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing),
           // Top products
           _buildTopProductsSection(),
         ],
@@ -400,13 +425,38 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _buildMetricsGrid() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth < 600 ? 2 : 4;
-        final aspectRatio = constraints.maxWidth < 400 ? 1.3 : 1.5;
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isVerySmallScreen = screenWidth < 320;
+        final isSmallScreen = screenWidth < 400;
+        final isTablet = screenWidth >= 600;
+        
+        // Dynamic grid layout based on screen size
+        int crossAxisCount;
+        double aspectRatio;
+        double spacing;
+        
+        if (isVerySmallScreen) {
+          crossAxisCount = 1; // Single column for very small screens
+          aspectRatio = 3.0;
+          spacing = 8;
+        } else if (isSmallScreen) {
+          crossAxisCount = 2;
+          aspectRatio = 1.4;
+          spacing = 10;
+        } else if (isTablet) {
+          crossAxisCount = 4;
+          aspectRatio = 1.3;
+          spacing = 16;
+        } else {
+          crossAxisCount = 2;
+          aspectRatio = 1.5;
+          spacing = 12;
+        }
         
         return GridView.count(
           crossAxisCount: crossAxisCount,
-          crossAxisSpacing: constraints.maxWidth < 400 ? 12 : 16,
-          mainAxisSpacing: constraints.maxWidth < 400 ? 12 : 16,
+          crossAxisSpacing: spacing,
+          mainAxisSpacing: spacing,
           childAspectRatio: aspectRatio,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -445,10 +495,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _buildMetricCard(String title, String value, IconData icon, Color color) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isSmallScreen = constraints.maxWidth < 120;
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isVerySmallScreen = screenWidth < 320;
+        final isSmallScreen = screenWidth < 400;
+        
+        // Determine if this is a single-column layout (very small screen)
+        final isSingleColumn = constraints.maxWidth > screenWidth * 0.8;
         
         return Container(
-          padding: EdgeInsets.all(isSmallScreen ? 8 : 16),
+          padding: EdgeInsets.all(
+            isVerySmallScreen ? (isSingleColumn ? 16 : 8) : (isSmallScreen ? 12 : 16)
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -461,67 +518,141 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    icon, 
-                    color: color, 
-                    size: isSmallScreen ? 18 : 24
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: EdgeInsets.all(isSmallScreen ? 2 : 4),
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.arrow_upward, 
-                      color: color, 
-                      size: isSmallScreen ? 12 : 16
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: isSmallScreen ? 6 : 12),
-              Flexible(
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 14 : 20,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ),
-              SizedBox(height: isSmallScreen ? 2 : 4),
-              Flexible(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 9 : 12,
-                    color: const Color(0xFF6B7280),
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-              ),
-            ],
-          ),
+          child: isSingleColumn 
+              ? _buildSingleColumnCard(title, value, icon, color, isVerySmallScreen)
+              : _buildRegularCard(title, value, icon, color, isVerySmallScreen, isSmallScreen),
         );
       },
     );
   }
 
+  // Single column layout for very small screens
+  Widget _buildSingleColumnCard(String title, String value, IconData icon, Color color, bool isVerySmallScreen) {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(isVerySmallScreen ? 8 : 10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon, 
+            color: color, 
+            size: isVerySmallScreen ? 20 : 24
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: isVerySmallScreen ? 12 : 14,
+                  color: const Color(0xFF6B7280),
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: isVerySmallScreen ? 16 : 18,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(isVerySmallScreen ? 3 : 4),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.arrow_upward, 
+            color: color, 
+            size: isVerySmallScreen ? 12 : 14
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Regular column layout
+  Widget _buildRegularCard(String title, String value, IconData icon, Color color, bool isVerySmallScreen, bool isSmallScreen) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon, 
+              color: color, 
+              size: isVerySmallScreen ? 16 : (isSmallScreen ? 18 : 24)
+            ),
+            const Spacer(),
+            Container(
+              padding: EdgeInsets.all(isVerySmallScreen ? 2 : (isSmallScreen ? 3 : 4)),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.arrow_upward, 
+                color: color, 
+                size: isVerySmallScreen ? 10 : (isSmallScreen ? 12 : 16)
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: isVerySmallScreen ? 8 : (isSmallScreen ? 10 : 12)),
+        Flexible(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: isVerySmallScreen ? 14 : (isSmallScreen ? 16 : 20),
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+        SizedBox(height: isVerySmallScreen ? 4 : 6),
+        Flexible(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: isVerySmallScreen ? 10 : (isSmallScreen ? 11 : 12),
+              color: const Color(0xFF6B7280),
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
+        ),
+      ],
+    );
+  }
+
   // Charts section
   Widget _buildChartsSection() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmallScreen = screenWidth < 320;
+    final isSmallScreen = screenWidth < 400;
+    
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isVerySmallScreen ? 12 : (isSmallScreen ? 14 : 16)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -537,18 +668,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Sales Trend',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: isVerySmallScreen ? 16 : (isSmallScreen ? 17 : 18),
               fontWeight: FontWeight.bold,
-              color: Color(0xFF26344F),
+              color: const Color(0xFF26344F),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isVerySmallScreen ? 12 : 16),
           // Simplified chart representation
-          Container(
-            height: 200,
+          SizedBox(
+            height: isVerySmallScreen ? 160 : (isSmallScreen ? 180 : 200),
             child: Column(
               children: [
                 Expanded(
@@ -558,11 +689,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       final heights = [0.3, 0.6, 0.4, 0.8, 0.5, 0.9, 0.7];
                       return Expanded(
                         child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          height: 150 * heights[index],
+                          margin: EdgeInsets.symmetric(horizontal: isVerySmallScreen ? 2 : 4),
+                          height: (isVerySmallScreen ? 120 : 150) * heights[index],
                           decoration: BoxDecoration(
                             color: const Color(0xFF5777B5),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(isVerySmallScreen ? 2 : 4),
                           ),
                         ),
                       );
@@ -576,9 +707,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             child: Text(
                               day,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: Color(0xFF6B7280),
+                              style: TextStyle(
+                                fontSize: isVerySmallScreen ? 9 : 10,
+                                color: const Color(0xFF6B7280),
                               ),
                             ),
                           ))
@@ -594,8 +725,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   // Top products section
   Widget _buildTopProductsSection() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmallScreen = screenWidth < 320;
+    final isSmallScreen = screenWidth < 400;
+    
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isVerySmallScreen ? 12 : (isSmallScreen ? 14 : 16)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -611,15 +746,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Top Selling Products',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: isVerySmallScreen ? 16 : (isSmallScreen ? 17 : 18),
               fontWeight: FontWeight.bold,
-              color: Color(0xFF26344F),
+              color: const Color(0xFF26344F),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isVerySmallScreen ? 12 : 16),
           ...(_reportData['topProducts'] as List).map((product) {
             return _buildProductRow(
               product['name'],
@@ -635,16 +770,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
   // Product row widget
   Widget _buildProductRow(String name, String quantity, String revenue) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width < 360 ? 6 : 8),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isSmallScreen = constraints.maxWidth < 400;
+          final screenWidth = MediaQuery.of(context).size.width;
+          final isVerySmallScreen = screenWidth < 320;
+          final isSmallScreen = screenWidth < 400;
           
           return Row(
             children: [
               Container(
-                width: isSmallScreen ? 36 : 40,
-                height: isSmallScreen ? 36 : 40,
+                width: isVerySmallScreen ? 32 : (isSmallScreen ? 36 : 40),
+                height: isVerySmallScreen ? 32 : (isSmallScreen ? 36 : 40),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(8),
@@ -652,46 +789,70 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 child: Icon(
                   Icons.inventory_2,
                   color: const Color(0xFF26344F),
-                  size: isSmallScreen ? 18 : 20,
+                  size: isVerySmallScreen ? 16 : (isSmallScreen ? 18 : 20),
                 ),
               ),
-              SizedBox(width: isSmallScreen ? 8 : 12),
+              SizedBox(width: isVerySmallScreen ? 8 : (isSmallScreen ? 10 : 12)),
               Expanded(
-                flex: 3,
+                flex: isVerySmallScreen ? 2 : 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       name,
                       style: TextStyle(
-                        fontSize: isSmallScreen ? 13 : 14,
+                        fontSize: isVerySmallScreen ? 12 : (isSmallScreen ? 13 : 14),
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF26344F),
                       ),
                       overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                    Text(
-                      quantity,
-                      style: TextStyle(
-                        fontSize: isSmallScreen ? 11 : 12,
-                        color: const Color(0xFF6B7280),
+                    if (!isVerySmallScreen) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        quantity,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 10 : 12,
+                          color: const Color(0xFF6B7280),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    ],
                   ],
                 ),
               ),
               Flexible(
                 flex: 1,
-                child: Text(
-                  revenue,
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 13 : 14,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF10B981),
-                  ),
-                  textAlign: TextAlign.end,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      revenue,
+                      style: TextStyle(
+                        fontSize: isVerySmallScreen ? 12 : (isSmallScreen ? 13 : 14),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF10B981),
+                      ),
+                      textAlign: TextAlign.end,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    if (isVerySmallScreen) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        quantity,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          color: Color(0xFF6B7280),
+                        ),
+                        textAlign: TextAlign.end,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
@@ -703,12 +864,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   // Sales tab content
   Widget _buildSalesContent() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmallScreen = screenWidth < 320;
+    final isSmallScreen = screenWidth < 400;
+    
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(isVerySmallScreen ? 12.0 : (isSmallScreen ? 14.0 : 16.0)),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(isVerySmallScreen ? 16 : (isSmallScreen ? 18 : 20)),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
@@ -723,15 +888,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
             ),
             child: Column(
               children: [
-                const Text(
+                Text(
                   'Sales Analytics',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: isVerySmallScreen ? 18 : (isSmallScreen ? 19 : 20),
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF26344F),
+                    color: const Color(0xFF26344F),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: isVerySmallScreen ? 16 : (isSmallScreen ? 18 : 20)),
                 _buildSalesMetrics(),
               ],
             ),
@@ -754,36 +919,41 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _buildSalesRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width < 360 ? 10 : 12),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isSmallScreen = constraints.maxWidth < 400;
+          final screenWidth = MediaQuery.of(context).size.width;
+          final isVerySmallScreen = screenWidth < 320;
+          final isSmallScreen = screenWidth < 400;
           
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                flex: 2,
+                flex: isVerySmallScreen ? 3 : 2,
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: isSmallScreen ? 14 : 16,
+                    fontSize: isVerySmallScreen ? 13 : (isSmallScreen ? 14 : 16),
                     color: const Color(0xFF6B7280),
+                    fontWeight: FontWeight.w500,
                   ),
                   overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
               Flexible(
-                flex: 1,
+                flex: isVerySmallScreen ? 2 : 1,
                 child: Text(
                   value,
                   style: TextStyle(
-                    fontSize: isSmallScreen ? 14 : 16,
+                    fontSize: isVerySmallScreen ? 13 : (isSmallScreen ? 14 : 16),
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF26344F),
                   ),
                   textAlign: TextAlign.end,
                   overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
             ],
@@ -795,8 +965,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   // Inventory tab content
   Widget _buildInventoryContent() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmallScreen = screenWidth < 320;
+    final isSmallScreen = screenWidth < 400;
+    
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(isVerySmallScreen ? 12.0 : (isSmallScreen ? 14.0 : 16.0)),
       child: Column(
         children: [
           _buildInventoryStats(),
@@ -806,9 +980,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _buildInventoryStats() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmallScreen = screenWidth < 320;
+    final isSmallScreen = screenWidth < 400;
     final stats = _reportData['inventoryStats'] as Map<String, dynamic>;
+    
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isVerySmallScreen ? 16 : (isSmallScreen ? 18 : 20)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -824,15 +1002,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Inventory Status',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: isVerySmallScreen ? 18 : (isSmallScreen ? 19 : 20),
               fontWeight: FontWeight.bold,
-              color: Color(0xFF26344F),
+              color: const Color(0xFF26344F),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: isVerySmallScreen ? 16 : (isSmallScreen ? 18 : 20)),
           _buildInventoryRow('Low Stock Items', '${stats['lowStock']}', const Color(0xFFFF805D)),
           _buildInventoryRow('Out of Stock', '${stats['outOfStock']}', const Color(0xFFE91E63)),
           _buildInventoryRow('Well Stocked', '${stats['wellStocked']}', const Color(0xFF10B981)),
@@ -843,36 +1021,40 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _buildInventoryRow(String label, String value, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width < 360 ? 10 : 12),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isSmallScreen = constraints.maxWidth < 400;
+          final screenWidth = MediaQuery.of(context).size.width;
+          final isVerySmallScreen = screenWidth < 320;
+          final isSmallScreen = screenWidth < 400;
           
           return Row(
             children: [
               Container(
-                width: isSmallScreen ? 10 : 12,
-                height: isSmallScreen ? 10 : 12,
+                width: isVerySmallScreen ? 8 : (isSmallScreen ? 10 : 12),
+                height: isVerySmallScreen ? 8 : (isSmallScreen ? 10 : 12),
                 decoration: BoxDecoration(
                   color: color,
                   shape: BoxShape.circle,
                 ),
               ),
-              SizedBox(width: isSmallScreen ? 8 : 12),
+              SizedBox(width: isVerySmallScreen ? 8 : (isSmallScreen ? 10 : 12)),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: isSmallScreen ? 14 : 16,
+                    fontSize: isVerySmallScreen ? 13 : (isSmallScreen ? 14 : 16),
                     color: const Color(0xFF6B7280),
+                    fontWeight: FontWeight.w500,
                   ),
                   overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 14 : 16,
+                  fontSize: isVerySmallScreen ? 13 : (isSmallScreen ? 14 : 16),
                   fontWeight: FontWeight.bold,
                   color: color,
                 ),
@@ -886,8 +1068,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   // Customer tab content
   Widget _buildCustomerContent() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmallScreen = screenWidth < 320;
+    final isSmallScreen = screenWidth < 400;
+    
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(isVerySmallScreen ? 12.0 : (isSmallScreen ? 14.0 : 16.0)),
       child: Column(
         children: [
           _buildCustomerStats(),
@@ -897,9 +1083,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _buildCustomerStats() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmallScreen = screenWidth < 320;
+    final isSmallScreen = screenWidth < 400;
     final customerData = _reportData['customerData'] as Map<String, dynamic>;
+    
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isVerySmallScreen ? 16 : (isSmallScreen ? 18 : 20)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -915,15 +1105,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Customer Analytics',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: isVerySmallScreen ? 18 : (isSmallScreen ? 19 : 20),
               fontWeight: FontWeight.bold,
-              color: Color(0xFF26344F),
+              color: const Color(0xFF26344F),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: isVerySmallScreen ? 16 : (isSmallScreen ? 18 : 20)),
           _buildCustomerRow('New Customers', '${customerData['newCustomers']}'),
           _buildCustomerRow('Returning Customers', '${customerData['returningCustomers']}'),
           _buildCustomerRow('Total Customers', '${customerData['totalCustomers']}'),
@@ -935,26 +1125,46 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _buildCustomerRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Color(0xFF6B7280),
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF26344F),
-            ),
-          ),
-        ],
+      padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.width < 360 ? 10 : 12),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final isVerySmallScreen = screenWidth < 320;
+          final isSmallScreen = screenWidth < 400;
+          
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                flex: isVerySmallScreen ? 3 : 2,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: isVerySmallScreen ? 13 : (isSmallScreen ? 14 : 16),
+                    color: const Color(0xFF6B7280),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+              Flexible(
+                flex: isVerySmallScreen ? 2 : 1,
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: isVerySmallScreen ? 13 : (isSmallScreen ? 14 : 16),
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF26344F),
+                  ),
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

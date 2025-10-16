@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../widgets/responsive_dialog.dart';
 
 class BarcodeMakerScreen extends StatefulWidget {
   const BarcodeMakerScreen({super.key});
@@ -95,17 +96,40 @@ class _BarcodeMakerScreenState extends State<BarcodeMakerScreen> {
 
   void _printBarcode() {
     if (_generatedBarcode.isNotEmpty) {
-      showDialog(
+      showResponsiveDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Print Barcode'),
-          content: const Text('Send barcode to printer?'),
+        child: ResponsiveDialog(
+          title: 'Print Barcode',
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.print,
+                size: 48,
+                color: Color(0xFF5777B5),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Send barcode to printer?',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF26344F),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
           actions: [
-            TextButton(
+            ResponsiveDialogButton(
+              text: 'Cancel',
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              icon: Icons.close,
             ),
-            ElevatedButton(
+            ResponsiveDialogButton(
+              text: 'Print',
+              isPrimary: true,
+              icon: Icons.print,
+              color: const Color(0xFFFF805D),
               onPressed: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -115,11 +139,6 @@ class _BarcodeMakerScreenState extends State<BarcodeMakerScreen> {
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF805D),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Print'),
             ),
           ],
         ),
@@ -129,16 +148,17 @@ class _BarcodeMakerScreenState extends State<BarcodeMakerScreen> {
 
   void _exportBarcode() {
     if (_generatedBarcode.isNotEmpty) {
-      showDialog(
+      showResponsiveDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Export Barcode'),
+        child: ResponsiveDialog(
+          title: 'Export Barcode',
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: const Icon(Icons.image),
-                title: const Text('Export as PNG'),
+              _buildExportOption(
+                icon: Icons.image,
+                title: 'Export as PNG',
+                subtitle: 'High quality image format',
                 onTap: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -149,9 +169,11 @@ class _BarcodeMakerScreenState extends State<BarcodeMakerScreen> {
                   );
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.picture_as_pdf),
-                title: const Text('Export as PDF'),
+              const SizedBox(height: 8),
+              _buildExportOption(
+                icon: Icons.picture_as_pdf,
+                title: 'Export as PDF',
+                subtitle: 'Printable document format',
                 onTap: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -165,14 +187,76 @@ class _BarcodeMakerScreenState extends State<BarcodeMakerScreen> {
             ],
           ),
           actions: [
-            TextButton(
+            ResponsiveDialogButton(
+              text: 'Cancel',
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              icon: Icons.close,
             ),
           ],
         ),
       );
     }
+  }
+
+  Widget _buildExportOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5777B5).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(
+                icon,
+                color: const Color(0xFF5777B5),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF26344F),
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: Color(0xFF6B7280),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -231,16 +315,6 @@ class _BarcodeMakerScreenState extends State<BarcodeMakerScreen> {
               ),
               child: Row(
                 children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(
-                      Icons.arrow_back_ios, 
-                      color: Colors.white,
-                      size: isSmallScreen ? 20 : 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
                   SizedBox(width: isSmallScreen ? 6 : 8),
                   Expanded(
                     child: Text(

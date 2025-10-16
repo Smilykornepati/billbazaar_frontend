@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../widgets/responsive_dialog.dart';
 
 class PrinterStoreScreen extends StatefulWidget {
   const PrinterStoreScreen({super.key});
@@ -425,17 +426,40 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
   }
 
   void _buyNow(Map<String, dynamic> product) {
-    showDialog(
+    showResponsiveDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Purchase'),
-        content: Text('Proceed to buy ${product['name']} for ₹${product['price']}?'),
+      child: ResponsiveDialog(
+        title: 'Confirm Purchase',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.shopping_cart,
+              size: 48,
+              color: const Color(0xFF5777B5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Proceed to buy ${product['name']} for ₹${product['price']}?',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color(0xFF26344F),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
         actions: [
-          TextButton(
+          ResponsiveDialogButton(
+            text: 'Cancel',
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            icon: Icons.close,
           ),
-          ElevatedButton(
+          ResponsiveDialogButton(
+            text: 'Confirm',
+            isPrimary: true,
+            icon: Icons.payment,
+            color: const Color(0xFFFF805D),
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -445,11 +469,6 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF805D),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Confirm'),
           ),
         ],
       ),
@@ -506,16 +525,6 @@ class _PrinterStoreScreenState extends State<PrinterStoreScreen> {
           ),
           child: Row(
             children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.white,
-                  size: isSmallScreen ? 20 : 24,
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
               SizedBox(width: isSmallScreen ? 6 : 8),
               Expanded(
                 child: Text(

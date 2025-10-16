@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../navigation.dart';
+import '../../widgets/responsive_dialog.dart';
 
 class InventoryScreen extends StatefulWidget {
   final int currentIndex;
@@ -129,137 +130,147 @@ class _InventoryScreenState extends State<InventoryScreen> {
     final categories = ['General', 'Electronics', 'Clothing', 'Food & Beverages', 'Health & Beauty', 'Books', 'Sports', 'Home & Garden'];
     final qtyTypes = ['Pieces', 'Kg', 'Grams', 'Liters', 'ML', 'Meters', 'Boxes', 'Packets'];
     
-    showDialog(
+    showResponsiveDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Add New Product'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Product Name'),
-                ),
-                const SizedBox(height: 16),
-                // Category Dropdown
-                DropdownButtonFormField<String>(
-                  value: selectedCategory,
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  items: categories.map((category) {
-                    return DropdownMenuItem(
-                      value: category,
-                      child: Text(category),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setDialogState(() {
-                      selectedCategory = value!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                // Quantity Type Dropdown
-                DropdownButtonFormField<String>(
-                  value: selectedQtyType,
-                  decoration: const InputDecoration(labelText: 'Quantity Type'),
-                  items: qtyTypes.map((qtyType) {
-                    return DropdownMenuItem(
-                      value: qtyType,
-                      child: Text(qtyType),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setDialogState(() {
-                      selectedQtyType = value!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: priceController,
-                  decoration: const InputDecoration(labelText: 'Selling Price'),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: costPriceController,
-                  decoration: const InputDecoration(labelText: 'Cost Price'),
-                  keyboardType: TextInputType.number,
-                ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: stockController,
-                decoration: const InputDecoration(labelText: 'Current Stock'),
-                keyboardType: TextInputType.number,
+      child: StatefulBuilder(
+        builder: (context, setDialogState) => ResponsiveDialog(
+          title: 'Add New Product',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ResponsiveDialogTextField(
+                controller: nameController,
+                labelText: 'Product Name',
+                prefixIcon: const Icon(Icons.inventory_2),
               ),
               const SizedBox(height: 16),
-              TextField(
-                controller: maxStockController,
-                decoration: const InputDecoration(labelText: 'Maximum Stock'),
+              // Category Dropdown
+              DropdownButtonFormField<String>(
+                value: selectedCategory,
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  prefixIcon: Icon(Icons.category),
+                  border: OutlineInputBorder(),
+                ),
+                items: categories.map((category) {
+                  return DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setDialogState(() {
+                    selectedCategory = value!;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              // Quantity Type Dropdown
+              DropdownButtonFormField<String>(
+                value: selectedQtyType,
+                decoration: const InputDecoration(
+                  labelText: 'Quantity Type',
+                  prefixIcon: Icon(Icons.straighten),
+                  border: OutlineInputBorder(),
+                ),
+                items: qtyTypes.map((qtyType) {
+                  return DropdownMenuItem(
+                    value: qtyType,
+                    child: Text(qtyType),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setDialogState(() {
+                    selectedQtyType = value!;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              ResponsiveDialogTextField(
+                controller: priceController,
+                labelText: 'Selling Price',
                 keyboardType: TextInputType.number,
+                prefixIcon: const Icon(Icons.attach_money),
+              ),
+              const SizedBox(height: 16),
+              ResponsiveDialogTextField(
+                controller: costPriceController,
+                labelText: 'Cost Price',
+                keyboardType: TextInputType.number,
+                prefixIcon: const Icon(Icons.price_check),
+              ),
+              const SizedBox(height: 16),
+              ResponsiveDialogTextField(
+                controller: stockController,
+                labelText: 'Current Stock',
+                keyboardType: TextInputType.number,
+                prefixIcon: const Icon(Icons.storage),
+              ),
+              const SizedBox(height: 16),
+              ResponsiveDialogTextField(
+                controller: maxStockController,
+                labelText: 'Maximum Stock',
+                keyboardType: TextInputType.number,
+                prefixIcon: const Icon(Icons.warehouse),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.isNotEmpty && 
-                  priceController.text.isNotEmpty &&
-                  costPriceController.text.isNotEmpty &&
-                  stockController.text.isNotEmpty &&
-                  maxStockController.text.isNotEmpty) {
-                
-                final sellingPrice = int.parse(priceController.text);
-                final costPrice = int.parse(costPriceController.text);
-                final stock = int.parse(stockController.text);
-                final profit = sellingPrice - costPrice;
-                final profitMargin = ((profit / costPrice) * 100).toStringAsFixed(1);
-                
-                final newProduct = {
-                  'name': nameController.text,
-                  'image': 'assets/products/default.png',
-                  'price': '₹${priceController.text}',
-                  'costPrice': '₹${costPriceController.text}',
-                  'profit': '₹$profit',
-                  'profitMargin': '$profitMargin%',
-                  'stock': '${stockController.text}/${maxStockController.text}',
-                  'qtyType': selectedQtyType,
-                  'gst': '12%',
-                  'value': '₹${sellingPrice * stock}',
-                  'expiry': '31/12/2025',
-                  'isExpired': false,
-                  'category': selectedCategory,
-                  'tags': [selectedCategory, 'In Stock', 'Fresh'],
-                };
-                
-                setState(() {
-                  _products.add(newProduct);
-                  _filterProducts();
-                });
-                
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Product added successfully!'),
-                    backgroundColor: Color(0xFF10B981),
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF805D),
-              foregroundColor: Colors.white,
+          actions: [
+            ResponsiveDialogButton(
+              text: 'Cancel',
+              onPressed: () => Navigator.pop(context),
+              icon: Icons.close,
             ),
-            child: const Text('Add Product'),
-          ),
-        ],
+            ResponsiveDialogButton(
+              text: 'Add Product',
+              isPrimary: true,
+              icon: Icons.add,
+              onPressed: () {
+                if (nameController.text.isNotEmpty && 
+                    priceController.text.isNotEmpty &&
+                    costPriceController.text.isNotEmpty &&
+                    stockController.text.isNotEmpty &&
+                    maxStockController.text.isNotEmpty) {
+                  
+                  final sellingPrice = int.parse(priceController.text);
+                  final costPrice = int.parse(costPriceController.text);
+                  final stock = int.parse(stockController.text);
+                  final profit = sellingPrice - costPrice;
+                  final profitMargin = ((profit / costPrice) * 100).toStringAsFixed(1);
+                  
+                  final newProduct = {
+                    'name': nameController.text,
+                    'image': 'assets/products/default.png',
+                    'price': '₹${priceController.text}',
+                    'costPrice': '₹${costPriceController.text}',
+                    'profit': '₹$profit',
+                    'profitMargin': '$profitMargin%',
+                    'stock': '${stockController.text}/${maxStockController.text}',
+                    'qtyType': selectedQtyType,
+                    'gst': '12%',
+                    'value': '₹${sellingPrice * stock}',
+                    'expiry': '31/12/2025',
+                    'isExpired': false,
+                    'category': selectedCategory,
+                    'tags': [selectedCategory, 'In Stock', 'Fresh'],
+                  };
+                  
+                  setState(() {
+                    _products.add(newProduct);
+                    _filterProducts();
+                  });
+                  
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Product added successfully!'),
+                      backgroundColor: Color(0xFF10B981),
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -267,73 +278,100 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   // Advanced Settings Dialog
   void _showAdvancedSettings() {
-    showDialog(
+    showResponsiveDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Advanced Settings'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.warning),
-                title: const Text('Low Stock Alert'),
-                subtitle: const Text('Set minimum stock levels'),
-                trailing: Switch(
-                  value: true,
-                  onChanged: (value) {},
-                ),
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.date_range),
-                title: const Text('Expiry Notifications'),
-                subtitle: const Text('Alert for near-expiry items'),
-                trailing: Switch(
-                  value: true,
-                  onChanged: (value) {},
-                ),
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.inventory),
-                title: const Text('Auto Reorder'),
-                subtitle: const Text('Automatic purchase orders'),
-                trailing: Switch(
-                  value: false,
-                  onChanged: (value) {},
-                ),
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.category),
-                title: const Text('Category Management'),
-                subtitle: const Text('Add/Edit product categories'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showCategoryManagement();
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.shopping_cart),
-                title: const Text('Purchase Management'),
-                subtitle: const Text('Manage procurement'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showPurchaseManagement();
-                },
-              ),
-            ],
-          ),
+      child: ResponsiveDialog(
+        title: 'Advanced Settings',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSettingTile(
+              icon: Icons.warning,
+              title: 'Low Stock Alert',
+              subtitle: 'Set minimum stock levels',
+              hasSwitch: true,
+              switchValue: true,
+            ),
+            const Divider(),
+            _buildSettingTile(
+              icon: Icons.date_range,
+              title: 'Expiry Notifications',
+              subtitle: 'Alert for near-expiry items',
+              hasSwitch: true,
+              switchValue: true,
+            ),
+            const Divider(),
+            _buildSettingTile(
+              icon: Icons.inventory,
+              title: 'Auto Reorder',
+              subtitle: 'Automatic purchase orders',
+              hasSwitch: true,
+              switchValue: false,
+            ),
+            const Divider(),
+            _buildSettingTile(
+              icon: Icons.category,
+              title: 'Category Management',
+              subtitle: 'Add/Edit product categories',
+              onTap: () {
+                Navigator.pop(context);
+                _showCategoryManagement();
+              },
+            ),
+            const Divider(),
+            _buildSettingTile(
+              icon: Icons.shopping_cart,
+              title: 'Purchase Management',
+              subtitle: 'Manage procurement',
+              onTap: () {
+                Navigator.pop(context);
+                _showPurchaseManagement();
+              },
+            ),
+          ],
         ),
         actions: [
-          TextButton(
+          ResponsiveDialogButton(
+            text: 'Close',
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            icon: Icons.close,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSettingTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    bool hasSwitch = false,
+    bool switchValue = false,
+    VoidCallback? onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: const Color(0xFF5777B5)),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF26344F),
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(
+          color: Color(0xFF6B7280),
+        ),
+      ),
+      trailing: hasSwitch
+          ? Switch(
+              value: switchValue,
+              onChanged: (value) {},
+              activeColor: const Color(0xFF5777B5),
+            )
+          : const Icon(Icons.chevron_right),
+      onTap: onTap,
     );
   }
 

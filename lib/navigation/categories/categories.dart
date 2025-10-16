@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../navigation.dart';
+import '../../widgets/responsive_dialog.dart';
 
 class CategoriesScreen extends StatefulWidget {
   final int currentIndex;
@@ -187,19 +188,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
           child: Row(
             children: [
-              // Back arrow - you mentioned you don't want this, but it's in the design
-              // Remove this section if you don't want the back arrow
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
-                    size: 20.0,
-                  ),
-                ),
-              ),
               const SizedBox(width: 8.0),
               // Title
               const Expanded(
@@ -513,63 +501,100 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final feedbackController = TextEditingController();
     int rating = 5;
     
-    showDialog(
+    showResponsiveDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Send Feedback'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Rate your experience:'),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  return IconButton(
-                    onPressed: () {
-                      setState(() {
-                        rating = index + 1;
-                      });
-                    },
-                    icon: Icon(
-                      index < rating ? Icons.star : Icons.star_border,
-                      color: const Color(0xFFFF805D),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: feedbackController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  hintText: 'Share your thoughts...',
-                  border: OutlineInputBorder(),
+      child: StatefulBuilder(
+        builder: (context, setState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: const [
+                Icon(
+                  Icons.feedback,
+                  color: Color(0xFFFF805D),
+                  size: 24,
                 ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+                SizedBox(width: 12),
+                Text(
+                  'Send Feedback',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A202C),
+                  ),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Thank you for your feedback!'),
-                    backgroundColor: Color(0xFF10B981),
+            const SizedBox(height: 20),
+            const Text('Rate your experience:'),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(5, (index) {
+                return IconButton(
+                  onPressed: () {
+                    setState(() {
+                      rating = index + 1;
+                    });
+                  },
+                  icon: Icon(
+                    index < rating ? Icons.star : Icons.star_border,
+                    color: const Color(0xFFFF805D),
                   ),
                 );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF805D),
-                foregroundColor: Colors.white,
+              }),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: feedbackController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: 'Share your thoughts...',
+                border: OutlineInputBorder(),
               ),
-              child: const Text('Send'),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Thank you for your feedback!'),
+                          backgroundColor: Color(0xFF10B981),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF805D),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Send',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -625,40 +650,62 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   // Show coming soon dialog
   void _showComingSoonDialog(String itemName) {
-    showDialog(
+    showResponsiveDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: const [
+              Icon(
+                Icons.schedule,
+                color: Color(0xFFFF805D),
+                size: 24,
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Coming Soon',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A202C),
+                ),
+              ),
+            ],
           ),
-          title: const Text(
-            'Coming Soon',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1A202C),
-            ),
-          ),
-          content: Text(
+          const SizedBox(height: 20),
+          Text(
             '$itemName feature is coming soon. Stay tuned for updates!',
             style: const TextStyle(
               color: Color(0xFF4A5568),
+              fontSize: 16,
             ),
+            textAlign: TextAlign.center,
           ),
-          actions: [
-            TextButton(
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF805D),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               child: const Text(
                 'OK',
                 style: TextStyle(
-                  color: Color(0xFF4A90E2),
                   fontWeight: FontWeight.w600,
+                  fontSize: 16,
                 ),
               ),
             ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }

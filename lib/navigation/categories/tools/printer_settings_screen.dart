@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../widgets/responsive_dialog.dart';
 
 class PrinterSettingsScreen extends StatefulWidget {
   const PrinterSettingsScreen({super.key});
@@ -46,26 +47,44 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
   final List<String> _connectionTypes = ['Bluetooth', 'USB', 'WiFi', 'Ethernet'];
 
   void _testPrint() {
-    showDialog(
+    showResponsiveDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Test Print'),
-        content: const Text('Print a test receipt to verify printer settings?'),
+      child: ResponsiveDialog(
+        title: 'Test Print',
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.print,
+              size: 48,
+              color: Color(0xFF5777B5),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Print a test receipt to verify printer settings?',
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF26344F),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
         actions: [
-          TextButton(
+          ResponsiveDialogButton(
+            text: 'Cancel',
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            icon: Icons.close,
           ),
-          ElevatedButton(
+          ResponsiveDialogButton(
+            text: 'Print Test',
+            isPrimary: true,
+            icon: Icons.print,
+            color: const Color(0xFFFF805D),
             onPressed: () {
               Navigator.pop(context);
               _performTestPrint();
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF805D),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Print Test'),
           ),
         ],
       ),

@@ -41,14 +41,6 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   ),
                   child: Row(
                     children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: isSmallScreen ? 20 : 24,
-                        ),
-                      ),
                       SizedBox(width: isSmallScreen ? 6 : 8),
                       Expanded(
                         child: Text(

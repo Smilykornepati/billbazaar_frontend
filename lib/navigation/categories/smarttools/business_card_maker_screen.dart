@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../widgets/responsive_dialog.dart';
 
 class BusinessCardMakerScreen extends StatefulWidget {
   const BusinessCardMakerScreen({super.key});
@@ -88,17 +89,40 @@ class _BusinessCardMakerScreenState extends State<BusinessCardMakerScreen> {
 
   void _printCard() {
     if (_nameController.text.isNotEmpty) {
-      showDialog(
+      showResponsiveDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Print Business Card'),
-          content: const Text('Send business card to printer?'),
+        child: ResponsiveDialog(
+          title: 'Print Business Card',
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.print,
+                size: 48,
+                color: Color(0xFF5777B5),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Send business card to printer?',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF26344F),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
           actions: [
-            TextButton(
+            ResponsiveDialogButton(
+              text: 'Cancel',
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              icon: Icons.close,
             ),
-            ElevatedButton(
+            ResponsiveDialogButton(
+              text: 'Print',
+              isPrimary: true,
+              icon: Icons.print,
+              color: const Color(0xFFFF805D),
               onPressed: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -108,11 +132,6 @@ class _BusinessCardMakerScreenState extends State<BusinessCardMakerScreen> {
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF805D),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Print'),
             ),
           ],
         ),
@@ -122,16 +141,17 @@ class _BusinessCardMakerScreenState extends State<BusinessCardMakerScreen> {
 
   void _exportCard() {
     if (_nameController.text.isNotEmpty) {
-      showDialog(
+      showResponsiveDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Export Business Card'),
+        child: ResponsiveDialog(
+          title: 'Export Business Card',
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: const Icon(Icons.image),
-                title: const Text('Export as PNG'),
+              _buildExportOption(
+                icon: Icons.image,
+                title: 'Export as PNG',
+                subtitle: 'High quality image format',
                 onTap: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -142,9 +162,11 @@ class _BusinessCardMakerScreenState extends State<BusinessCardMakerScreen> {
                   );
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.picture_as_pdf),
-                title: const Text('Export as PDF'),
+              const SizedBox(height: 8),
+              _buildExportOption(
+                icon: Icons.picture_as_pdf,
+                title: 'Export as PDF',
+                subtitle: 'Printable document format',
                 onTap: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -158,14 +180,76 @@ class _BusinessCardMakerScreenState extends State<BusinessCardMakerScreen> {
             ],
           ),
           actions: [
-            TextButton(
+            ResponsiveDialogButton(
+              text: 'Cancel',
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              icon: Icons.close,
             ),
           ],
         ),
       );
     }
+  }
+
+  Widget _buildExportOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF5777B5).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(
+                icon,
+                color: const Color(0xFF5777B5),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF26344F),
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: Color(0xFF6B7280),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -221,12 +305,6 @@ class _BusinessCardMakerScreenState extends State<BusinessCardMakerScreen> {
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
           child: Row(
             children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
               const SizedBox(width: 8),
               const Expanded(
                 child: Text(
