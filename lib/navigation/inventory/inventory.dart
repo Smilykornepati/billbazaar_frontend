@@ -547,25 +547,38 @@ class _InventoryScreenState extends State<InventoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: Column(
-        children: [
-          SafeArea(
-            child: _buildHeader(),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildSummaryCards(),
-                  _buildToggleAndSearch(),
-                  _buildDropdownsAndAddButton(),
-                  _buildProductList(),
-                  const SizedBox(height: 20),
-                ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final isSmallScreen = screenWidth < 400;
+          final isTablet = screenWidth > 600;
+          
+          return Column(
+            children: [
+              SafeArea(
+                child: _buildHeader(),
               ),
-            ),
-          ),
-        ],
+              Expanded(
+                child: SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: isTablet ? 800 : double.infinity,
+                    ),
+                    child: Column(
+                      children: [
+                        _buildSummaryCards(),
+                        _buildToggleAndSearch(),
+                        _buildDropdownsAndAddButton(),
+                        _buildProductList(),
+                        SizedBox(height: isSmallScreen ? 16 : 20),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: widget.currentIndex,

@@ -346,15 +346,28 @@ class _CashManagementScreenState extends State<CashManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildBalanceCards(),
-            _buildQuickActions(),
-            Expanded(child: _buildTransactionHistory()),
-          ],
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final isSmallScreen = screenWidth < 400;
+          final isTablet = screenWidth > 600;
+          
+          return SafeArea(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isTablet ? 800 : double.infinity,
+              ),
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  _buildBalanceCards(),
+                  _buildQuickActions(),
+                  Expanded(child: _buildTransactionHistory()),
+                ],
+              ),
+            ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddTransactionDialog,

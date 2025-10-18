@@ -120,27 +120,40 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header with title and export buttons
-            _buildHeader(),
-            // Date filter and tabs
-            _buildFilterAndTabs(),
-            // Main content area - scrollable
-            Expanded(
-              child: _isLoading 
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF5777B5),
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      child: _buildMainContent(),
-                    ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final isSmallScreen = screenWidth < 400;
+          final isTablet = screenWidth > 600;
+          
+          return SafeArea(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isTablet ? 1000 : double.infinity,
+              ),
+              child: Column(
+                children: [
+                  // Header with title and export buttons
+                  _buildHeader(),
+                  // Date filter and tabs
+                  _buildFilterAndTabs(),
+                  // Main content area - scrollable
+                  Expanded(
+                    child: _isLoading 
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF5777B5),
+                            ),
+                          )
+                        : SingleChildScrollView(
+                            child: _buildMainContent(),
+                          ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: widget.currentIndex,

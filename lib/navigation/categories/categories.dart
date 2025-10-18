@@ -154,19 +154,27 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header with back arrow, title and profile icon
-            _buildHeader(),
-            // Main content area - scrollable
-            Expanded(
-              child: SingleChildScrollView(
-                child: _buildCategoriesContent(),
-              ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final isSmallScreen = screenWidth < 400;
+          final isTablet = screenWidth > 600;
+
+          return SafeArea(
+            child: Column(
+              children: [
+                // Header with back arrow, title and profile icon
+                _buildHeader(isSmallScreen, isTablet),
+                // Main content area - scrollable
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: _buildCategoriesContent(screenWidth, isSmallScreen, isTablet),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: widget.currentIndex,
@@ -176,7 +184,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   // Header with back arrow, title and profile icon - exact match to design
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isSmallScreen, bool isTablet) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -188,16 +196,21 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 16 : 18,
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 20 : 24,
+          ),
           child: Row(
             children: [
-              const SizedBox(width: 8.0),
+              SizedBox(width: isSmallScreen ? 6.0 : 8.0),
               // Title
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Categories',
                   style: TextStyle(
-                  fontSize: 22.0,
+                    fontSize: isSmallScreen ? 20.0 : (isTablet ? 26.0 : 22.0),
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
@@ -205,8 +218,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               ),
               // Profile icon
               Container(
-                width: 36.0,
-                height: 36.0,
+                width: isSmallScreen ? 32.0 : 36.0,
+                height: isSmallScreen ? 32.0 : 36.0,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
@@ -218,10 +231,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.person,
-                  color: Color(0xFF2E5A87),
-                  size: 20.0,
+                  color: const Color(0xFF2E5A87),
+                  size: isSmallScreen ? 18.0 : 20.0,
                 ),
               ),
             ],
@@ -232,15 +245,20 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   // Categories content - scrollable with sections
-  Widget _buildCategoriesContent() {
+  Widget _buildCategoriesContent(double screenWidth, bool isSmallScreen, bool isTablet) {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Build all category sections
-          ..._categories.map((category) => _buildCategorySection(category)),
-        ],
+      padding: EdgeInsets.all(isSmallScreen ? 16.0 : 20.0),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: isTablet ? 800 : double.infinity,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Build all category sections
+            ..._categories.map((category) => _buildCategorySection(category)),
+          ],
+        ),
       ),
     );
   }

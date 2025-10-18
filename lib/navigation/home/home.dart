@@ -182,15 +182,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              child: _buildMainContent(),
-            ),
-          ),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final isSmallScreen = screenWidth < 400;
+          final isTablet = screenWidth > 600;
+
+          return Column(
+            children: [
+              _buildHeader(screenWidth, isSmallScreen, isTablet),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: _buildMainContent(screenWidth, isSmallScreen, isTablet),
+                ),
+              ),
+            ],
+          );
+        },
       ),
       // No FloatingActionButton, matches the bottom nav in the image
       bottomNavigationBar: CustomBottomNavigation(
@@ -200,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(double screenWidth, bool isSmallScreen, bool isTablet) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -212,7 +220,12 @@ class _HomeScreenState extends State<HomeScreen> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 16 : 18,
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 24 : 30,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -225,18 +238,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Text(
                           _greeting,
-                          style: const TextStyle(
-                            fontSize: 28, // Image accurate, was 32
-                            fontWeight: FontWeight.w700, // heavier
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 24 : (isTablet ? 32 : 28),
+                            fontWeight: FontWeight.w700,
                             color: Colors.white,
                             height: 1.1,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: isSmallScreen ? 2 : 4),
                         Text(
                           storeName,
-                          style: const TextStyle(
-                            fontSize: 15,
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 13 : 15,
                             fontWeight: FontWeight.w400,
                             color: Colors.white70,
                             height: 1.0,
@@ -247,11 +260,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Row(
                     children: [
-                      _buildHeaderIcon(Icons.language),
-                      const SizedBox(width: 16),
-                      _buildHeaderIcon(Icons.notifications_outlined),
-                      const SizedBox(width: 16),
-                      _buildHeaderIcon(Icons.account_circle),
+                      _buildHeaderIcon(Icons.language, isSmallScreen),
+                      SizedBox(width: isSmallScreen ? 12 : 16),
+                      _buildHeaderIcon(Icons.notifications_outlined, isSmallScreen),
+                      SizedBox(width: isSmallScreen ? 12 : 16),
+                      _buildHeaderIcon(Icons.account_circle, isSmallScreen),
                     ],
                   ),
                 ],
@@ -263,51 +276,54 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHeaderIcon(IconData icon) {
+  Widget _buildHeaderIcon(IconData icon, bool isSmallScreen) {
+    final size = isSmallScreen ? 34.0 : 38.0;
+    final iconSize = isSmallScreen ? 18.0 : 20.0;
+    
     return Container(
-      width: 38, // adjusted for image
-      height: 38,
+      width: size,
+      height: size,
       decoration: const BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
       ),
-      child: Icon(icon, color: Color(0xFF26344F), size: 20),
+      child: Icon(icon, color: const Color(0xFF26344F), size: iconSize),
     );
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent(double screenWidth, bool isSmallScreen, bool isTablet) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(32),
           topRight: Radius.circular(32),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all(isSmallScreen ? 16 : 18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTodaysSales(),
-            const SizedBox(height: 18),
-            _buildSummaryCards(),
-            const SizedBox(height: 18),
+            _buildTodaysSales(isSmallScreen, isTablet),
+            SizedBox(height: isSmallScreen ? 16 : 18),
+            _buildSummaryCards(isSmallScreen, isTablet),
+            SizedBox(height: isSmallScreen ? 16 : 18),
             _buildAlertCards(),
-            const SizedBox(height: 20),
+            SizedBox(height: isSmallScreen ? 18 : 20),
             _buildNotificationsSection(),
-            const SizedBox(height: 70),
+            SizedBox(height: isSmallScreen ? 60 : 70),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTodaysSales() {
+  Widget _buildTodaysSales(bool isSmallScreen, bool isTablet) {
     return GestureDetector(
       onTap: _navigateToQuickBill,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
         decoration: BoxDecoration(
           color: const Color(0xFFF5F5F5),
           borderRadius: BorderRadius.circular(18),
@@ -322,67 +338,69 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       "Today's Sales",
-                      style: const TextStyle(
-                        fontSize: 16, // image accurate
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1F1F1F),
+                        color: const Color(0xFF1F1F1F),
                         height: 1.1,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    const Icon(
+                    SizedBox(width: isSmallScreen ? 6 : 8),
+                    Icon(
                       Icons.trending_up,
-                      color: Color(0xFF10B981),
-                      size: 22,
+                      color: const Color(0xFF10B981),
+                      size: isSmallScreen ? 20 : 22,
                     ),
                   ],
                 ),
                 GestureDetector(
                   onTap: _refreshDashboardData,
                   child: Container(
-                    width: 44,
-                    height: 44,
+                    width: isSmallScreen ? 40 : 44,
+                    height: isSmallScreen ? 40 : 44,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFF805D),
                       borderRadius: BorderRadius.circular(11),
                     ),
                     child: _isRefreshing
-                        ? const Padding(
-                            padding: EdgeInsets.all(10),
-                            child: CircularProgressIndicator(
+                        ? Padding(
+                            padding: EdgeInsets.all(isSmallScreen ? 8 : 10),
+                            child: const CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2,
                             ),
                           )
-                        : const Icon(
+                        : Icon(
                             Icons.refresh,
                             color: Colors.white,
-                            size: 22,
+                            size: isSmallScreen ? 20 : 22,
                           ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: isSmallScreen ? 12 : 14),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   '₹ ',
                   style: TextStyle(
-                    fontSize: 34,
+                    fontSize: isSmallScreen ? 28 : (isTablet ? 38 : 34),
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF10B981),
+                    color: const Color(0xFF10B981),
                     height: 1.1,
                   ),
                 ),
-                Text(
-                  dashboardData['todaysSales']?.toString() ?? '15,250',
-                  style: const TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F1F1F),
-                    height: 1.1,
+                Flexible(
+                  child: Text(
+                    dashboardData['todaysSales']?.toString() ?? '15,250',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 28 : (isTablet ? 38 : 34),
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF1F1F1F),
+                      height: 1.1,
+                    ),
                   ),
                 ),
               ],
@@ -393,7 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSummaryCards() {
+  Widget _buildSummaryCards(bool isSmallScreen, bool isTablet) {
     return Row(
       children: [
         Expanded(
@@ -405,10 +423,11 @@ class _HomeScreenState extends State<HomeScreen> {
               title: 'Pending Payments',
               value: '₹ ${dashboardData['pendingPayments']?.toString() ?? '924'}',
               valueColor: const Color(0xFFE91E63),
+              isSmallScreen: isSmallScreen,
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: isSmallScreen ? 8 : 12),
         Expanded(
           child: GestureDetector(
             onTap: _navigateToLowStockItems,
@@ -418,6 +437,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: 'Low Stock items',
               value: dashboardData['lowStockItems']?.toString() ?? '6',
               valueColor: const Color(0xFF26344F),
+              isSmallScreen: isSmallScreen,
             ),
           ),
         ),
@@ -431,9 +451,10 @@ class _HomeScreenState extends State<HomeScreen> {
     required String title,
     required String value,
     required Color valueColor,
+    required bool isSmallScreen,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(14),
@@ -442,29 +463,29 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: isSmallScreen ? 38 : 44,
+            height: isSmallScreen ? 38 : 44,
             decoration: BoxDecoration(
               color: iconColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: Colors.white, size: 22),
+            child: Icon(icon, color: Colors.white, size: isSmallScreen ? 18 : 22),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: isSmallScreen ? 10 : 12),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 11,
+            style: TextStyle(
+              fontSize: isSmallScreen ? 10 : 11,
               fontWeight: FontWeight.w400,
-              color: Color(0xFF6B7280),
+              color: const Color(0xFF6B7280),
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: isSmallScreen ? 3 : 4),
           Text(
             value,
             style: TextStyle(
-              fontSize: 17,
+              fontSize: isSmallScreen ? 15 : 17,
               fontWeight: FontWeight.w700,
               color: valueColor,
               height: 1.2,
