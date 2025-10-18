@@ -268,24 +268,43 @@ class _BusinessCardMakerScreenState extends State<BusinessCardMakerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildCardEditor(),
-                    _buildCardPreview(),
-                    _buildActionButtons(),
-                    _buildSavedCards(),
-                  ],
-                ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final isSmallScreen = screenWidth < 400;
+          final isTablet = screenWidth > 600;
+          
+          return SafeArea(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isTablet ? 900 : double.infinity,
+              ),
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+                        child: Column(
+                          children: [
+                            _buildCardEditor(),
+                            SizedBox(height: isSmallScreen ? 16 : 20),
+                            _buildCardPreview(),
+                            SizedBox(height: isSmallScreen ? 16 : 20),
+                            _buildActionButtons(),
+                            SizedBox(height: isSmallScreen ? 16 : 20),
+                            _buildSavedCards(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

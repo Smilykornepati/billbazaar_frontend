@@ -138,7 +138,6 @@ class _ItemsScreenState extends State<ItemsScreen> with TickerProviderStateMixin
       body: LayoutBuilder(
         builder: (context, constraints) {
           final screenWidth = constraints.maxWidth;
-          final isSmallScreen = screenWidth < 400;
           final isTablet = screenWidth > 600;
           
           return Column(

@@ -21,7 +21,7 @@ class ContactUsScreen extends StatefulWidget {
 class _ContactUsScreenState extends State<ContactUsScreen> {
   final String phoneNumber = '+91 95867 77748';
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isSmallScreen) {
     return SafeArea(
       child: Container(
         decoration: const BoxDecoration(
@@ -35,27 +35,32 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 16 : 20, 
+            isSmallScreen ? 14 : 18, 
+            isSmallScreen ? 16 : 20, 
+            isSmallScreen ? 20 : 24,
+          ),
           child: Row(
             children: [
               // Back arrow
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back,
                   color: Colors.white,
-                  size: 24,
+                  size: isSmallScreen ? 20 : 24,
                 ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 8.0),
+              SizedBox(width: isSmallScreen ? 6 : 8),
               // Title
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Contact Us',
                   style: TextStyle(
-                    fontSize: 22.0,
+                    fontSize: isSmallScreen ? 18 : 22,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
@@ -72,21 +77,31 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          final isTablet = constraints.maxWidth > 600;
+          
+          return Column(
+            children: [
+              _buildHeader(isSmallScreen),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: isTablet ? 800 : double.infinity,
+                    ),
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: isSmallScreen ? 16 : 20),
                     
                     // Main card container
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(24),
+                      padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -201,13 +216,17 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+                  ], // Close inner Column children  
+                ),   // Close inner Column
+              ),     // Close SingleChildScrollView
+            ),       // Close ConstrainedBox
+          ),         // Close Center
+        ),           // Close Expanded
+      ],             // Close main Column children
+    );
+        },
+      ),
+    );
   }
 
   Widget _buildContactOption({

@@ -22,63 +22,76 @@ class _AddItemScreenState extends State<AddItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header with gradient and back arrow
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF5777B5),
-                    Color(0xFF26344F),
-                  ],
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: const Row(
-                children: [
-                  SizedBox(width: 8),
-                  Text(
-                    'Add Item',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          final isTablet = constraints.maxWidth > 600;
+          
+          return SafeArea(
+            child: Column(
+              children: [
+                // Header with gradient and back arrow
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF5777B5),
+                        Color(0xFF26344F),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-
-            // Main Content
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(top: 16),
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF7FAFC),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 16 : 20, 
+                    vertical: isSmallScreen ? 12 : 16,
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(width: isSmallScreen ? 4 : 8),
+                      Text(
+                        'Add Item',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isSmallScreen ? 18 : 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      
-                      // Form Card
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
+
+                // Main Content
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(top: isSmallScreen ? 12 : 16),
+                    padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF7FAFC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24),
+                        topRight: Radius.circular(24),
+                      ),
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: isTablet ? 800 : double.infinity,
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              SizedBox(height: isSmallScreen ? 16 : 20),
+                            
+                            // Form Card
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
                           ],
@@ -225,16 +238,20 @@ class _AddItemScreenState extends State<AddItemScreen> {
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+                          ], // Close inner Column children
+                        ),   // Close inner Column
+                      ),     // Close Container
+                    ],       // Close outer Column children
+                  ),         // Close outer Column
+                ),           // Close SingleChildScrollView  
+              ),             // Close ConstrainedBox
+            ),               // Close Center
+          ),                 // Close Container
+        ),                   // Close Expanded
+      ],                     // Close main Column children
+    ),                       // Close main Column
+  );
+        },
       ),
     );
   }

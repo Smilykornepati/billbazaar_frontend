@@ -54,9 +54,6 @@ import 'navigation/categories/csv/csv_import_export_screen.dart';
 // Customer Catalogue screens
 import 'navigation/categories/catalogue/customer_catalogue_screen.dart';
 
-// Payment Gateway screens
-import 'navigation/categories/payment/payment_gateway_screen.dart';
-
 void main() {
   runApp(const BillBazarApp());
 }

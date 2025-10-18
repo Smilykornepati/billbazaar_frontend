@@ -349,7 +349,6 @@ class _CashManagementScreenState extends State<CashManagementScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final screenWidth = constraints.maxWidth;
-          final isSmallScreen = screenWidth < 400;
           final isTablet = screenWidth > 600;
           
           return SafeArea(
