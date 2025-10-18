@@ -53,6 +53,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           'name': 'Training\nVideo',
           'icon': 'assets/categories/icons/billing/i-8.png',
         },
+        {
+          'name': 'Customer\nCatalogue',
+          'icon': 'assets/categories/icons/billing/i-9.png',
+        },
       ],
     },
     {
@@ -443,6 +447,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     } else if (itemName.contains('training video')) {
       // Navigate to Training Videos screen
       Navigator.pushNamed(context, '/training-videos');
+    } else if (itemName.contains('customer catalogue')) {
+      // Navigate to Customer Catalogue screen
+      Navigator.pushNamed(context, '/customer-catalogue');
     } else if (itemName.contains('item wise sales report') || itemName.contains('day report') || itemName.contains('sales summary')) {
       // Navigate to Reports screen
       ScaffoldMessenger.of(context).showSnackBar(

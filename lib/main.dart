@@ -51,6 +51,12 @@ import 'navigation/categories/ledger/ledger_screen.dart';
 // CSV Import/Export screens
 import 'navigation/categories/csv/csv_import_export_screen.dart';
 
+// Customer Catalogue screens
+import 'navigation/categories/catalogue/customer_catalogue_screen.dart';
+
+// Payment Gateway screens
+import 'navigation/categories/payment/payment_gateway_screen.dart';
+
 void main() {
   runApp(const BillBazarApp());
 }
@@ -135,6 +141,7 @@ class BillBazarApp extends StatelessWidget {
         '/poster-maker': (context) => const PosterMakerScreen(),
         '/ledger': (context) => const LedgerScreen(),
         '/csv-import-export': (context) => const CsvImportExportScreen(),
+        '/customer-catalogue': (context) => const CustomerCatalogueScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {

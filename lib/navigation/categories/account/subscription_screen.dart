@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
+import '../payment/payment_gateway_screen.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -465,11 +466,30 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   void _processPayment(Map<String, dynamic> selectedPlan) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Payment initiated for ${selectedPlan['title']}'),
-        backgroundColor: const Color(0xFF10B981),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentGatewayScreen(
+          amount: selectedPlan['discountedPrice'].toDouble(),
+          orderType: 'subscription',
+          orderDetails: {
+            'title': selectedPlan['title'],
+            'description': 'Premium subscription plan',
+            'duration': selectedPlan['duration'],
+            'originalPrice': selectedPlan['originalPrice'],
+            'discountedPrice': selectedPlan['discountedPrice'],
+          },
+        ),
       ),
-    );
+    ).then((paymentSuccess) {
+      if (paymentSuccess == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Subscription activated successfully!'),
+            backgroundColor: Color(0xFF10B981),
+          ),
+        );
+      }
+    });
   }
 }
