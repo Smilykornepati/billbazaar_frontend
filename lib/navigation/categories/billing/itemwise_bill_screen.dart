@@ -190,9 +190,12 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
                           child: _buildItemsList(),
                         ),
                         
-                        // Current Bill - Fixed at bottom, always visible
-                        SizedBox(
-                          height: _selectedItems.isEmpty ? 60 : 120,
+                        // Current Bill - Flexible height, constrained to max
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: 60,
+                            maxHeight: constraints.maxHeight * 0.35, // Max 35% of available height
+                          ),
                           child: _buildBillSection(),
                         ),
                       ],
@@ -243,10 +246,10 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
             
             return Padding(
               padding: EdgeInsets.fromLTRB(
-                isSmallScreen ? 16 : 20, 
-                isSmallScreen ? 14 : 18, 
-                isSmallScreen ? 16 : 20, 
-                isSmallScreen ? 18 : 24
+                isSmallScreen ? 12 : 20, 
+                isSmallScreen ? 10 : 18, 
+                isSmallScreen ? 12 : 20, 
+                isSmallScreen ? 12 : 24
               ),
               child: Row(
                 children: [
@@ -674,33 +677,33 @@ class _ItemwiseBillScreenState extends State<ItemwiseBillScreen> {
             ),
           ),
           
-          // Items list or empty state
-          Expanded(
+          // Items list or empty state - Flexible but constrained
+          Flexible(
             child: _selectedItems.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add_shopping_cart_outlined,
-                          size: 20,
-                          color: Colors.grey.shade400,
+              ? Container(
+                  height: 40, // Fixed small height for empty state
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add_shopping_cart_outlined,
+                        size: 16,
+                        color: Colors.grey.shade400,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Add items from above',
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 11,
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Add items from above',
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 )
               : ListView.builder(
+                  shrinkWrap: true, // Important: allows ListView to size itself
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   itemCount: _selectedItems.length,
                   itemBuilder: (context, index) {
