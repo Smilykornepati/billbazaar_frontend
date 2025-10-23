@@ -39,7 +39,10 @@ class BillService {
 
   // Print bill
   Future<Map<String, dynamic>> printBill(int billId, {int? printerId}) async {
-    final body = printerId != null ? {'printerId': printerId} : {};
+    // Fix: Explicitly type the Map as Map<String, dynamic>
+    final Map<String, dynamic> body = printerId != null 
+        ? {'printerId': printerId} 
+        : {};
     return await _apiService.post(ApiConfig.printBillUrl(billId), body);
   }
 

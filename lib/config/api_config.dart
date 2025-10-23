@@ -6,6 +6,8 @@ class ApiConfig {
   static const String signupUrl = '$baseUrl/auth/signup';
   static const String signinUrl = '$baseUrl/auth/signin';
   static const String verifyOtpUrl = '$baseUrl/auth/verify-otp';
+  static const String forgotPasswordEndpoint = '$baseUrl/auth/forgot-password';
+  static const String resetPasswordEndpoint = '$baseUrl/auth/reset-password';
   
   // Bill endpoints
   static const String billsUrl = '$baseUrl/bills';
@@ -21,9 +23,9 @@ class ApiConfig {
   // Timeout duration
   static const Duration timeoutDuration = Duration(seconds: 30);
 
- 
-
-  static Map<String, String>? get headers => null;
-
-
+  // Headers - FIXED: Now returns proper headers instead of null
+  static Map<String, String> get headers => {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
 }
