@@ -33,7 +33,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       try {
         // API endpoint for forgot password
-        const String apiUrl = ApiConfig.forgotPasswordEndpoint;
+        final String apiUrl = ApiConfig.forgotPasswordEndpoint;
         
         // Prepare request body
         final Map<String, dynamic> requestBody = {
