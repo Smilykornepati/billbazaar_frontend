@@ -1,6 +1,9 @@
+import 'package:billbazar/services/print_service.dart';
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
-import '../../../services/print_service.dart';
+import '../../../services/bill_service.dart';
+import '../../../services/printer_service_api.dart';
+import '../../../services/api_service.dart';
 import 'additem/add_item_screen.dart';
 import 'addclient/add_client_screen.dart';
 
@@ -13,24 +16,31 @@ class QuickBillScreen extends StatefulWidget {
 
 class _QuickBillScreenState extends State<QuickBillScreen> {
   final TextEditingController _notesController = TextEditingController();
+  final BillService _billService = BillService();
+  final PrinterServiceApi _printerService = PrinterServiceApi();
+  
   String _selectedPaymentMethod = 'Cash';
   bool _isSinglePayment = true;
+  bool _isLoading = false;
 
   // Dynamic data
-  late String _invoiceNumber;
-  late String _issueDate;
-  late String _dueDate;
+  String _invoiceNumber = '';
+  late DateTime _issueDate;
+  late DateTime _dueDate;
   String? _selectedClient;
+  String? _selectedClientContact;
   double _discount = 0.0;
 
   List<Map<String, dynamic>> _items = [];
-  List<String> _clients = [];
+  List<Map<String, dynamic>> _clients = [];
+  Map<String, dynamic>? _defaultPrinter;
 
   @override
   void initState() {
     super.initState();
     _generateInvoiceNumber();
     _setDates();
+    _loadDefaultPrinter();
   }
 
   void _generateInvoiceNumber() {
@@ -40,35 +50,47 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
 
   void _setDates() {
     final now = DateTime.now();
-    _issueDate = '${now.day.toString().padLeft(2, '0')} ${_getMonthName(now.month)}, ${now.year}';
-    _dueDate = _issueDate; // Same day for quick bill
+    _issueDate = now;
+    _dueDate = now;
   }
 
-  String _getMonthName(int month) {
+  String _formatDate(DateTime date) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return months[month - 1];
+    return '${date.day.toString().padLeft(2, '0')} ${months[date.month - 1]}, ${date.year}';
+  }
+
+  Future<void> _loadDefaultPrinter() async {
+    try {
+      final printer = await _printerService.getDefaultPrinter();
+      setState(() {
+        _defaultPrinter = printer;
+      });
+    } catch (e) {
+      debugPrint('Error loading default printer: $e');
+    }
   }
 
   double get _subtotal {
     return _items.fold(0.0, (sum, item) => sum + item['totalPrice']);
   }
 
+  double get _gstAmount {
+    return _subtotal * 0.18; // 18% GST
+  }
+
   double get _grandTotal {
-    return _subtotal - _discount;
+    return _subtotal + _gstAmount - _discount;
   }
 
   void _addItem(String name, double unitPrice) {
     setState(() {
-      // Check if item already exists
       final existingItemIndex = _items.indexWhere((item) => item['name'] == name);
       if (existingItemIndex != -1) {
-        // Increase quantity if item exists
         _items[existingItemIndex]['quantity']++;
         _items[existingItemIndex]['totalPrice'] = 
             _items[existingItemIndex]['quantity'] * _items[existingItemIndex]['unitPrice'];
       } else {
-        // Add new item
         _items.add({
           'name': name,
           'quantity': 1,
@@ -81,10 +103,12 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
 
   void _addClient(String name, String contact) {
     setState(() {
-      if (!_clients.contains(name)) {
-        _clients.add(name);
-        _selectedClient = name;
+      final clientExists = _clients.any((client) => client['name'] == name);
+      if (!clientExists) {
+        _clients.add({'name': name, 'contact': contact});
       }
+      _selectedClient = name;
+      _selectedClientContact = contact;
     });
   }
 
@@ -121,7 +145,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         title: const Text('Add Discount'),
         content: TextField(
           controller: discountController,
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: const InputDecoration(
             labelText: 'Discount Amount (₹)',
             hintText: 'Enter discount amount',
@@ -154,61 +178,72 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         title: Text('Invoice $_invoiceNumber'),
         content: SizedBox(
           width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_selectedClient != null)
-                Text('Client: $_selectedClient', style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text('Date: $_issueDate'),
-              const SizedBox(height: 16),
-              const Text('Items:', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              ..._items.map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_selectedClient != null)
+                  Text('Client: $_selectedClient', style: const TextStyle(fontWeight: FontWeight.bold)),
+                if (_selectedClientContact != null)
+                  Text('Contact: $_selectedClientContact'),
+                const SizedBox(height: 8),
+                Text('Date: ${_formatDate(_issueDate)}'),
+                const SizedBox(height: 16),
+                const Text('Items:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                ..._items.map((item) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${item['name']} x${item['quantity']}',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text('₹${item['totalPrice'].toStringAsFixed(2)}'),
+                    ],
+                  ),
+                )),
+                const Divider(),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Text(
-                        '${item['name']} x${item['quantity']}',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Text('₹${item['totalPrice'].toStringAsFixed(2)}'),
+                    const Text('Subtotal:'),
+                    Text('₹${_subtotal.toStringAsFixed(2)}'),
                   ],
                 ),
-              )),
-              const Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Subtotal:'),
-                  Text('₹${_subtotal.toStringAsFixed(2)}'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Discount:'),
+                    Text('₹${_discount.toStringAsFixed(2)}'),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('GST (18%):'),
+                    Text('₹${_gstAmount.toStringAsFixed(2)}'),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text('₹${_grandTotal.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text('Payment: $_selectedPaymentMethod'),
+                if (_notesController.text.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text('Notes: ${_notesController.text}'),
                 ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Discount:'),
-                  Text('₹${_discount.toStringAsFixed(2)}'),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('₹${_grandTotal.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text('Payment: $_selectedPaymentMethod'),
-              if (_notesController.text.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text('Notes: ${_notesController.text}'),
               ],
-            ],
+            ),
           ),
         ),
         actions: [
@@ -221,101 +256,140 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  void _printBill() async {
-    if (_items.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add items to the bill'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Show printing dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const AlertDialog(
-        content: Row(
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(width: 16),
-            Text('Printing bill...'),
-          ],
-        ),
+void _printBill() async {
+  if (_items.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please add items to the bill'),
+        backgroundColor: Colors.red,
       ),
     );
+    return;
+  }
 
-    try {
-      // Prepare bill data
-      final items = _items.map((item) => {
-        'name': item['name'],
-        'quantity': item['quantity'],
-        'price': item['price'],
-      }).toList();
+  // Show printing dialog
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => const AlertDialog(
+      content: Row(
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(width: 16),
+          Text('Printing bill...'),
+        ],
+      ),
+    ),
+  );
 
-      final subtotal = _subtotal;
-      final gstAmount = subtotal * 0.18; // 18% GST
-      final discount = _discount;
-      final total = _grandTotal + gstAmount;
+  try {
+    // Prepare bill data - FIX: use 'unitPrice' instead of 'price'
+    final items = _items.map((item) => {
+      'name': item['name'],
+      'quantity': item['quantity'],
+      'price': item['unitPrice'], // Changed from item['price'] to item['unitPrice']
+    }).toList();
 
-      // Print the bill
-      final printSuccess = await PrintService.instance.printBill(
-        customerName: _selectedClient ?? 'Walk-in Customer',
-        phoneNumber: '', // No phone field in this version
-        items: items,
-        subtotal: subtotal,
-        gstAmount: gstAmount,
-        discount: discount,
-        total: total,
-        paymentMethod: _selectedPaymentMethod,
-      );
+    final subtotal = _subtotal;
+    final gstAmount = subtotal * 0.18; // 18% GST
+    final discount = _discount;
+    final total = _grandTotal + gstAmount;
 
-      // Close printing dialog
-      Navigator.pop(context);
+    // Print the bill
+    final printSuccess = await PrintService.instance.printBill(
+      customerName: _selectedClient ?? 'Walk-in Customer',
+      phoneNumber: '', // No phone field in this version
+      items: items,
+      subtotal: subtotal,
+      gstAmount: gstAmount,
+      discount: discount,
+      total: total,
+      paymentMethod: _selectedPaymentMethod,
+    );
 
-      if (printSuccess) {
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Bill $_invoiceNumber printed successfully!'),
-            backgroundColor: Colors.green,
-            action: SnackBarAction(
-              label: 'New Bill',
-              textColor: Colors.white,
-              onPressed: () {
-                _resetBill();
-              },
-            ),
-          ),
-        );
-      } else {
-        // Show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to print bill. Please check printer connection.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      // Close printing dialog if still open
-      Navigator.pop(context);
-      
+    // Close printing dialog
+    Navigator.pop(context);
+
+    if (printSuccess) {
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Print error: ${e.toString()}'),
+          content: Text('Bill $_invoiceNumber printed successfully!'),
+          backgroundColor: Colors.green,
+          action: SnackBarAction(
+            label: 'New Bill',
+            textColor: Colors.white,
+            onPressed: () {
+              _resetBill();
+            },
+          ),
+        ),
+      );
+    } else {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to print bill. Please check printer connection.'),
           backgroundColor: Colors.red,
         ),
       );
     }
+  } catch (e) {
+    // Close printing dialog if still open
+    Navigator.pop(context);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Print error: ${e.toString()}'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
+
+  void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _resetBill() {
     setState(() {
       _items.clear();
       _selectedClient = null;
+      _selectedClientContact = null;
       _discount = 0.0;
       _notesController.clear();
       _selectedPaymentMethod = 'Cash';
@@ -325,7 +399,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     });
   }
 
-  void _showAddItemBottomSheet() async {
+  Future<void> _showAddItemBottomSheet() async {
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
@@ -338,7 +412,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     }
   }
 
-  void _showAddClientBottomSheet() async {
+  Future<void> _showAddClientBottomSheet() async {
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
@@ -356,49 +430,50 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header with back button and title
-              _buildHeader(),
-              // Main content
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Invoice Details Card
-                    _buildInvoiceDetailsCard(),
-                    const SizedBox(height: 20.0),
-                    // Client Section
-                    _buildClientSection(),
-                    const SizedBox(height: 20.0),
-                    // Items Section
-                    _buildItemsSection(),
-                    const SizedBox(height: 20.0),
-                    // Summary Card
-                    _buildSummaryCard(),
-                    const SizedBox(height: 20.0),
-                    // Payment Method Card
-                    _buildPaymentMethodCard(),
-                    const SizedBox(height: 20.0),
-                    // Notes Section
-                    _buildNotesSection(),
-                    const SizedBox(height: 20.0),
-                    // Action Buttons
-                    _buildActionButtons(),
-                    const SizedBox(height: 40.0),
-                  ],
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInvoiceDetailsCard(),
+                        const SizedBox(height: 20.0),
+                        _buildClientSection(),
+                        const SizedBox(height: 20.0),
+                        _buildItemsSection(),
+                        const SizedBox(height: 20.0),
+                        _buildSummaryCard(),
+                        const SizedBox(height: 20.0),
+                        _buildPaymentMethodCard(),
+                        const SizedBox(height: 20.0),
+                        _buildNotesSection(),
+                        const SizedBox(height: 20.0),
+                        _buildActionButtons(),
+                        const SizedBox(height: 40.0),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (_isLoading)
+              Container(
+                color: Colors.black26,
+                child: const Center(
+                  child: CircularProgressIndicator(),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );
   }
 
-  // Header with back button and title - exact match to design
   Widget _buildHeader() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -410,8 +485,8 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFF5777B5), // Blue
-                Color(0xFF26344F), // Dark Blue
+                Color(0xFF5777B5),
+                Color(0xFF26344F),
               ],
             ),
           ),
@@ -426,10 +501,9 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
               ),
               child: Row(
                 children: [
-                  // Back button
                   GestureDetector(
                     onTap: () {
-                      Navigator.pop(context); // Navigate back to categories
+                      Navigator.pop(context);
                     },
                     child: Icon(
                       Icons.arrow_back,
@@ -438,7 +512,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                     ),
                   ),
                   SizedBox(width: isSmallScreen ? 12.0 : 16.0),
-                  // Title
                   Expanded(
                     child: Text(
                       'Quick Bill',
@@ -459,7 +532,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Invoice Details Card - exact match to design
   Widget _buildInvoiceDetailsCard() {
     return Container(
       padding: const EdgeInsets.all(20.0),
@@ -476,7 +548,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
       ),
       child: Column(
         children: [
-          // Invoice Number
           Row(
             children: [
               const Text(
@@ -505,7 +576,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
             ],
           ),
           const SizedBox(height: 16.0),
-          // Issue Date and Due Date
           Row(
             children: [
               Expanded(
@@ -528,7 +598,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                         border: Border.all(color: Colors.grey[300]!),
                       ),
                       child: Text(
-                        _issueDate,
+                        _formatDate(_issueDate),
                         style: const TextStyle(
                           fontSize: 14.0,
                           color: Color(0xFF26344F),
@@ -559,7 +629,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                         border: Border.all(color: Colors.grey[300]!),
                       ),
                       child: Text(
-                        _dueDate,
+                        _formatDate(_dueDate),
                         style: const TextStyle(
                           fontSize: 14.0,
                           color: Color(0xFF26344F),
@@ -576,7 +646,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Client Section - exact match to design
   Widget _buildClientSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -593,9 +662,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
             ),
             const Spacer(),
             ElevatedButton.icon(
-              onPressed: () {
-                _showAddClientBottomSheet();
-              },
+              onPressed: _showAddClientBottomSheet,
               icon: const Icon(Icons.add, color: Colors.white, size: 16.0),
               label: const Text(
                 'Add Client',
@@ -634,19 +701,33 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                 Icon(Icons.person, color: Colors.blue.shade600),
                 const SizedBox(width: 12.0),
                 Expanded(
-                  child: Text(
-                    _selectedClient!,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blue.shade800,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _selectedClient!,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.blue.shade800,
+                        ),
+                      ),
+                      if (_selectedClientContact != null && _selectedClientContact!.isNotEmpty)
+                        Text(
+                          _selectedClientContact!,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.blue.shade600,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 GestureDetector(
                   onTap: () {
                     setState(() {
                       _selectedClient = null;
+                      _selectedClientContact = null;
                     });
                   },
                   child: Icon(
@@ -663,7 +744,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Items Section - exact match to design
   Widget _buildItemsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -677,14 +757,10 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
           ),
         ),
         const SizedBox(height: 12.0),
-        // Items list
-        ..._items.map((item) => _buildItemCard(item)),
+        ..._items.asMap().entries.map((entry) => _buildItemCard(entry.value, entry.key)),
         const SizedBox(height: 12.0),
-        // Add item button
         ElevatedButton.icon(
-          onPressed: () {
-            _showAddItemBottomSheet();
-          },
+          onPressed: _showAddItemBottomSheet,
           icon: const Icon(Icons.add, color: Colors.white, size: 16.0),
           label: const Text(
             'Add item',
@@ -707,11 +783,8 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
           ),
         ),
         const SizedBox(height: 12.0),
-        // Add discount button
         OutlinedButton(
-          onPressed: () {
-            _showDiscountDialog();
-          },
+          onPressed: _showDiscountDialog,
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
@@ -735,8 +808,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Item card - exact match to design
-  Widget _buildItemCard(Map<String, dynamic> item) {
+  Widget _buildItemCard(Map<String, dynamic> item, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
       padding: const EdgeInsets.all(16.0),
@@ -746,7 +818,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
       ),
       child: Row(
         children: [
-          // Item details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -761,20 +832,14 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                 ),
                 const SizedBox(height: 4.0),
                 Text(
-                  '${item['quantity']}x₹${item['unitPrice'].toInt()}',
+                  '${item['quantity']}x₹${item['unitPrice'].toStringAsFixed(2)}',
                   style: const TextStyle(fontSize: 14.0, color: Colors.grey),
                 ),
                 const SizedBox(height: 12.0),
-                // Quantity controls
                 Row(
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        _updateItemQuantity(
-                          _items.indexOf(item),
-                          item['quantity'] - 1
-                        );
-                      },
+                      onTap: () => _updateItemQuantity(index, item['quantity'] - 1),
                       child: Container(
                         width: 32.0,
                         height: 32.0,
@@ -800,12 +865,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                     ),
                     const SizedBox(width: 12.0),
                     GestureDetector(
-                      onTap: () {
-                        _updateItemQuantity(
-                          _items.indexOf(item),
-                          item['quantity'] + 1
-                        );
-                      },
+                      onTap: () => _updateItemQuantity(index, item['quantity'] + 1),
                       child: Container(
                         width: 32.0,
                         height: 32.0,
@@ -825,14 +885,11 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
               ],
             ),
           ),
-          // Price and options
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               GestureDetector(
-                onTap: () {
-                  _removeItem(_items.indexOf(item));
-                },
+                onTap: () => _removeItem(index),
                 child: Container(
                   width: 24.0,
                   height: 24.0,
@@ -849,7 +906,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
               ),
               const SizedBox(height: 8.0),
               Text(
-                '₹ ${item['totalPrice'].toInt()}',
+                '₹ ${item['totalPrice'].toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
@@ -863,7 +920,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Summary Card - exact match to design
   Widget _buildSummaryCard() {
     return Container(
       padding: const EdgeInsets.all(20.0),
@@ -884,13 +940,14 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
           const SizedBox(height: 12.0),
           _buildSummaryRow('Discount', '₹${_discount.toStringAsFixed(2)}'),
           const SizedBox(height: 12.0),
+          _buildSummaryRow('GST (18%)', '₹${_gstAmount.toStringAsFixed(2)}'),
+          const SizedBox(height: 12.0),
           _buildSummaryRow('Grand Total', '₹${_grandTotal.toStringAsFixed(2)}', isTotal: true),
         ],
       ),
     );
   }
 
-  // Summary row widget
   Widget _buildSummaryRow(String label, String value, {bool isTotal = false}) {
     return Row(
       children: [
@@ -915,7 +972,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Payment Method Card - exact match to design with billing icons
   Widget _buildPaymentMethodCard() {
     return Container(
       padding: const EdgeInsets.all(20.0),
@@ -942,7 +998,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
             ),
           ),
           const SizedBox(height: 16.0),
-          // Payment method buttons with actual billing icons
           Row(
             children: [
               Expanded(
@@ -999,7 +1054,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
             ],
           ),
           const SizedBox(height: 16.0),
-          // Single/Split toggle - exact match to design
           Row(
             children: [
               const Spacer(),
@@ -1079,7 +1133,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Payment button widget with actual billing icons - exact match to design
   Widget _buildPaymentButtonWithIcon(
     String label,
     String iconPath,
@@ -1097,7 +1150,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         ),
         child: Column(
           children: [
-            // Use actual billing icon image
             SizedBox(
               width: 24.0,
               height: 24.0,
@@ -1109,7 +1161,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
                 color: isSelected ? Colors.white : null,
                 colorBlendMode: isSelected ? BlendMode.srcIn : null,
                 errorBuilder: (context, error, stackTrace) {
-                  // Fallback to Material icon if image fails to load
                   IconData fallbackIcon;
                   switch (label) {
                     case 'Cash':
@@ -1150,7 +1201,6 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Notes Section - exact match to design
   Widget _buildNotesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1185,15 +1235,12 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
     );
   }
 
-  // Action Buttons - exact match to design
   Widget _buildActionButtons() {
     return Row(
       children: [
         Expanded(
           child: OutlinedButton(
-            onPressed: () {
-              _showPreviewDialog();
-            },
+            onPressed: _isLoading ? null : _showPreviewDialog,
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               shape: RoundedRectangleBorder(
@@ -1215,9 +1262,7 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
         Expanded(
           flex: 2,
           child: ElevatedButton(
-            onPressed: () {
-              _printBill();
-            },
+            onPressed: _isLoading ? null : _printBill,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryOrange,
               padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -1226,14 +1271,23 @@ class _QuickBillScreenState extends State<QuickBillScreen> {
               ),
               elevation: 0,
             ),
-            child: const Text(
-              'Print Bill',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text(
+                    'Print Bill',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
           ),
         ),
       ],
