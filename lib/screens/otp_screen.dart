@@ -336,19 +336,25 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(4, (index) {
-                    return Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: _otpControllers[index].text.isNotEmpty 
-                              ? AppColors.primaryOrange
-                              : Colors.grey[300]!,
-                          width: _otpControllers[index].text.isNotEmpty ? 2 : 1,
+                    return Flexible(
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          minWidth: 48,
+                          maxWidth: 56,
+                          minHeight: 48,
+                          maxHeight: 56,
                         ),
-                      ),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _otpControllers[index].text.isNotEmpty 
+                                ? AppColors.primaryOrange
+                                : Colors.grey[300]!,
+                            width: _otpControllers[index].text.isNotEmpty ? 2 : 1,
+                          ),
+                        ),
                       child: Center(
                         child: TextFormField(
                           controller: _otpControllers[index],
@@ -378,6 +384,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
                               _focusNodes[index - 1].requestFocus();
                             }
                           },
+                        ),
                         ),
                       ),
                     );

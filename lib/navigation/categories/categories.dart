@@ -53,6 +53,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           'name': 'Training\nVideo',
           'icon': 'assets/categories/icons/billing/i-8.png',
         },
+        {
+          'name': 'Customer\nCatalogue',
+          'icon': 'assets/categories/icons/billing/i-9.png',
+        },
       ],
     },
     {
@@ -150,19 +154,27 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header with back arrow, title and profile icon
-            _buildHeader(),
-            // Main content area - scrollable
-            Expanded(
-              child: SingleChildScrollView(
-                child: _buildCategoriesContent(),
-              ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final isSmallScreen = screenWidth < 400;
+          final isTablet = screenWidth > 600;
+
+          return SafeArea(
+            child: Column(
+              children: [
+                // Header with back arrow, title and profile icon
+                _buildHeader(isSmallScreen, isTablet),
+                // Main content area - scrollable
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: _buildCategoriesContent(screenWidth, isSmallScreen, isTablet),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
       bottomNavigationBar: CustomBottomNavigation(
         currentIndex: widget.currentIndex,
@@ -172,85 +184,81 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   // Header with back arrow, title and profile icon - exact match to design
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isSmallScreen, bool isTablet) {
     return Container(
-      height: 100.0, // Increased height to match design
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF4A90E2), // Lighter blue at top
-            Color(0xFF2E5A87), // Darker blue at bottom
-          ],
+          colors: [Color(0xFF5777B5), Color(0xFF26344F)],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
-        child: Row(
-          children: [
-            // Back arrow - you mentioned you don't want this, but it's in the design
-            // Remove this section if you don't want the back arrow
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                child: const Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.white,
-                  size: 20.0,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            // Title
-            const Expanded(
-              child: Text(
-                'Categories',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            // Profile icon
-            Container(
-              width: 36.0,
-              height: 36.0,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4.0,
-                    offset: const Offset(0, 2),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 16 : 18,
+            isSmallScreen ? 16 : 20,
+            isSmallScreen ? 20 : 24,
+          ),
+          child: Row(
+            children: [
+              SizedBox(width: isSmallScreen ? 6.0 : 8.0),
+              // Title
+              Expanded(
+                child: Text(
+                  'Categories',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 20.0 : (isTablet ? 26.0 : 22.0),
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
-                ],
+                ),
               ),
-              child: const Icon(
-                Icons.person,
-                color: Color(0xFF2E5A87),
-                size: 20.0,
+              // Profile icon
+              Container(
+                width: isSmallScreen ? 32.0 : 36.0,
+                height: isSmallScreen ? 32.0 : 36.0,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4.0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.person,
+                  color: const Color(0xFF2E5A87),
+                  size: isSmallScreen ? 18.0 : 20.0,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   // Categories content - scrollable with sections
-  Widget _buildCategoriesContent() {
+  Widget _buildCategoriesContent(double screenWidth, bool isSmallScreen, bool isTablet) {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Build all category sections
-          ..._categories.map((category) => _buildCategorySection(category)),
-        ],
+      padding: EdgeInsets.all(isSmallScreen ? 16.0 : 20.0),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: isTablet ? 800 : double.infinity,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Build all category sections
+            ..._categories.map((category) => _buildCategorySection(category)),
+          ],
+        ),
       ),
     );
   }
@@ -293,111 +301,131 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  // Items grid - 4 columns to match design
+  // Items grid - responsive columns based on screen width
   Widget _buildItemsGrid(List<Map<String, dynamic>> items) {
-    // Calculate rows needed
-    final int itemsPerRow = 4;
-    final int rowCount = (items.length / itemsPerRow).ceil();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate responsive items per row based on screen width
+        int itemsPerRow;
+        if (constraints.maxWidth < 300) {
+          itemsPerRow = 2; // Very small screens
+        } else if (constraints.maxWidth < 450) {
+          itemsPerRow = 3; // Medium screens
+        } else {
+          itemsPerRow = 4; // Large screens (original design)
+        }
+        
+        final int rowCount = (items.length / itemsPerRow).ceil();
 
-    return Column(
-      children: List.generate(rowCount, (rowIndex) {
-        final startIndex = rowIndex * itemsPerRow;
-        final endIndex = (startIndex + itemsPerRow).clamp(0, items.length);
-        final rowItems = items.sublist(startIndex, endIndex);
+        return Column(
+          children: List.generate(rowCount, (rowIndex) {
+            final startIndex = rowIndex * itemsPerRow;
+            final endIndex = (startIndex + itemsPerRow).clamp(0, items.length);
+            final rowItems = items.sublist(startIndex, endIndex);
 
-        return Padding(
-          padding: EdgeInsets.only(bottom: rowIndex < rowCount - 1 ? 20.0 : 0.0),
-          child: Row(
-            children: [
-              ...rowItems.map((item) => Expanded(child: _buildItemCard(item))),
-              // Add empty spaces if row is not complete
-              ...List.generate(
-                itemsPerRow - rowItems.length,
-                (index) => const Expanded(child: SizedBox()),
+            return Padding(
+              padding: EdgeInsets.only(bottom: rowIndex < rowCount - 1 ? 20.0 : 0.0),
+              child: Row(
+                children: [
+                  ...rowItems.map((item) => Expanded(child: _buildItemCard(item))),
+                  // Add empty spaces if row is not complete
+                  ...List.generate(
+                    itemsPerRow - rowItems.length,
+                    (index) => const Expanded(child: SizedBox()),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          }),
         );
-      }),
+      },
     );
   }
 
-  // Item card - exact match to design
+  // Item card - responsive design
   Widget _buildItemCard(Map<String, dynamic> item) {
     return GestureDetector(
       onTap: () {
         // Handle item tap
         _handleItemTap(item);
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6.0),
-        child: Column(
-          children: [
-            // Icon container
-            Container(
-              width: 64.0,
-              height: 64.0,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: const Color(0xFFE2E8F0),
-                  width: 1.0,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 8.0,
-                    offset: const Offset(0, 2),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 80;
+          final iconSize = isSmallScreen ? 56.0 : 64.0;
+          final imageSize = isSmallScreen ? 28.0 : 36.0;
+          
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 4.0 : 6.0),
+            child: Column(
+              children: [
+                // Icon container
+                Container(
+                  width: iconSize,
+                  height: iconSize,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0),
+                      width: 1.0,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8.0,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Center(
-                child: Image.asset(
-                  item['icon'],
-                  width: 36.0,
-                  height: 36.0,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    // Debug: Print which asset failed to load
-                    print('Failed to load asset: ${item['icon']}');
-                    // Fallback icon if image fails to load
-                    return Container(
-                      width: 36.0,
-                      height: 36.0,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4A90E2).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Icon(
-                        _getIconForItem(item['name']),
-                        color: const Color(0xFF4A90E2),
-                        size: 24.0,
-                      ),
-                    );
-                  },
+                  child: Center(
+                    child: Image.asset(
+                      item['icon'],
+                      width: imageSize,
+                      height: imageSize,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Debug: Print which asset failed to load
+                        print('Failed to load asset: ${item['icon']}');
+                        // Fallback icon if image fails to load
+                        return Container(
+                          width: imageSize,
+                          height: imageSize,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4A90E2).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Icon(
+                            _getIconForItem(item['name']),
+                            color: const Color(0xFF4A90E2),
+                            size: isSmallScreen ? 18.0 : 24.0,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12.0),
-            // Item name
-            SizedBox(
-              height: 36.0, // Fixed height to align all text
-              child: Text(
-                item['name'],
-                style: const TextStyle(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF374151),
-                  height: 1.2,
+                SizedBox(height: isSmallScreen ? 8.0 : 12.0),
+                // Item name
+                SizedBox(
+                  height: isSmallScreen ? 30.0 : 36.0, // Fixed height to align all text
+                  child: Text(
+                    item['name'],
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 10.0 : 12.0,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF374151),
+                      height: 1.2,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -410,11 +438,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     if (itemName.contains('quick bill')) {
       // Navigate to Quick Bill screen
       Navigator.pushNamed(context, '/quick-bill');
-    } else if (itemName.contains('item-wise bill') || itemName.contains('item wise')) {
-      // Navigate to Item-wise Bill screen
-      Navigator.pushNamed(context, '/item-wise-bill');
     } else if (itemName.contains('inventory')) {
-      // Navigate to Inventory screen
+      // Navigate to Inventory Management screen
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Switching to Inventory tab...'),
+          backgroundColor: Color(0xFF5777B5),
+        ),
+      );
       widget.onNavigationTap(1); // Switch to inventory tab
     } else if (itemName.contains('staff management')) {
       // Navigate to Staff Management screen
@@ -422,6 +453,52 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     } else if (itemName.contains('customer management')) {
       // Navigate to Customer Management screen
       Navigator.pushNamed(context, '/customer-management');
+    } else if (itemName.contains('cash management')) {
+      // Navigate to Cash Management screen
+      Navigator.pushNamed(context, '/cash-management');
+    } else if (itemName.contains('item-wise bill')) {
+      // Navigate to Item-wise Bill screen
+      Navigator.pushNamed(context, '/itemwise-bill');
+    } else if (itemName.contains('credit details')) {
+      // Navigate to Ledger screen (enhanced Credit Details)
+      Navigator.pushNamed(context, '/ledger');
+    } else if (itemName.contains('training video')) {
+      // Navigate to Training Videos screen
+      Navigator.pushNamed(context, '/training-videos');
+    } else if (itemName.contains('customer catalogue')) {
+      // Navigate to Customer Catalogue screen
+      Navigator.pushNamed(context, '/customer-catalogue');
+    } else if (itemName.contains('item wise sales report') || itemName.contains('day report') || itemName.contains('sales summary')) {
+      // Navigate to Reports screen
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Switching to Reports tab...'),
+          backgroundColor: Color(0xFF5777B5),
+        ),
+      );
+      widget.onNavigationTap(3); // Switch to reports tab
+    } else if (itemName.contains('bluetooth') || itemName.contains('printer setting')) {
+      // Navigate to appropriate printer/bluetooth screens
+      if (itemName.contains('bluetooth')) {
+        Navigator.pushNamed(context, '/bluetooth-settings');
+      } else if (itemName.contains('printer setting')) {
+        Navigator.pushNamed(context, '/printer-settings');
+      }
+    } else if (itemName.contains('barcode maker')) {
+      // Navigate to Barcode Maker screen
+      Navigator.pushNamed(context, '/barcode-maker');
+    } else if (itemName.contains('business card maker')) {
+      // Navigate to Business Card Maker screen
+      Navigator.pushNamed(context, '/business-card-maker');
+    } else if (itemName.contains('poster maker')) {
+      // Navigate to Poster Maker screen
+      Navigator.pushNamed(context, '/poster-maker');
+    } else if (itemName.contains('buy printers')) {
+      // Navigate to Printer Store screen
+      Navigator.pushNamed(context, '/printer-store');
+    } else if (itemName.contains('feedback')) {
+      // Show feedback dialog
+      _showFeedbackDialog();
     } else if (itemName.contains('subscription')) {
       // Navigate to Subscription screen
       Navigator.pushNamed(context, '/subscription');
@@ -441,6 +518,97 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       // Show coming soon dialog for other items
       _showComingSoonDialog(item['name']);
     }
+  }
+
+  // Show feedback dialog
+  void _showFeedbackDialog() {
+    final feedbackController = TextEditingController();
+    int rating = 5;
+    
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Row(
+            children: const [
+              Icon(
+                Icons.feedback,
+                color: Color(0xFFFF805D),
+                size: 24,
+              ),
+              SizedBox(width: 12),
+              Text('Send Feedback'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Rate your experience:'),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return IconButton(
+                      onPressed: () {
+                        setState(() {
+                          rating = index + 1;
+                        });
+                      },
+                      icon: Icon(
+                        index < rating ? Icons.star : Icons.star_border,
+                        color: const Color(0xFFFF805D),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: feedbackController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    hintText: 'Share your thoughts...',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (feedbackController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter your feedback'),
+                      backgroundColor: Color(0xFFE91E63),
+                    ),
+                  );
+                  return;
+                }
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Thank you for your $rating-star feedback!'),
+                    backgroundColor: const Color(0xFF10B981),
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF805D),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Send'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // Get fallback icon based on item name
@@ -493,38 +661,37 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   void _showComingSoonDialog(String itemName) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          title: const Text(
-            'Coming Soon',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1A202C),
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(
+              Icons.schedule,
+              color: Color(0xFFFF805D),
+              size: 24,
             ),
-          ),
-          content: Text(
-            '$itemName feature is coming soon. Stay tuned for updates!',
-            style: const TextStyle(
-              color: Color(0xFF4A5568),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                'OK',
-                style: TextStyle(
-                  color: Color(0xFF4A90E2),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+            SizedBox(width: 12),
+            Text('Coming Soon'),
           ],
-        );
-      },
+        ),
+        content: Text(
+          '$itemName feature is coming soon. Stay tuned for updates!',
+          style: const TextStyle(
+            color: Color(0xFF4A5568),
+            fontSize: 16,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF805D),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 }

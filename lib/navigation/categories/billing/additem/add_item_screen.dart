@@ -22,76 +22,76 @@ class _AddItemScreenState extends State<AddItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header with gradient and back arrow
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF5777B5),
-                    Color(0xFF26344F),
-                  ],
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          final isTablet = constraints.maxWidth > 600;
+          
+          return SafeArea(
+            child: Column(
+              children: [
+                // Header with gradient and back arrow
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF5777B5),
+                        Color(0xFF26344F),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Add Item',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 16 : 20, 
+                    vertical: isSmallScreen ? 12 : 16,
                   ),
-                ],
-              ),
-            ),
-
-            // Main Content
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(top: 16),
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF7FAFC),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
+                  child: Row(
                     children: [
-                      const SizedBox(height: 20),
-                      
-                      // Form Card
-                      Container(
-                        decoration: BoxDecoration(
+                      SizedBox(width: isSmallScreen ? 4 : 8),
+                      Text(
+                        'Add Item',
+                        style: TextStyle(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
+                          fontSize: isSmallScreen ? 18 : 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Main Content
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(top: isSmallScreen ? 12 : 16),
+                    padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF7FAFC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24),
+                        topRight: Radius.circular(24),
+                      ),
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: isTablet ? 800 : double.infinity,
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              SizedBox(height: isSmallScreen ? 16 : 20),
+                            
+                            // Form Card
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
                           ],
@@ -195,8 +195,30 @@ class _AddItemScreenState extends State<AddItemScreen> {
                               height: 56,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Handle create item action
-                                  Navigator.pop(context);
+                                  if (_itemNameController.text.isNotEmpty && 
+                                      _unitPriceController.text.isNotEmpty) {
+                                    final unitPrice = double.tryParse(_unitPriceController.text);
+                                    if (unitPrice != null && unitPrice > 0) {
+                                      Navigator.pop(context, {
+                                        'name': _itemNameController.text.trim(),
+                                        'unitPrice': unitPrice,
+                                      });
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Please enter a valid price'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Please fill all fields'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFF805D),
@@ -216,16 +238,20 @@ class _AddItemScreenState extends State<AddItemScreen> {
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+                          ], // Close inner Column children
+                        ),   // Close inner Column
+                      ),     // Close Container
+                    ],       // Close outer Column children
+                  ),         // Close outer Column
+                ),           // Close SingleChildScrollView  
+              ),             // Close ConstrainedBox
+            ),               // Close Center
+          ),                 // Close Container
+        ),                   // Close Expanded
+      ],                     // Close main Column children
+    ),                       // Close main Column
+  );
+        },
       ),
     );
   }
@@ -251,8 +277,13 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final isSmallScreen = mediaQuery.size.width < 400;
+    final isVerySmallScreen = mediaQuery.size.width < 320;
+    
     return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
+      height: screenHeight * (isVerySmallScreen ? 0.9 : 0.85),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -264,7 +295,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
         children: [
           // Handle bar
           Container(
-            margin: const EdgeInsets.only(top: 12),
+            margin: EdgeInsets.only(top: isSmallScreen ? 8 : 12),
             width: 40,
             height: 4,
             decoration: BoxDecoration(
@@ -275,30 +306,37 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
           
           // Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+            padding: EdgeInsets.fromLTRB(
+              isVerySmallScreen ? 16 : isSmallScreen ? 20 : 24, 
+              isSmallScreen ? 16 : 20, 
+              isVerySmallScreen ? 16 : isSmallScreen ? 20 : 24, 
+              0
+            ),
             child: Row(
               children: [
-                const Text(
-                  'Create new item',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF26344F),
+                Expanded(
+                  child: Text(
+                    'Create new item',
+                    style: TextStyle(
+                      fontSize: isVerySmallScreen ? 18 : isSmallScreen ? 19 : 20,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF26344F),
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    width: 32,
-                    height: 32,
+                    width: isSmallScreen ? 28 : 32,
+                    height: isSmallScreen ? 28 : 32,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
-                      size: 20,
+                      size: isSmallScreen ? 18 : 20,
                       color: Colors.grey,
                     ),
                   ),
@@ -310,22 +348,22 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
           // Content
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isVerySmallScreen ? 16 : isSmallScreen ? 20 : 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
+                  SizedBox(height: isSmallScreen ? 12 : 20),
                   
                   // Item Name Field
-                  const Text(
+                  Text(
                     'Item Name',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: isVerySmallScreen ? 14 : 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF26344F),
+                      color: const Color(0xFF26344F),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: isSmallScreen ? 8 : 12),
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF7FAFC),
@@ -337,39 +375,39 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                     ),
                     child: TextField(
                       controller: _itemNameController,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF26344F),
+                      style: TextStyle(
+                        fontSize: isVerySmallScreen ? 14 : 16,
+                        color: const Color(0xFF26344F),
                         fontWeight: FontWeight.w400,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter Item Name',
                         hintStyle: TextStyle(
-                          fontSize: 16,
+                          fontSize: isVerySmallScreen ? 14 : 16,
                           color: Colors.grey.shade400,
                           fontWeight: FontWeight.w400,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 12 : 16,
+                          vertical: isSmallScreen ? 12 : 16,
                         ),
                         border: InputBorder.none,
                       ),
                     ),
                   ),
                   
-                  const SizedBox(height: 24),
+                  SizedBox(height: isSmallScreen ? 16 : 24),
                   
                   // Unit Price Field
-                  const Text(
+                  Text(
                     'Unit Price',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: isVerySmallScreen ? 14 : 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF26344F),
+                      color: const Color(0xFF26344F),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: isSmallScreen ? 8 : 12),
                   Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF7FAFC),
@@ -382,21 +420,21 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                     child: TextField(
                       controller: _unitPriceController,
                       keyboardType: TextInputType.number,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF26344F),
+                      style: TextStyle(
+                        fontSize: isVerySmallScreen ? 14 : 16,
+                        color: const Color(0xFF26344F),
                         fontWeight: FontWeight.w400,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter Item Price',
                         hintStyle: TextStyle(
-                          fontSize: 16,
+                          fontSize: isVerySmallScreen ? 14 : 16,
                           color: Colors.grey.shade400,
                           fontWeight: FontWeight.w400,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 12 : 16,
+                          vertical: isSmallScreen ? 12 : 16,
                         ),
                         border: InputBorder.none,
                       ),
@@ -408,11 +446,33 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                   // Create Item Button
                   SizedBox(
                     width: double.infinity,
-                    height: 56,
+                    height: isSmallScreen ? 48 : 56,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Handle create item action
-                        Navigator.pop(context);
+                        if (_itemNameController.text.isNotEmpty && 
+                            _unitPriceController.text.isNotEmpty) {
+                          final unitPrice = double.tryParse(_unitPriceController.text);
+                          if (unitPrice != null && unitPrice > 0) {
+                            Navigator.pop(context, {
+                              'name': _itemNameController.text.trim(),
+                              'unitPrice': unitPrice,
+                            });
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter a valid price'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill all fields'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF805D),

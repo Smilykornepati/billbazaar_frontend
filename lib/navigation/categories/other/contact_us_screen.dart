@@ -12,7 +12,7 @@ class AppColors {
 }
 
 class ContactUsScreen extends StatefulWidget {
-  const ContactUsScreen({Key? key}) : super(key: key);
+  const ContactUsScreen({super.key});
 
   @override
   State<ContactUsScreen> createState() => _ContactUsScreenState();
@@ -21,48 +21,53 @@ class ContactUsScreen extends StatefulWidget {
 class _ContactUsScreenState extends State<ContactUsScreen> {
   final String phoneNumber = '+91 95867 77748';
 
-  Widget _buildHeader() {
-    return Container(
-      height: 100.0,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF5777B5),
-            Color(0xFF26344F),
-          ],
+  Widget _buildHeader(bool isSmallScreen) {
+    return SafeArea(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF5777B5),
+              Color(0xFF26344F),
+            ],
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
-        child: Row(
-          children: [
-            // Back arrow
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                child: const Icon(
-                  Icons.arrow_back_ios,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 16 : 20, 
+            isSmallScreen ? 14 : 18, 
+            isSmallScreen ? 16 : 20, 
+            isSmallScreen ? 20 : 24,
+          ),
+          child: Row(
+            children: [
+              // Back arrow
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  Icons.arrow_back,
                   color: Colors.white,
-                  size: 20.0,
+                  size: isSmallScreen ? 20 : 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              SizedBox(width: isSmallScreen ? 6 : 8),
+              // Title
+              Expanded(
+                child: Text(
+                  'Contact Us',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 18 : 22,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8.0),
-            // Title
-            const Expanded(
-              child: Text(
-                'Contact Us',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -72,22 +77,31 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          final isTablet = constraints.maxWidth > 600;
+          
+          return Column(
+            children: [
+              _buildHeader(isSmallScreen),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: isTablet ? 800 : double.infinity,
+                    ),
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: isSmallScreen ? 16 : 20),
                     
                     // Main card container
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(24),
+                      padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -202,12 +216,15 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+                  ], // Close inner Column children  
+                ),   // Close inner Column
+              ),     // Close SingleChildScrollView
+            ),       // Close ConstrainedBox
+          ),         // Close Center
+        ),           // Close Expanded
+      ],             // Close main Column children
+    );
+        },
       ),
     );
   }

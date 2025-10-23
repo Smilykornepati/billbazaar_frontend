@@ -38,23 +38,10 @@ class _AddClientScreenState extends State<AddClientScreen> {
                 ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
+              child: const Row(
                 children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
+                  SizedBox(width: 8),
+                  Text(
                     'Add Client',
                     style: TextStyle(
                       color: Colors.white,
@@ -195,8 +182,19 @@ class _AddClientScreenState extends State<AddClientScreen> {
                               height: 56,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Handle create client action
-                                  Navigator.pop(context);
+                                  if (_clientNameController.text.isNotEmpty) {
+                                    Navigator.pop(context, {
+                                      'name': _clientNameController.text.trim(),
+                                      'contact': _contactController.text.trim(),
+                                    });
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Please enter client name'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFF805D),
@@ -411,8 +409,19 @@ class _AddClientBottomSheetState extends State<AddClientBottomSheet> {
                     height: 56,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Handle create client action
-                        Navigator.pop(context);
+                        if (_clientNameController.text.isNotEmpty) {
+                          Navigator.pop(context, {
+                            'name': _clientNameController.text.trim(),
+                            'contact': _contactController.text.trim(),
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter client name'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF805D),

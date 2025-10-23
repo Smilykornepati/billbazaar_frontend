@@ -44,6 +44,15 @@ dependencies:
   # Form validation and utilities
   email_validator: ^3.0.0
 
+  # QR Code generation
+  qr_flutter: ^4.1.0
+
+  # Sharing functionality
+  share_plus: ^10.1.1
+
+  # URL launcher
+  url_launcher: ^6.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

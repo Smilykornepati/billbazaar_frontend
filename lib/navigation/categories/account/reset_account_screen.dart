@@ -29,9 +29,40 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
 
   bool get hasSelectedItems => resetOptions.values.any((selected) => selected);
 
-  Widget _buildHeader() {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7FAFC),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 400;
+          
+          return Column(
+            children: [
+              _buildHeader(isSmallScreen),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+                  child: Column(
+                    children: [
+                      _buildWarningCard(isSmallScreen),
+                      SizedBox(height: isSmallScreen ? 20 : 30),
+                      _buildResetOptions(isSmallScreen),
+                      SizedBox(height: isSmallScreen ? 30 : 40),
+                      _buildResetButton(isSmallScreen),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeader(bool isSmallScreen) {
     return Container(
-      height: 100.0,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -42,346 +73,330 @@ class _ResetAccountScreenState extends State<ResetAccountScreen> {
           ],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
-        child: Row(
-          children: [
-            // Back arrow
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                child: const Icon(
-                  Icons.arrow_back_ios,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            isSmallScreen ? 12 : 16,
+            isSmallScreen ? 8 : 12,
+            isSmallScreen ? 12 : 16,
+            isSmallScreen ? 12 : 16,
+          ),
+          child: Row(
+            children: [
+              // Back arrow
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  Icons.arrow_back,
                   color: Colors.white,
-                  size: 20.0,
+                  size: isSmallScreen ? 20 : 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              SizedBox(width: isSmallScreen ? 6 : 8),
+              // Title
+              Expanded(
+                child: Text(
+                  'Reset Account',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 16 : 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-            const SizedBox(width: 8.0),
-            // Title
-            const Expanded(
-              child: Text(
-                'Reset Account',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+              // Warning icon
+              Icon(
+                Icons.warning,
+                color: AppColors.primaryOrange,
+                size: isSmallScreen ? 20 : 24,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Warning message
-                    Center(
-                      child: Text(
-                        'Selected Settings Data Will Be\nDeleted Permanently.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: AppColors.primaryOrange,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    
-                    // Reset options list
-                    Expanded(
-                      child: ListView(
-                        children: resetOptions.keys.map((option) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            child: _buildResetOption(option, resetOptions[option]!),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    
-                    // Reset button
-                    Container(
-                      width: double.infinity,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        gradient: hasSelectedItems
-                            ? LinearGradient(
-                                colors: [AppColors.primaryOrange, AppColors.primaryOrange.withOpacity(0.8)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              )
-                            : null,
-                        color: hasSelectedItems ? null : const Color(0xFF9CA3AF),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: hasSelectedItems ? _handleReset : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'RESET',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildResetOption(String title, bool isSelected) {
+  Widget _buildWarningCard(bool isSmallScreen) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.warning,
+            color: Colors.red.shade600,
+            size: isSmallScreen ? 40 : 48,
+          ),
+          SizedBox(height: isSmallScreen ? 12 : 16),
+          Text(
+            'Warning: Data Reset',
+            style: TextStyle(
+              fontSize: isSmallScreen ? 16 : 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.red.shade800,
+            ),
+          ),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          Text(
+            'This action will permanently delete the selected data from your account. This cannot be undone.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isSmallScreen ? 12 : 14,
+              color: Colors.red.shade700,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResetOptions(bool isSmallScreen) {
+    return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1,
-        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8.0,
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF1A202C),
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                resetOptions[title] = !resetOptions[title]!;
-              });
-            },
-            child: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primaryOrange : Colors.transparent,
-                border: Border.all(
-                  color: isSelected ? AppColors.primaryOrange : const Color(0xFF10B981),
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(4),
+          Padding(
+            padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+            child: Text(
+              'Select Data to Reset',
+              style: TextStyle(
+                fontSize: isSmallScreen ? 16 : 18,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF26344F),
               ),
-              child: isSelected
-                  ? const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 16,
-                    )
-                  : null,
             ),
           ),
+          ...resetOptions.entries.map((entry) {
+            return _buildOptionTile(entry.key, entry.value, isSmallScreen);
+          }),
         ],
       ),
     );
   }
 
-  void _handleReset() {
-    // Get selected items
-    List<String> selectedItems = resetOptions.entries
+  Widget _buildOptionTile(String title, bool isSelected, bool isSmallScreen) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Colors.grey.shade200, width: 0.5),
+        ),
+      ),
+      child: CheckboxListTile(
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: isSmallScreen ? 14 : 16,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF26344F),
+          ),
+        ),
+        subtitle: Text(
+          _getSubtitle(title),
+          style: TextStyle(
+            fontSize: isSmallScreen ? 11 : 12,
+            color: Colors.grey[600],
+          ),
+        ),
+        value: isSelected,
+        onChanged: (bool? value) {
+          setState(() {
+            resetOptions[title] = value ?? false;
+          });
+        },
+        activeColor: AppColors.primaryOrange,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 16 : 20,
+          vertical: isSmallScreen ? 4 : 8,
+        ),
+      ),
+    );
+  }
+
+  String _getSubtitle(String title) {
+    switch (title) {
+      case 'Customer':
+        return 'All customer information and contact details';
+      case 'Category':
+        return 'Product categories and classifications';
+      case 'Product':
+        return 'All products, inventory, and pricing data';
+      case 'Bills':
+        return 'All billing history and transaction records';
+      case 'Credit Details':
+        return 'Customer credit information and payment history';
+      default:
+        return '';
+    }
+  }
+
+  Widget _buildResetButton(bool isSmallScreen) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: isSmallScreen ? 50 : 56,
+          child: ElevatedButton.icon(
+            onPressed: hasSelectedItems ? _showResetConfirmation : null,
+            icon: Icon(
+              Icons.refresh,
+              size: isSmallScreen ? 18 : 20,
+            ),
+            label: Text(
+              'Reset Selected Data',
+              style: TextStyle(
+                fontSize: isSmallScreen ? 14 : 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: hasSelectedItems ? Colors.red.shade600 : Colors.grey.shade400,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: hasSelectedItems ? 2 : 0,
+            ),
+          ),
+        ),
+        SizedBox(height: isSmallScreen ? 12 : 16),
+        Text(
+          'Select at least one option to reset',
+          style: TextStyle(
+            fontSize: isSmallScreen ? 11 : 12,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showResetConfirmation() {
+    final selectedItems = resetOptions.entries
         .where((entry) => entry.value)
         .map((entry) => entry.key)
         .toList();
 
-    if (selectedItems.isEmpty) return;
-
-    // Show confirmation dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
-            'Confirm Reset',
-            style: TextStyle(
-              color: Color(0xFF1A202C),
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Are you sure you want to permanently delete the following data?',
-                style: TextStyle(
-                  color: Color(0xFF6B7280),
-                  fontSize: 14,
-                ),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final isSmallScreen = constraints.maxWidth < 400;
+            
+            return AlertDialog(
+              title: Text(
+                'Confirm Reset',
+                style: TextStyle(fontSize: isSmallScreen ? 16 : 18),
               ),
-              const SizedBox(height: 16),
-              ...selectedItems.map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
-                  children: [
-                    const Icon(Icons.circle, color: AppColors.primaryOrange, size: 8),
-                    const SizedBox(width: 8),
-                    Text(
-                      item,
-                      style: const TextStyle(
-                        color: AppColors.primaryOrange,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Are you sure you want to reset the following data?',
+                    style: TextStyle(fontSize: isSmallScreen ? 13 : 14),
+                  ),
+                  SizedBox(height: isSmallScreen ? 12 : 16),
+                  ...selectedItems.map((item) => Padding(
+                    padding: EdgeInsets.only(bottom: isSmallScreen ? 4 : 6),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.arrow_right,
+                          color: Colors.red,
+                          size: isSmallScreen ? 16 : 18,
+                        ),
+                        SizedBox(width: isSmallScreen ? 4 : 6),
+                        Text(
+                          item,
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 12 : 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.red.shade700,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              )).toList(),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Color(0xFF9CA3AF),
-                  fontSize: 14,
-                ),
+                  )),
+                  SizedBox(height: isSmallScreen ? 12 : 16),
+                  Text(
+                    'This action cannot be undone.',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 11 : 12,
+                      color: Colors.red.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.primaryOrange, AppColors.primaryOrange.withOpacity(0.8)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _performReset(selectedItems);
-                },
-                child: Text(
-                  'Reset',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
                   ),
                 ),
-              ),
-            ),
-          ],
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _performReset(selectedItems);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade600,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    'Reset Data',
+                    style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
 
   void _performReset(List<String> selectedItems) {
-    // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(
-                  color: AppColors.primaryOrange,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Resetting Account Data...',
-                  style: TextStyle(
-                    color: Color(0xFF1A202C),
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-    // Simulate API call
-    Future.delayed(Duration(seconds: 2), () {
-      Navigator.of(context).pop(); // Close loading dialog
-      
-      // Reset the selected options
-      setState(() {
-        for (String item in selectedItems) {
-          resetOptions[item] = false;
-        }
-      });
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Account data reset successfully',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: const Color(0xFF10B981),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      );
+    // Reset the selected options
+    setState(() {
+      for (String item in selectedItems) {
+        resetOptions[item] = false;
+      }
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Selected data has been reset: ${selectedItems.join(', ')}',
+        ),
+        backgroundColor: Colors.red.shade600,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 }
