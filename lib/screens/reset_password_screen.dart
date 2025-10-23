@@ -39,7 +39,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
       try {
         // API endpoint for reset password
-        const String apiUrl = ApiConfig.resetPasswordEndpoint;
+        final String apiUrl = ApiConfig.resetPasswordEndpoint;
         
         // Prepare request body
         final Map<String, dynamic> requestBody = {
